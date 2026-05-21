@@ -17,6 +17,8 @@ services:
     volumes:
       - ./server:/app
       - /app/node_modules
+    environment:
+      - OLLAMA_MODEL=${OLLAMA_MODEL}  
     depends_on:
       meilisearch:
         condition: service_started
@@ -28,7 +30,7 @@ services:
     ports:
       - "7700:7700"
     environment:
-      - MEILI_MASTER_KEY=72eab42af284164dfa6b6bf465815cf73131d62adf89cf88f71c0dec8dadaafd
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
     volumes:
       - meili_data:/meili_data
   
