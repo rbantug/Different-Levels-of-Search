@@ -1,0 +1,44 @@
+services:
+  client:
+    build: ./client
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      server:
+        condition: service_started
+  
+  server:
+    build: ./server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    depends_on:
+      meilisearch:
+        condition: service_started
+      ollama:
+        condition: service_started
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.15
+    ports:
+      - "7700:7700"
+    environment:
+      - MEILI_MASTER_KEY=72eab42af284164dfa6b6bf465815cf73131d62adf89cf88f71c0dec8dadaafd
+    volumes:
+      - meili_data:/meili_data
+  
+  ollama:
+    image: ollama/ollama
+    ports: 
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama 
+
+volumes:
+  meili_data:
+  ollama_data:
