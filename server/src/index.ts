@@ -1,26 +1,27 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
+import Database from "better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-dotenv.config({
-  path: path.resolve(__dirname, "../../.env"),
-});
-
-import router from "./routes.js";
+import generalRoutes from "./routes/general.js";
+import recipeRoutes from "./routes/recipe.js"
+import errorhandling from "./errorhandling.js";
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
 
-app.use('/', router)
+app.use("/api/", generalRoutes);
+app.use("/api/recipes", recipeRoutes)
+
+app.use(errorhandling)
 
 const PORT = 3000
+
+const sqlite = new Database('sqlite.db')
+
+export const db = drizzle(sqlite)
 
 app.listen(PORT, () => {
     console.log(`backend is running on port ${PORT}`)
