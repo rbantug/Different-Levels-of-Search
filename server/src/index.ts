@@ -5,7 +5,7 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 
 import generalRoutes from "./routes/general.js";
 import recipeRoutes from "./routes/recipe.js"
-import errorhandling from "./errorhandling.js";
+import errorHandling from "./errorHandling.js";
 
 const app = express()
 
@@ -15,7 +15,7 @@ app.use(express.json())
 app.use("/api/", generalRoutes);
 app.use("/api/recipes", recipeRoutes)
 
-app.use(errorhandling)
+app.use(errorHandling);
 
 const PORT = 3000
 
