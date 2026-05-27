@@ -1,16 +1,21 @@
 import { Router } from "express";
 
-import { getAllRecipes, getSingleRecipe } from "../controllers/recipeController.js";
+import {
+  deleteSingleRecipe,
+  getAllRecipes,
+  getSingleRecipe,
+  postSingleRecipe,
+  updateSingleRecipe,
+} from "../controllers/recipeController.js";
 
-const router = Router()
+const router = Router();
+
+router.route("/").get(getAllRecipes).post(postSingleRecipe);
 
 router
-    .route('/')
-    .get(getAllRecipes)
+  .route("/:id")
+  .get(getSingleRecipe)
+  .patch(updateSingleRecipe)
+  .delete(deleteSingleRecipe);
 
-router
-    .route('/:id')
-    .get(getSingleRecipe)
-
-
-export default router
+export default router;
