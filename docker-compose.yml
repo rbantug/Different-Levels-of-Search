@@ -18,7 +18,8 @@ services:
       - ./server:/app
       - /app/node_modules
     environment:
-      - OLLAMA_MODEL=${OLLAMA_MODEL}  
+      - OLLAMA_MODEL=${OLLAMA_MODEL}
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
     depends_on:
       meilisearch:
         condition: service_started

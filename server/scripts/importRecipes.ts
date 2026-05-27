@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 import { db } from "../src/db/index.js";
 import { recipes } from "../src/db/schema.js";
 
+import { indexRecipe } from "../src/search/indexRecipe.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const filePath = path.join(__dirname, "recipes.json");
@@ -70,7 +72,7 @@ async function runImport() {
         updatedAt: now,
       });
 
-      
+      await indexRecipe(recipe)
     }
   } catch (error: unknown) {
     console.error(error);

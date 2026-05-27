@@ -2,7 +2,6 @@ import type {
   Request,
   Response,
   NextFunction,
-  ErrorRequestHandler,
 } from "express";
 
 import AppError from "../utils/appError.js";
