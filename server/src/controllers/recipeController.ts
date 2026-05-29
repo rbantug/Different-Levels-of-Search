@@ -6,7 +6,10 @@ import type { Request, Response, NextFunction } from "express";
 
 import catchAsyncError from "../../utils/catchAsyncError.js";
 import AppError from "../../utils/appError.js";
-import { validateCreateRecipe, validateUpdateRecipe } from "../joiValidation.js";
+import {
+  validateCreateRecipe,
+  validateUpdateRecipe,
+} from "../joiValidation.js";
 import { indexRecipe } from "../search/indexRecipe.js";
 import { deleteRecipeIndex } from "../search/deleteRecipe.js";
 
@@ -43,15 +46,37 @@ export const getSingleRecipe = catchAsyncError(
 );
 
 export const postSingleRecipe = catchAsyncError(
-  async (req: Request, res: Response ) => {
-    const validateBody = validateCreateRecipe(req.body)
+  async (req: Request, res: Response) => {
+    const {
+      recipeName,
+      category,
+      area,
+      instructions,
+      recipeThumbnail,
+      ingredients,
+    } = req.body;
+
+    const validateBody = validateCreateRecipe({
+      recipeName,
+      category,
+      area,
+      instructions,
+      recipeThumbnail,
+      ingredients,
+    });
 
     const insertedId = await db
       .insert(recipes)
       .values(validateBody)
       .returning({ insertedId: recipes.id });
 
-    await indexRecipe(validateBody);
+    await indexRecipe({
+      id: validateBody.id,
+      recipeName: validateBody.recipeName,
+      area: validateBody.area,
+      category: validateBody.category,
+      ingredients: validateBody.ingredients,
+    });
 
     res.status(200).json({
       status: "success",
@@ -62,7 +87,6 @@ export const postSingleRecipe = catchAsyncError(
 
 export const updateSingleRecipe = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-
     const id = req.params.id;
 
     if (!id || typeof id === "object") {
@@ -107,7 +131,7 @@ export const deleteSingleRecipe = catchAsyncError(
 
     const result = await db.delete(recipes).where(eq(recipes.id, id));
 
-    await deleteRecipeIndex(id)
+    await deleteRecipeIndex(id);
 
     res.status(200).json({
       status: "success",
