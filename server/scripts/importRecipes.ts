@@ -6,6 +6,7 @@ import { db } from "../src/db/index.js";
 import { recipes } from "../src/db/schema.js";
 
 import { indexRecipe } from "../src/search/indexRecipe.js";
+import type { RecipeSchema } from "../src/db/type.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,13 +15,13 @@ const filePath = path.join(__dirname, "recipes.json");
 const jsonData = fs.readFileSync(filePath, "utf-8");
 const recipeData = JSON.parse(jsonData);
 
-async function runImport() {
+export async function runImport() {
   try {
     const meals = recipeData.meals;
     for (const recipe of meals) {
       const now = new Date();
 
-      await db.insert(recipes).values({
+      const toBeInsertedRecipe = {
         id: crypto.randomUUID(),
         recipeName: recipe.strMeal,
         category: recipe.strCategory,
@@ -70,9 +71,11 @@ async function runImport() {
         embedding: {},
         createdAt: now,
         updatedAt: now,
-      });
+      };
 
-      await indexRecipe(recipe)
+      await db.insert(recipes).values(toBeInsertedRecipe);
+
+      await indexRecipe(toBeInsertedRecipe)
     }
   } catch (error: unknown) {
     console.error(error);
@@ -81,4 +84,18 @@ async function runImport() {
   console.log("import completed!");
 }
 
-await runImport();
+function extractIngredients(recipe:any) {
+  const ingredients = []
+
+  for (let i = 1; i <= 20; i++) {
+    const ing = recipe[`ingredient${i}`]?.trim()
+    const measure = recipe[`measure${i}`]?.trim()
+
+    if (ing) {
+      const merge = `${measure} ${ing}`
+      ingredients.push(merge)
+    } 
+
+    return ingredients
+  }
+}
