@@ -8,6 +8,7 @@ import recipeRoutes from "./routes/recipe.js"
 import searchRoutes from "./routes/search.js"
 import errorHandling from "./errorHandling.js";
 import { setupSearchIndex } from "./search/setup.js";
+import { runImport } from "../scripts/importRecipes.js";
 
 const app = express()
 
@@ -28,6 +29,7 @@ export const db = drizzle(sqlite)
 
 async function start() {
     await setupSearchIndex()
+    await runImport()
     
     app.listen(PORT, () => {
         console.log(`backend is running on port ${PORT}`)
