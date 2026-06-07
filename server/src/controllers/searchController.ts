@@ -29,7 +29,8 @@ export const getSearch = catchAsyncError(
     if (ids.length === 0) {
       res.status(200).json({
         status: "success",
-        data: results,
+        count: 0,
+        data: [],
       });
       return
     }
