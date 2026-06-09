@@ -7,9 +7,9 @@ const recipeSchema = Joi.object({
   category: Joi.string().required(),
   area: Joi.string().required(),
   instructions: Joi.string().required(),
-  recipeThumbnail: Joi.string().required(),
-  ingredients: Joi.array().items(Joi.string()),
-  embedding: Joi.object(),
+  recipeThumbnail: Joi.string().allow(null),
+  ingredients: Joi.array().items(Joi.string()).required(),
+  embedding: Joi.array().items(Joi.number()),
   createdAt: Joi.date(),
   updatedAt: Joi.date(),
 });
@@ -28,7 +28,7 @@ export function validateCreateRecipe(data: any) {
     ...data,
 
     id: crypto.randomUUID(),
-    embedding: {},
+    embedding: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -38,10 +38,10 @@ export function validateCreateRecipe(data: any) {
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(`${value.recipeName} - ${error.message}`);
   }
 
-  return Object.freeze(value);
+  return value;
 }
 
 export function validateUpdateRecipe(data: Partial<RecipeSchema>) {
@@ -56,5 +56,5 @@ export function validateUpdateRecipe(data: Partial<RecipeSchema>) {
     throw new Error(error.message);
   }
 
-  return Object.freeze(value);
+  return value;
 }
