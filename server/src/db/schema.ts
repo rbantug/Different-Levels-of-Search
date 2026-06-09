@@ -13,10 +13,10 @@ export const recipes = sqliteTable("recipes", {
   recipeThumbnail: text("recipeThumbnail").notNull(),
   ingredients: text("ingredients", {
     mode: "json"
-  }).notNull(),
+  }).$type<string[]>().notNull(),
   embedding: text("embedding", {
     mode: "json",
-  }).notNull(),
+  }).$type<number[]>().notNull(),
   createdAt: integer("created_at", {
     mode: "timestamp",
   }).notNull(),

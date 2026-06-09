@@ -6,7 +6,7 @@ export interface RecipeSchema {
   recipeThumbnail: string;
   instructions: string;
   ingredients: string[];
-  embedding: object
-  createdAt: Date
-  updatedAt: Date
+  embedding: number[];
+  createdAt: Date;
+  updatedAt: Date;
 }
