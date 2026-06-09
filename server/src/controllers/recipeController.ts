@@ -12,6 +12,8 @@ import {
 } from "../joiValidation.js";
 import { indexRecipe } from "../search/indexRecipe.js";
 import { deleteRecipeIndex } from "../search/deleteRecipe.js";
+import { generateEmbedding } from "../embeddings/generateEmbedding.js";
+import { buildRecipeEmbeddingText } from "../embeddings/buildRecipeEmbeddingText.js";
 
 export const getAllRecipes = catchAsyncError(
   async (_: Request, res: Response) => {
@@ -65,6 +67,12 @@ export const postSingleRecipe = catchAsyncError(
       ingredients,
     });
 
+    const embeddingText = buildRecipeEmbeddingText(validateBody)
+
+    const embedding = await generateEmbedding(embeddingText)
+
+    validateBody.embedding = embedding
+
     const insertedId = await db
       .insert(recipes)
       .values(validateBody)
@@ -106,6 +114,12 @@ export const updateSingleRecipe = catchAsyncError(
       createdAt: recipe[0]?.createdAt,
       updatedAt: new Date(),
     };
+
+    const embeddingText = buildRecipeEmbeddingText(updatedRecipe)
+
+    const embedding = await generateEmbedding(embeddingText)
+
+    updatedRecipe.embedding = embedding
 
     const result = await db
       .update(recipes)
