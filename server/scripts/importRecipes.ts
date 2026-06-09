@@ -7,6 +7,8 @@ import { recipes } from "../src/db/schema.js";
 
 import { indexRecipe } from "../src/search/indexRecipe.js";
 import { validateCreateRecipe } from "../src/joiValidation.js";
+import { buildRecipeEmbeddingText } from "../src/embeddings/buildRecipeEmbeddingText.js";
+import { generateEmbedding } from "../src/embeddings/generateEmbedding.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,6 +33,12 @@ export async function runImport() {
       };
 
       const validatedRecipe = validateCreateRecipe(toBeInsertedRecipe)
+
+      const embeddingText = buildRecipeEmbeddingText(validatedRecipe);
+
+      const embedding = await generateEmbedding(embeddingText);
+
+      validatedRecipe.embedding = embedding;
 
       await db.insert(recipes).values(validatedRecipe);
 
