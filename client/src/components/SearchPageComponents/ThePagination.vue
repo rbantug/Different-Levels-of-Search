@@ -46,7 +46,12 @@ function goToPage(page: number) {
 <template>
   <div class="pagination-container">
     <nav class="pagination">
-      <button class="pagination-left-arrow" @click="goToPage(currentPage - 1)">
+      <button
+        class="pagination-left-arrow"
+        :class="{ disabled: currentPage === 1 }"
+        @click="goToPage(currentPage - 1)"
+        :disabled="currentPage === 1"
+      >
         <!-- fe:arrow-left -->
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
           <path d="M0 0h24v24H0z" fill="none" />
@@ -65,13 +70,18 @@ function goToPage(page: number) {
         </button>
       </div>
       <div v-if="currentPage + 1 < totalPages" class="pagination-text">... {{ totalPages }}</div>
-      <div class="pagination-right-arrow" @click="goToPage(currentPage + 1)">
+      <button
+        class="pagination-right-arrow"
+        :class="{ disabled: currentPage === totalPages }"
+        @click="goToPage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+      >
         <!-- fe:arrow-right -->
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
           <path d="M0 0h24v24H0z" fill="none" />
           <path fill="currentColor" fill-rule="evenodd" d="m9.005 4l8 8l-8 8L7 18l6.005-6L7 6z" />
         </svg>
-      </div>
+      </button>
     </nav>
   </div>
 </template>
@@ -107,6 +117,11 @@ function goToPage(page: number) {
   &:hover {
     cursor: pointer;
   }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 }
 
 .pagination-left-arrow {
@@ -141,6 +156,11 @@ function goToPage(page: number) {
     &.active {
       background-color: $color-primary;
     }
+  }
+
+  button:disabled:hover {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 </style>
