@@ -1,0 +1,21 @@
+@use "variables" as var;
+
+@mixin m-tablet {
+    @media (min-width:var.$tablet) {
+        @content;
+    }
+}
+
+@mixin m-desktop {
+    @media (min-width:var.$desktop) {
+        @content;
+    }
+}
+
+@mixin m-flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
