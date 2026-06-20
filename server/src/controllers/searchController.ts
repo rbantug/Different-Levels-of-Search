@@ -51,6 +51,7 @@ export const getSearch = catchAsyncError(
       status: "success",
       count: finalResult.length,
       data: finalResult,
+      query
     });
   },
 );
@@ -73,6 +74,7 @@ export const getHybridSearch = catchAsyncError(
       status: "success",
       count: finalResult.length,
       data: finalResult,
+      query
     });
   },
 );
