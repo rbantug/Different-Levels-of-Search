@@ -4,7 +4,7 @@ export interface RecipeSchema {
   category: string;
   area: string;
   recipeThumbnail: string;
-  instructions: string;
+  instructions: string[];
   ingredients: string[];
   embedding: number[];
   createdAt: Date;
