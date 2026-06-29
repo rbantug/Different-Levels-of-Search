@@ -31,9 +31,9 @@ export const db = drizzle(sqlite);
 
 async function start() {
   // This will check if the DB already has something inside it
-  const checkDB = await db.select().from(recipes).limit(1);
+  const checkDB = db.select().from(recipes).limit(1).get();
 
-  if (checkDB.length !== 0) {
+  if (!checkDB) {
     await setupSearchIndex();
     await runImport();
   }
