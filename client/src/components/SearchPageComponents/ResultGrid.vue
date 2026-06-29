@@ -17,12 +17,14 @@ const props = defineProps({
   <div class="grid-container">
     <div class="grid">
       <div v-for="recipe in props.results" :key="recipe.id">
-        <RecipeCard 
-          :recipe-name="recipe.recipeName"
-          :recipe-thumbnail="recipe.recipeThumbnail"
-          :area="recipe.area"
-          :category="recipe.category"
-        />
+        <router-link :to="`/${recipe.id}`">
+          <RecipeCard 
+            :recipe-name="recipe.recipeName"
+            :recipe-thumbnail="recipe.recipeThumbnail"
+            :area="recipe.area"
+            :category="recipe.category"
+          />
+        </router-link>
       </div>
     </div>
   </div>
