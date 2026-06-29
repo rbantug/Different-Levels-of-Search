@@ -7,9 +7,12 @@ import DropDown from '@/components/SearchPageComponents/DropDown.vue'
 import ResultGrid from '@/components/SearchPageComponents/ResultGrid.vue'
 import ThePagination from '@/components/SearchPageComponents/ThePagination.vue'
 import { hybridSearch, keywordSearch } from '@/api/search'
+import { useMainStore } from '@/stores/mainStore'
 
 import type { Recipe } from '@/types/recipe'
 import type { AxiosResponse } from '@/api/search'
+
+const mainStore = useMainStore()
 
 const testPage = ref(1)
 const searchText = ref('')
@@ -30,28 +33,20 @@ async function runSearch() {
     return
   }
 
-  if (debouncedQuery.value === keywordData.value?.query) {
-    recipeResult.value = keywordData.value.data
-    recipeCount.value = keywordData.value.count
-    return
-  }
-
-  if (debouncedQuery.value === hybridData.value?.query) {
-    recipeResult.value = hybridData.value.data
-    recipeCount.value = hybridData.value.count
-    return
-  }
-
   loading.value = true
-  let res:AxiosResponse
+  let res: AxiosResponse
 
   try {
     if (searchOption.value === 'keyword') {
       res = await keywordSearch(debouncedQuery.value)
       keywordData.value = res
+      mainStore.updateKeywordRecipes(res.data)
+      mainStore.updateCurrentOption('keyword')
     } else if (searchOption.value === 'hybrid') {
       res = await hybridSearch(debouncedQuery.value)
       hybridData.value = res
+      mainStore.updateHybridRecipes(res.data)
+      mainStore.updateCurrentOption('hybrid')
     } else {
       throw new Error('Something is wrong with the search option')
     }
@@ -89,7 +84,7 @@ watch([debouncedQuery, searchOption], runSearch)
 
     <!-- results -->
     <main>
-      <ResultGrid :results="recipeResult"/>
+      <ResultGrid :results="recipeResult" />
     </main>
 
     <!-- pagination -->
