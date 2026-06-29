@@ -1,0 +1,157 @@
+/* 
+================
+Breakpoints 
+================ */
+
+$tablet: 768px;
+$desktop: 1024px;
+
+/* 
+=================
+Colors
+================= */
+
+$color-primary: #2f9bc8;
+$color-primary-light: #d8edf7;
+$color-primary-hover: #2589b3;
+
+$color-background: #f7f8fa;
+$color-background-hover: #2f9ac87d;
+$color-surface: #ffffff;
+$color-surface-alt: #f3f5f7;
+
+$color-background-badge: #3598c3;
+
+$color-text-primary: #1f2937;
+$color-text-secondary: #4b5563;
+$color-text-muted: #6b7280;
+
+$color-border: #d9dee5;
+$color-border-light: #e8ecf1;
+
+$color-shadow: rgba(0, 0, 0, 0.08);
+
+$color-search-icon: #7a7a7a;
+$color-footer-text: #666666;
+
+/* ==============
+   Typography
+   ============== */
+
+$font-family-base: "Segoe UI", Arial, sans-serif;
+$font-family-heading: "Segoe UI", Arial, sans-serif;
+
+$font-size-xs: 12px;
+$font-size-sm: 13px;
+$font-size-md: 14px;
+$font-size-lg: 16px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 30px;
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+/* ==============
+   Layout
+   ============== */
+
+$page-max-width: 1200px;
+
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 24px;
+$spacing-2xl: 32px;
+$spacing-3xl: 48px;
+
+/* ===================
+   Border Radius
+   =================== */
+
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 10px;
+$radius-xl: 12px;
+$radius-pill: 999px;
+
+/* ==================
+   Shadows
+   ================== */
+
+$shadow-card: 0px 2px 4px 0px rgba(0, 0, 0, 0.12);;
+$shadow-search: 0px 4px 20px 0px rgba(0, 0, 0, 0.10);
+
+/* ====================
+   Search Bar
+   ==================== */
+
+$search-height: 44px;
+$search-width: 420px;
+$search-bg: #ffffff;
+$search-border: #dfe4ea;
+
+/* ==================================================
+   Tabs
+   ================================================== */
+
+$tab-height: 48px;
+$tab-bg: #eef1f4;
+$tab-active-bg: #d9edf8;
+$tab-active-border: #4ea7cb;
+$tab-text-color: #2b2b2b;
+
+/* =================
+   Cards
+   ================= */
+
+$card-bg: #ffffff;
+$card-border: #e4e8ee;
+$card-radius: 8px;
+$card-padding: 14px;
+
+$card-title-color: #202124;
+$card-title-size: 16px;
+
+$card-description-color: #4b5563;
+$card-description-size: 13px;
+
+$card-url-color: #8a8a8a;
+$card-url-size: 11px;
+
+/* ====================
+   Pagination
+   ==================== */
+
+$pagination-bg: #ffffff;
+$pagination-border: #d8dde4;
+
+$pagination-active-bg: #2f9bc8;
+$pagination-active-text: #ffffff;
+
+$pagination-text: #4b5563;
+
+/* =====================
+   Footer
+   ===================== */
+
+$footer-bg: #ffffff;
+$footer-border: #e5e7eb;
+$footer-text-color: #6b7280;
+$footer-font-size: 12px;
+
+/* ======================
+   Hero/Header Section
+   ====================== */
+
+$hero-bg: linear-gradient(
+  180deg,
+  #fafbfc 0%,
+  #f5f7f9 100%
+);
+
+$hero-title-color: #111827;
+$hero-subtitle-color: #4b5563;
