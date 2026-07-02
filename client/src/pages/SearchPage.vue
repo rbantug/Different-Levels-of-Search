@@ -14,12 +14,12 @@ import type { AxiosResponse } from '@/api/search'
 
 const mainStore = useMainStore()
 
-const testPage = ref(1)
 const searchText = ref('')
 const searchOption = ref('keyword')
 const recipeResult = ref<Recipe[]>([])
 const recipeCount = ref(0)
 const loading = ref(false)
+const visibleRecipes = ref<Recipe[]>([])
 
 const debouncedQuery = refDebounced(searchText, 300)
 
@@ -53,6 +53,14 @@ async function runSearch() {
 
     recipeResult.value = res.data
     recipeCount.value = res.count
+
+    // show first x number of recipes for pagination
+    if (resultPerPage.value <= recipeResult.value.length) {
+      visibleRecipes.value = recipeResult.value
+    } else {
+      visibleRecipes.value = recipeResult.value.slice(0, currentPage.value * resultPerPage.value)
+    }
+
   } catch (error: unknown) {
     console.error(error)
   } finally {
@@ -60,8 +68,15 @@ async function runSearch() {
   }
 }
 
+// Pagination
+
+const resultPerPage = ref(5)
+const totalPages = ref(Math.floor(recipeResult.value.length / resultPerPage.value))
+const currentPage = ref(1)
+
 function updatePage(val: number) {
-  testPage.value = val
+  currentPage.value = val
+  visibleRecipes.value = recipeResult.value.slice((currentPage.value - 1) * resultPerPage.value, currentPage.value * resultPerPage.value)
 }
 
 watch([debouncedQuery, searchOption], runSearch)
@@ -84,12 +99,12 @@ watch([debouncedQuery, searchOption], runSearch)
 
     <!-- results -->
     <main>
-      <ResultGrid :results="recipeResult" />
+      <ResultGrid :results="visibleRecipes" />
     </main>
 
     <!-- pagination -->
-    <div class="pagination">
-      <ThePagination :total-pages="10" :current-page="testPage" @update:current-page="updatePage" />
+    <div v-if="totalPages > 0" class="pagination">
+      <ThePagination :total-pages="totalPages" :current-page="currentPage" @update:current-page="updatePage" />
     </div>
   </div>
 </template>
