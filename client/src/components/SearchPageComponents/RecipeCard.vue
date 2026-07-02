@@ -1,11 +1,6 @@
 <script setup lang="ts">
 
 const props = defineProps({
-  id: {
-    required: true,
-    type: String,
-    default: ''
-  },
   recipeName: {
     required: true,
     type: String,
