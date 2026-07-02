@@ -22,10 +22,10 @@ function loadRecipe(id: any) {
     recipe.value = mainStore.getHybridRecipes.value.find((r: Recipe) => r.id === id)
   }
 
-  //if (!recipe.value) throw new Error('No recipe was loaded')
+  if (!recipe.value) throw new Error('No recipe was loaded')
 
   // merge category and area into an array
-  //badgeText.value.push(recipe.value.area, recipe.value.category)
+  badgeText.value.push(recipe.value.area, recipe.value.category)
 }
 
 loadRecipe(params.id)
@@ -33,33 +33,18 @@ loadRecipe(params.id)
 onBeforeRouteUpdate((to) => {
   loadRecipe(to.params.id)
 })
-
-/* test content */
-
-const testIngredients = ref([
-  '2 tbsp Extra Virgin Olive Oil',
-  '1 Onion',
-  '1 Chorizo',
-  '1 Red Pepper',
-])
-
-const testInstruction = ref([
-  'Soak the potatoes in just-boiled water for 30 minutes. Drain, and then leave them to air-dry for 5 minutes. Heat the air fryer to 200C. Tip the potatoes into a bowl, drizzle over 1 tbsp of the oil, and add 1/2 tsp each of salt and freshly ground black pepper. Mix to coat the potatoes all over, then tip into the air fryer basket and cook for 20–30 minutes until crisp and golden.',
-  'Meanwhile, heat the remaining oil in a small pan over medium-low heat and fry the onion for 8–10 minutes until softened but not golden. Stir in the garlic and cook for 1 minute. Add the paprika and cook for 30 seconds more. Stir in the tomato purée and cook for 1 minute, then tip in the chopped tomatoes. Cook for 5–10 minutes over medium heat until slightly thickened.',
-  'Once the potatoes are cooked, tip them out onto a platter and pour over the tomato sauce. Sprinkle with the basil leaves, then serve.',
-])
 </script>
 
 <template>
   <div>
     <header>
-      <router-link :to="'/'" class="back-btn">
+      <div class="back-btn" @click="$router.go(-1)">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
           <path d="M0 0h24v24H0z" fill="none" />
           <path fill="currentColor" fill-rule="evenodd" d="m15 4l2 2l-6 6l6 6l-2 2l-8-8z" />
         </svg>
         <p>Back</p>
-      </router-link>
+      </div>
     </header>
     <!-- top image, recipe name, area and category -->
     <div class="top-container">
@@ -88,7 +73,7 @@ const testInstruction = ref([
       <h1 class="heading-content">Instructions</h1>
       <div v-for="(ins, index) in recipe?.instructions" :key="ins">
         <span>{{ index + 1 }}. </span>
-        <p>{{ ins }}</p>
+        <span>{{ ins }}</span>
       </div>
     </div>
   </div>
@@ -110,6 +95,10 @@ header {
   margin-left: 1rem;
   font-size: large;
   text-decoration: none;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .top-container {
