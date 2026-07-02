@@ -4,7 +4,7 @@ export interface Recipe {
   category: string
   area: string
   recipeThumbnail: string
-  instructions: string
+  instructions: string[]
   ingredients: string[]
   finalScore: number
 }
