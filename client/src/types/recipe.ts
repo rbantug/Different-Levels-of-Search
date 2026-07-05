@@ -3,6 +3,7 @@ export interface Recipe {
   recipeName: string
   category: string
   area: string
+  slug: string
   recipeThumbnail: string
   instructions: string[]
   ingredients: string[]
