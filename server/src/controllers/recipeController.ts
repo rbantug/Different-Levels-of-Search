@@ -1,6 +1,7 @@
 import { db } from "../db/index.js";
 import { recipes } from "../db/schema.js";
 import { eq } from "drizzle-orm";
+import slugify from "slugify";
 
 import type { Request, Response, NextFunction } from "express";
 
@@ -58,10 +59,13 @@ export const postSingleRecipe = catchAsyncError(
       ingredients,
     } = req.body;
 
+    const createSlug = slugify(recipeName)
+
     const validateBody = validateCreateRecipe({
       recipeName,
       category,
       area,
+      slug: createSlug,
       instructions,
       recipeThumbnail,
       ingredients,
@@ -107,7 +111,9 @@ export const updateSingleRecipe = catchAsyncError(
       return next(new AppError("Recipe not found", 404));
     }
 
-    const validateBody = validateUpdateRecipe({ ...recipe[0], ...req.body });
+    const createSlug = slugify(req.body.recipeName);
+
+    const validateBody = validateUpdateRecipe({ ...recipe[0], ...req.body, slug: createSlug });
 
     const updatedRecipe = {
       ...validateBody,
