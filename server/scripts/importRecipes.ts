@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import slugify from "slugify";
 
 import { db } from "../src/db/index.js";
 import { recipes } from "../src/db/schema.js";
@@ -27,6 +28,7 @@ export async function runImport() {
         recipeName: recipe.strMeal,
         category: recipe.strCategory,
         area: recipe.strArea,
+        slug: slugify(recipe.strMeal),
         instructions: recipe.strInstructions,
         recipeThumbnail: recipe.strMealThumb,
         ingredients: ingArr,
