@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b148ad5c-9af3-4448-aee4-0f2cccfb0ad4",
+  "id": "c9959205-2794-4311-bc0f-9833a058ebe5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "recipes": {
@@ -30,6 +30,13 @@
         },
         "area": {
           "name": "area",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slug": {
+          "name": "slug",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
