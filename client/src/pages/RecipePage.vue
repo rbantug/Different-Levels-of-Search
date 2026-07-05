@@ -1,44 +1,65 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRoute, onBeforeRouteUpdate } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import { useMainStore } from '@/stores/mainStore'
 
 import type { Recipe } from '@/types/recipe'
 import BaseBadge from '@/components/util/BaseBadge.vue'
 
-const { params } = useRoute()
+const route = useRoute()
+const router = useRouter()
 const mainStore = useMainStore()
 
-const recipe = ref<Recipe>()
+const recipe = ref<Recipe | null>()
 const badgeText = ref<string[]>([])
 
-function loadRecipe(id: any) {
+function loadRecipe(slug: string | string[] | undefined) {
   const option = mainStore.getCurrentOption
 
   if (option.value === 'keyword') {
-    recipe.value = mainStore.getKeywordRecipes.value.find((r: Recipe) => r.id === id)
+    recipe.value = mainStore.getKeywordRecipes.value.find((r: Recipe) => r.slug === slug)
   } else if (option.value === 'hybrid') {
-    recipe.value = mainStore.getHybridRecipes.value.find((r: Recipe) => r.id === id)
+    recipe.value = mainStore.getHybridRecipes.value.find((r: Recipe) => r.slug === slug)
   }
 
-  if (!recipe.value) throw new Error('No recipe was loaded')
+  if (!recipe.value) {
+    router.push({
+      name: 'error',
+      params: {
+        anything: '404',
+      },
+    })
+    return
+  }
 
   // merge category and area into an array
   badgeText.value.push(recipe.value.area, recipe.value.category)
 }
 
-loadRecipe(params.id)
+function goBackToSearchPage() {
+  recipe.value = null
+  badgeText.value = []
+  router.go(-1)
+}
 
-onBeforeRouteUpdate((to) => {
-  loadRecipe(to.params.id)
-})
+watch(
+  () => route.params.slug,
+  (newVal) => {
+    if (!newVal) return
+    
+    loadRecipe(route.params.slug)
+  },
+  {
+    immediate: true,
+  },
+)
 </script>
 
 <template>
   <div>
     <header>
-      <div class="back-btn" @click="$router.go(-1)">
+      <div class="back-btn" @click="goBackToSearchPage">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
           <path d="M0 0h24v24H0z" fill="none" />
           <path fill="currentColor" fill-rule="evenodd" d="m15 4l2 2l-6 6l6 6l-2 2l-8-8z" />
@@ -48,13 +69,14 @@ onBeforeRouteUpdate((to) => {
     </header>
     <!-- top image, recipe name, area and category -->
     <div class="top-container">
-      <img
-        :src="recipe?.recipeThumbnail"
-        :alt="recipe?.recipeName"
-        class="img"
-      />
+      <img :src="recipe?.recipeThumbnail" :alt="recipe?.recipeName" class="img" />
       <h1 :class="['recipe-name']">{{ recipe?.recipeName }}</h1>
-      <div :class="{'badge-container--flex': badgeText.length < 3, 'badge-container--grid': badgeText.length >= 3}">
+      <div
+        :class="{
+          'badge-container--flex': badgeText.length < 3,
+          'badge-container--grid': badgeText.length >= 3,
+        }"
+      >
         <BaseBadge v-for="badge in badgeText" :key="badge">{{ badge }}</BaseBadge>
       </div>
     </div>

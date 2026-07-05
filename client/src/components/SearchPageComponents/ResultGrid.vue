@@ -17,7 +17,7 @@ const props = defineProps({
   <div class="grid-container">
     <div class="grid">
       <div v-for="recipe in props.results" :key="recipe.id">
-        <router-link :to="`/${recipe.id}`">
+        <router-link :to="`/${recipe.slug}`">
           <RecipeCard 
             :recipe-name="recipe.recipeName"
             :recipe-thumbnail="recipe.recipeThumbnail"
