@@ -15,6 +15,7 @@
   font-family: $font-family-base;
   max-width: 360px;
   height: 800px;
+  overflow-y: auto;
   margin: 0 auto;
   border: 1px solid black;
 }

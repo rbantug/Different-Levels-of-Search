@@ -22,13 +22,5 @@ input {
   &:focus {
     outline: 2px solid $color-primary;
   }
-
-  @include m-tablet {
-    font-size: 2rem;
-  }
-
-  @include m-desktop {
-    font-size: 3rem;
-  }
 }
 </style>

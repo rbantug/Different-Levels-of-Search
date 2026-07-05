@@ -123,14 +123,6 @@ watch([debouncedQuery, searchOption], runSearch)
 
   #{&}__h1 {
     font-size: 1.5rem;
-
-    @include m-tablet {
-      font-size: 2rem;
-    }
-
-    @include m-desktop {
-      font-size: 3rem;
-    }
   }
 
   #{&}__paragraph {

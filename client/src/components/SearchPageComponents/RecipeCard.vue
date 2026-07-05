@@ -48,11 +48,6 @@ const props = defineProps({
   width: 20rem;
   height: 10rem;
   border-radius: 5px;
-
-  @include m-tablet {
-  }
-  @include m-desktop {
-  }
 }
 
 .card {
