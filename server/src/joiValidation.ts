@@ -6,6 +6,7 @@ const recipeSchema = Joi.object({
   recipeName: Joi.string().required(),
   category: Joi.string().required(),
   area: Joi.string().required(),
+  slug: Joi.string().required(),
   instructions: Joi.array().items(Joi.string()).required(),
   recipeThumbnail: Joi.string().allow(null),
   ingredients: Joi.array().items(Joi.string()).required(),
