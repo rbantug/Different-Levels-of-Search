@@ -5,6 +5,7 @@ export const recipes = sqliteTable("recipes", {
   recipeName: text("recipe_name").notNull(),
   category: text("category").notNull(),
   area: text("area").notNull(),
+  slug: text("slug").notNull(),
   instructions: text("instructions", {
     mode: "json",
   })
