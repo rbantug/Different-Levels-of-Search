@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 
 import RecipeCardSkeleton from './RecipeCardSkeleton.vue'
 
@@ -27,6 +27,14 @@ const props = defineProps({
 })
 
 const imageLoaded = ref(false)
+
+const checkRecipeNameLength = computed(() => {
+  if (props.recipeName.length < 35) {
+    return props.recipeName
+  }
+
+  return `${props.recipeName.slice(0, 35)}...`
+})
 
 watch(
   () => props.recipeThumbnail,
@@ -59,7 +67,7 @@ watch(
           <img :src="props.recipeThumbnail" :alt="props.recipeName" class="recipe-thumbnail__img" />
         </div>
         <div class="recipe-details">
-          <h3 class="recipe-details__name">{{ props.recipeName }}</h3>
+          <h3 class="recipe-details__name">{{ checkRecipeNameLength }}</h3>
           <p class="recipe-details__area">Cuisine: {{ props.area }}</p>
           <p class="recipe-details__category">Category: {{ props.category }}</p>
         </div>
