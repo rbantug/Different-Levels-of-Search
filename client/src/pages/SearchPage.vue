@@ -18,7 +18,6 @@ const searchText = ref('')
 const searchOption = ref('keyword')
 const recipeResult = ref<Recipe[]>([])
 const recipeCount = ref(0)
-const loading = ref(false)
 const visibleRecipes = ref<Recipe[]>([])
 
 const debouncedQuery = refDebounced(searchText, 300)
@@ -33,7 +32,6 @@ async function runSearch() {
     return
   }
 
-  loading.value = true
   let res: AxiosResponse
 
   try {
@@ -60,11 +58,8 @@ async function runSearch() {
     } else {
       visibleRecipes.value = recipeResult.value.slice(0, currentPage.value * resultPerPage.value)
     }
-
   } catch (error: unknown) {
     console.error(error)
-  } finally {
-    loading.value = false
   }
 }
 
@@ -76,7 +71,10 @@ const currentPage = ref(1)
 
 function updatePage(val: number) {
   currentPage.value = val
-  visibleRecipes.value = recipeResult.value.slice((currentPage.value - 1) * resultPerPage.value, currentPage.value * resultPerPage.value)
+  visibleRecipes.value = recipeResult.value.slice(
+    (currentPage.value - 1) * resultPerPage.value,
+    currentPage.value * resultPerPage.value,
+  )
 }
 
 watch([debouncedQuery, searchOption], runSearch)
@@ -104,7 +102,11 @@ watch([debouncedQuery, searchOption], runSearch)
 
     <!-- pagination -->
     <div v-if="totalPages > 0" class="pagination">
-      <ThePagination :total-pages="totalPages" :current-page="currentPage" @update:current-page="updatePage" />
+      <ThePagination
+        :total-pages="totalPages"
+        :current-page="currentPage"
+        @update:current-page="updatePage"
+      />
     </div>
   </div>
 </template>
@@ -120,6 +122,7 @@ watch([debouncedQuery, searchOption], runSearch)
   height: fit-content;
   background-color: $color-background;
   padding: 2rem 0;
+  z-index: 1;
 
   #{&}__h1 {
     font-size: 1.5rem;
