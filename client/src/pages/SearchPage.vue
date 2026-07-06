@@ -78,6 +78,19 @@ function updatePage(val: number) {
 }
 
 watch([debouncedQuery, searchOption], runSearch)
+
+// test data
+const testRecipe = [{
+  id: 'adawdawd',
+  recipeName: 'stringaaaaaaa aaaaaaaaaaaaa aaaaaaaaaaaaaaa aaa',
+  category: 'stringaaa',
+  area: 'stringaaa',
+  slug: 'stringaaa',
+  recipeThumbnail: 'https://www.themealdb.com/images/media/meals/kzxflc1763194887.jpg',
+  instructions: [''],
+  ingredients: [''],
+  finalScore: 0
+}]
 </script>
 
 <template>
@@ -97,7 +110,8 @@ watch([debouncedQuery, searchOption], runSearch)
 
     <!-- results -->
     <main>
-      <ResultGrid :results="visibleRecipes" />
+      <!-- <ResultGrid :results="visibleRecipes" /> -->
+      <ResultGrid :results="testRecipe" />
     </main>
 
     <!-- pagination -->
