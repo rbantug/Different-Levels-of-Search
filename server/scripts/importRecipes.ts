@@ -50,6 +50,7 @@ export async function runImport() {
         area: validatedRecipe.area,
         category: validatedRecipe.category,
         ingredients: validatedRecipe.ingredients,
+        instructions: validatedRecipe.instructions
       });
     }
   } catch (error: unknown) {
