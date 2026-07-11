@@ -6,6 +6,7 @@ export async function setupSearchIndex() {
     "category",
     "area",
     "ingredients",
+    "instructions"
   ]);
 
   await recipeIndex.updateFilterableAttributes(["category", "area"]);
