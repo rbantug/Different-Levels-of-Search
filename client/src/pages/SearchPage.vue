@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { refDebounced } from '@vueuse/core'
 
 import SearchBar from '@/components/SearchPageComponents/SearchBar.vue'
@@ -26,14 +26,17 @@ const keywordData = ref<AxiosResponse>()
 const hybridData = ref<AxiosResponse>()
 
 async function runSearch() {
+  // reset variables
   if (!debouncedQuery.value.trim()) {
     recipeResult.value = []
     recipeCount.value = 0
+    visibleRecipes.value = []
     return
   }
 
   let res: AxiosResponse
 
+  // fetch data based on current option
   try {
     if (searchOption.value === 'keyword') {
       res = await keywordSearch(debouncedQuery.value)
@@ -53,11 +56,17 @@ async function runSearch() {
     recipeCount.value = res.count
 
     // show first x number of recipes for pagination
-    if (resultPerPage.value <= recipeResult.value.length) {
+    if (recipeResult.value.length <= resultPerPage.value) {
       visibleRecipes.value = recipeResult.value
     } else {
       visibleRecipes.value = recipeResult.value.slice(0, currentPage.value * resultPerPage.value)
     }
+
+    // update totalPages to update pagination
+    totalPages.value = Math.ceil(recipeResult.value.length / resultPerPage.value)
+
+    // go back to the first page when this function runs
+    currentPage.value = 1
   } catch (error: unknown) {
     console.error(error)
   }
@@ -66,31 +75,27 @@ async function runSearch() {
 // Pagination
 
 const resultPerPage = ref(5)
-const totalPages = ref(Math.floor(recipeResult.value.length / resultPerPage.value))
+const totalPages = ref(Math.ceil(recipeResult.value.length / resultPerPage.value))
 const currentPage = ref(1)
+const resultText = ref<HTMLElement | null>(null)
 
-function updatePage(val: number) {
+async function updatePage(val: number) {
   currentPage.value = val
   visibleRecipes.value = recipeResult.value.slice(
     (currentPage.value - 1) * resultPerPage.value,
     currentPage.value * resultPerPage.value,
   )
+  totalPages.value = Math.ceil(recipeResult.value.length / resultPerPage.value)
+
+  nextTick(() => {
+    resultText.value?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  })
 }
 
 watch([debouncedQuery, searchOption], runSearch)
-
-// test data
-const testRecipe = [{
-  id: 'adawdawd',
-  recipeName: 'stringaaaaaaa aaaaaaaaaaaaa aaaaaaaaaaaaaaa aaa',
-  category: 'stringaaa',
-  area: 'stringaaa',
-  slug: 'stringaaa',
-  recipeThumbnail: 'https://www.themealdb.com/images/media/meals/kzxflc1763194887.jpg',
-  instructions: [''],
-  ingredients: [''],
-  finalScore: 0
-}]
 </script>
 
 <template>
@@ -110,8 +115,8 @@ const testRecipe = [{
 
     <!-- results -->
     <main>
-      <!-- <ResultGrid :results="visibleRecipes" /> -->
-      <ResultGrid :results="testRecipe" />
+      <div ref="resultText" class="resultText"></div>
+      <ResultGrid :results="visibleRecipes" />
     </main>
 
     <!-- pagination -->
@@ -133,10 +138,11 @@ const testRecipe = [{
   flex-direction: column;
   align-items: center;
   row-gap: 10px;
-  height: fit-content;
+  height: 17rem;
   background-color: $color-background;
   padding: 2rem 0;
   z-index: 1;
+  touch-action: none;
 
   #{&}__h1 {
     font-size: 1.5rem;
@@ -155,5 +161,9 @@ const testRecipe = [{
 
 .searchBarContainer {
   height: 4rem;
+}
+
+.resultText {
+  scroll-margin-top: 17rem;
 }
 </style>
