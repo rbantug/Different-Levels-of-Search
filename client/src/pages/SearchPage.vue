@@ -14,11 +14,19 @@ import type { AxiosResponse } from '@/api/search'
 
 const mainStore = useMainStore()
 
+const searchOptionList = ['keyword', 'hybrid']
+
 const searchText = ref('')
-const searchOption = ref('keyword')
+const searchOption = ref<'keyword' | 'hybrid'>('keyword')
 const recipeResult = ref<Recipe[]>([])
-const recipeCount = ref(0)
+const filteredRecipe = ref<Recipe[]>([])
 const visibleRecipes = ref<Recipe[]>([])
+const recipeCount = ref(0)
+
+const currentCategory = ref<string>('All')
+const currentArea = ref<string>('All')
+const categoryList = ref<string[]>([])
+const areaList = ref<string[]>([])
 
 const debouncedQuery = refDebounced(searchText, 300)
 
@@ -31,6 +39,11 @@ async function runSearch() {
     recipeResult.value = []
     recipeCount.value = 0
     visibleRecipes.value = []
+    filteredRecipe.value = []
+    currentArea.value = ''
+    currentCategory.value = ''
+    areaList.value = []
+    categoryList.value = []
     return
   }
 
@@ -52,18 +65,36 @@ async function runSearch() {
       throw new Error('Something is wrong with the search option')
     }
 
+    /* 
+    recipeResult -> filteredRecipe -> visibleRecipe
+    */
     recipeResult.value = res.data
-    recipeCount.value = res.count
+
+    // update area and category list and store them in a variable
+    const setCategory = new Set()
+    recipeResult.value.forEach((r: Recipe) => {
+      if (!setCategory.has(r.category)) {
+        setCategory.add(r.category)
+        categoryList.value.push(r.category)
+      }
+    })
+
+    const setArea = new Set()
+    recipeResult.value.forEach((r: Recipe) => {
+      if (!setArea.has(r.area)) {
+        setArea.add(r.area)
+        areaList.value.push(r.area)
+      }
+    })
 
     // show first x number of recipes for pagination
     if (recipeResult.value.length <= resultPerPage.value) {
+      recipeCount.value = recipeResult.value.length
+      totalPages.value = Math.ceil(recipeResult.value.length / resultPerPage.value)
       visibleRecipes.value = recipeResult.value
     } else {
-      visibleRecipes.value = recipeResult.value.slice(0, currentPage.value * resultPerPage.value)
+      updateFilteredRecipe()
     }
-
-    // update totalPages to update pagination
-    totalPages.value = Math.ceil(recipeResult.value.length / resultPerPage.value)
 
     // go back to the first page when this function runs
     currentPage.value = 1
@@ -72,20 +103,40 @@ async function runSearch() {
   }
 }
 
+function updateFilteredRecipe() {
+  if (currentCategory.value === 'All' && currentArea.value === 'All') {
+    filteredRecipe.value = recipeResult.value
+  } else if (currentCategory.value === 'All') {
+    filteredRecipe.value = recipeResult.value.filter((r: Recipe) => r.area === currentArea.value)
+  } else if (currentArea.value === 'All') {
+    filteredRecipe.value = recipeResult.value.filter(
+      (r: Recipe) => r.category === currentCategory.value,
+    )
+  } else {
+    filteredRecipe.value = recipeResult.value.filter(
+      (r: Recipe) => r.category === currentCategory.value && r.area === currentArea.value,
+    )
+  }
+
+  recipeCount.value = filteredRecipe.value.length
+  visibleRecipes.value = filteredRecipe.value.slice(0, currentPage.value * resultPerPage.value)
+  totalPages.value = Math.ceil(filteredRecipe.value.length / resultPerPage.value)
+}
+
 // Pagination
 
 const resultPerPage = ref(5)
-const totalPages = ref(Math.ceil(recipeResult.value.length / resultPerPage.value))
+const totalPages = ref(Math.ceil(filteredRecipe.value.length / resultPerPage.value))
 const currentPage = ref(1)
 const resultText = ref<HTMLElement | null>(null)
 
 async function updatePage(val: number) {
   currentPage.value = val
-  visibleRecipes.value = recipeResult.value.slice(
+  visibleRecipes.value = filteredRecipe.value.slice(
     (currentPage.value - 1) * resultPerPage.value,
     currentPage.value * resultPerPage.value,
   )
-  totalPages.value = Math.ceil(recipeResult.value.length / resultPerPage.value)
+  totalPages.value = Math.ceil(filteredRecipe.value.length / resultPerPage.value)
 
   nextTick(() => {
     resultText.value?.scrollIntoView({
@@ -95,7 +146,8 @@ async function updatePage(val: number) {
   })
 }
 
-watch([debouncedQuery, searchOption], runSearch)
+watch([debouncedQuery, searchOption], runSearch, { immediate: true })
+watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
 </script>
 
 <template>
@@ -108,7 +160,20 @@ watch([debouncedQuery, searchOption], runSearch)
         <SearchBar v-model:search="searchText" />
       </div>
       <div>
-        <DropDown v-model:search-option="searchOption" />
+        <p>Search Option:</p>
+        <DropDown
+          v-model:selected-option="searchOption"
+          :data-list="searchOptionList"
+          :option="true"
+        />
+        <p>Category:</p>
+        <DropDown
+          v-model:selected-option="currentCategory"
+          :data-list="categoryList"
+          :option="false"
+        />
+        <p>Area:</p>
+        <DropDown v-model:selected-option="currentArea" :data-list="areaList" :option="false" />
       </div>
       <p>Total Recipes: {{ recipeCount }}</p>
     </header>
@@ -155,7 +220,7 @@ watch([debouncedQuery, searchOption], runSearch)
 
 .pagination {
   position: fixed;
-  bottom: 0;
+  bottom: 10px;
   width: 100%;
 }
 
