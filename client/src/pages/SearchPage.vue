@@ -33,6 +33,18 @@ const debouncedQuery = refDebounced(searchText, 300)
 const keywordData = ref<AxiosResponse>()
 const hybridData = ref<AxiosResponse>()
 
+function updateSearchOption(val: 'keyword'| 'hybrid') {
+  searchOption.value = val
+}
+
+function updateCategory(val: string) {
+  currentCategory.value = val
+}
+
+function updateArea(val: string) {
+  currentArea.value = val
+}
+
 async function runSearch() {
   // reset variables
   if (!debouncedQuery.value.trim()) {
@@ -146,36 +158,92 @@ async function updatePage(val: number) {
   })
 }
 
+// drop down overlay
+const ddOpenId = ref<string | null>(null)
+
+function toggleDD(id: string) {
+  ddOpenId.value = ddOpenId.value === id ? null : id
+}
+
+function closeDD() {
+  ddOpenId.value = null
+}
+
 watch([debouncedQuery, searchOption], runSearch, { immediate: true })
 watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
+
+// test data
+
+const testList = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
 </script>
 
 <template>
-  <div class="">
+  <div>
+    <div
+      v-show="ddOpenId"
+      @click="closeDD"
+      class="dropdown-overlay"
+    ></div>
     <!-- search bar -->
     <header class="header">
       <h1 class="header__h1">Different Levels of Search</h1>
       <p class="header__paragraph">Compare Keyword-Only vs. Keyword + Semantic Search</p>
-      <div class="searchBarContainer">
-        <SearchBar v-model:search="searchText" />
-      </div>
-      <div>
-        <p>Search Option:</p>
-        <DropDown
-          v-model:selected-option="searchOption"
-          :data-list="searchOptionList"
-          :option="true"
-        />
-        <p>Category:</p>
-        <DropDown
-          v-model:selected-option="currentCategory"
-          :data-list="categoryList"
-          :option="false"
-        />
-        <p>Area:</p>
-        <DropDown v-model:selected-option="currentArea" :data-list="areaList" :option="false" />
+      <div class="searchbar-container">
+        <SearchBar v-model:search="searchText" @input-clicked="closeDD" />
       </div>
       <p>Total Recipes: {{ recipeCount }}</p>
+      <div class="filter-container">
+        <div>
+          <p>Search Option:</p>
+          <DropDown
+          :data-list="searchOptionList"
+          :option="true"
+          id="searchOption"
+          @goToggle="toggleDD('searchOption')"
+          @selected-option="updateSearchOption"
+          :open="ddOpenId === 'searchOption'"
+          :current-option="searchOption"
+        />
+        </div>
+        <div>
+          <p>Category:</p>
+          <DropDown
+            :data-list="testList"
+            :option="false"
+            id="category"
+            @goToggle="toggleDD('category')"
+            :open="ddOpenId === 'category'"
+            @selected-option="updateCategory"
+            :current-option="currentCategory"
+          />
+        </div>
+        <div>
+          <p>Area:</p>
+          <DropDown
+            v-model:selected-option="currentArea"
+            :data-list="testList"
+            :option="false"
+            id="area"
+            @goToggle="toggleDD('area')"
+            :open="ddOpenId === 'area'"
+            @selected-option="updateArea"
+            :current-option="currentArea"
+          />
+        </div>
+      </div>
     </header>
 
     <!-- results -->
@@ -203,7 +271,7 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
   flex-direction: column;
   align-items: center;
   row-gap: 10px;
-  height: 17rem;
+  height: fit-content;
   background-color: $color-background;
   padding: 2rem 0;
   z-index: 1;
@@ -218,14 +286,37 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
   }
 }
 
+.dropdown-overlay {
+  position: absolute;
+  top: 0;
+  width: 360px;
+  height: 800px;
+  z-index: 1;
+}
+
 .pagination {
   position: fixed;
   bottom: 10px;
   width: 100%;
 }
 
-.searchBarContainer {
-  height: 4rem;
+.searchbar-container {
+  @include m-flex-center;
+  height: 5rem;
+  width: 100%;
+}
+
+.filter-container {
+  @include m-flex-center;
+  height: 6rem;
+  width: 100%;
+  justify-content: space-between;
+
+  div {
+    @include m-flex-center;
+    flex-direction: column;
+    flex: 1;
+  }
 }
 
 .resultText {
