@@ -6,4 +6,40 @@
   align-items: center;
 }
 
+@mixin custom-scrollbar(
+  $size: 8px,
+  $thumb: #888,
+  $track: #f1f1f1,
+  $thumb-hover: null,
+  $radius: 9999px
+) {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #{$thumb} #{$track};
+
+  /* Chrome, Edge, Safari */
+  &::-webkit-scrollbar {
+    width: $size;
+    height: $size;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $track;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $thumb;
+    border-radius: $radius;
+
+    @if $thumb-hover != null {
+      &:hover {
+        background: $thumb-hover;
+      }
+    }
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: $track;
+  }
+}
 
