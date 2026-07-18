@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, ref, watch, type Ref } from 'vue'
 import { refDebounced } from '@vueuse/core'
 
 import SearchBar from '@/components/SearchPageComponents/SearchBar.vue'
@@ -71,21 +71,8 @@ async function runSearch() {
     recipeResult.value = res.data
 
     // update area and category list and store them in a variable
-    const setCategory = new Set()
-    recipeResult.value.forEach((r: Recipe) => {
-      if (!setCategory.has(r.category)) {
-        setCategory.add(r.category)
-        categoryList.value.push(r.category)
-      }
-    })
-
-    const setArea = new Set()
-    recipeResult.value.forEach((r: Recipe) => {
-      if (!setArea.has(r.area)) {
-        setArea.add(r.area)
-        areaList.value.push(r.area)
-      }
-    })
+    categoryList.value = filterCategory(recipeResult)
+    areaList.value = filterArea(recipeResult)
 
     // show first x number of recipes for pagination
     if (recipeResult.value.length <= resultPerPage.value) {
@@ -119,8 +106,33 @@ function updateFilteredRecipe() {
   }
 
   recipeCount.value = filteredRecipe.value.length
+  currentPage.value = 1
   visibleRecipes.value = filteredRecipe.value.slice(0, currentPage.value * resultPerPage.value)
   totalPages.value = Math.ceil(filteredRecipe.value.length / resultPerPage.value)
+}
+
+function filterCategory(data: Ref) {
+  const res: string[] = []
+  const setCategory = new Set()
+  data.value.forEach((r: Recipe) => {
+    if (!setCategory.has(r.category)) {
+      setCategory.add(r.category)
+      res.push(r.category)
+    }
+  })
+  return res
+}
+
+function filterArea(data: Ref) {
+  const res: string[] = []
+  const setArea = new Set()
+  data.value.forEach((r: Recipe) => {
+    if (!setArea.has(r.area)) {
+      setArea.add(r.area)
+      res.push(r.area)
+    }
+  })
+  return res
 }
 
 // Pagination
@@ -159,23 +171,6 @@ function closeDD() {
 
 watch([debouncedQuery, searchOption], runSearch, { immediate: true })
 watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
-
-// test data
-
-const testList = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-]
 </script>
 
 <template>
