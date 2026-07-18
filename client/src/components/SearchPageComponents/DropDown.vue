@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, type PropType } from 'vue'
+import { watch, type PropType } from 'vue'
 
 const props = defineProps({
   dataList: {
@@ -18,16 +18,12 @@ const props = defineProps({
   id: {
     required: true,
     type: String,
-  },
-  currentOption: {
-    required: true,
-    type: String,
-  },
+  }
 })
 
 const emits = defineEmits(['goToggle', 'selectedOption'])
 
-const selectedOption = ref(props.currentOption)
+const selectedOption = defineModel()
 
 function toggleListVisbility() {
   emits('goToggle')
@@ -36,7 +32,7 @@ function toggleListVisbility() {
 function updateSelectedOption(val: string) {
   selectedOption.value = val
   emits('goToggle')
-  emits('selectedOption', val)
+  //emits('selectedOption', val)
 }
 
 // drop down animation

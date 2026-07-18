@@ -33,18 +33,6 @@ const debouncedQuery = refDebounced(searchText, 300)
 const keywordData = ref<AxiosResponse>()
 const hybridData = ref<AxiosResponse>()
 
-function updateSearchOption(val: 'keyword'| 'hybrid') {
-  searchOption.value = val
-}
-
-function updateCategory(val: string) {
-  currentCategory.value = val
-}
-
-function updateArea(val: string) {
-  currentArea.value = val
-}
-
 async function runSearch() {
   // reset variables
   if (!debouncedQuery.value.trim()) {
@@ -192,11 +180,7 @@ const testList = [
 
 <template>
   <div>
-    <div
-      v-show="ddOpenId"
-      @click="closeDD"
-      class="dropdown-overlay"
-    ></div>
+    <div v-show="ddOpenId" @click="closeDD" class="dropdown-overlay"></div>
     <!-- search bar -->
     <header class="header">
       <h1 class="header__h1">Different Levels of Search</h1>
@@ -209,38 +193,35 @@ const testList = [
         <div>
           <p>Search Option:</p>
           <DropDown
-          :data-list="searchOptionList"
-          :option="true"
-          id="searchOption"
-          @goToggle="toggleDD('searchOption')"
-          @selected-option="updateSearchOption"
-          :open="ddOpenId === 'searchOption'"
-          :current-option="searchOption"
-        />
+            :data-list="searchOptionList"
+            :option="true"
+            id="searchOption"
+            @goToggle="toggleDD('searchOption')"
+            :open="ddOpenId === 'searchOption'"
+            v-model="searchOption"
+          />
         </div>
         <div>
           <p>Category:</p>
           <DropDown
-            :data-list="testList"
+            :data-list="categoryList"
             :option="false"
             id="category"
             @goToggle="toggleDD('category')"
             :open="ddOpenId === 'category'"
-            @selected-option="updateCategory"
-            :current-option="currentCategory"
+            v-model="currentCategory"
           />
         </div>
         <div>
           <p>Area:</p>
           <DropDown
             v-model:selected-option="currentArea"
-            :data-list="testList"
+            :data-list="areaList"
             :option="false"
             id="area"
             @goToggle="toggleDD('area')"
             :open="ddOpenId === 'area'"
-            @selected-option="updateArea"
-            :current-option="currentArea"
+            v-model="currentArea"
           />
         </div>
       </div>
@@ -273,7 +254,7 @@ const testList = [
   row-gap: 10px;
   height: fit-content;
   background-color: $color-background;
-  padding: 2rem 0;
+  padding: 0.5rem 0;
   z-index: 1;
   touch-action: none;
 
@@ -320,6 +301,6 @@ const testList = [
 }
 
 .resultText {
-  scroll-margin-top: 17rem;
+  scroll-margin-top: 358px;
 }
 </style>
