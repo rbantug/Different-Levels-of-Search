@@ -13,16 +13,16 @@ const props = defineProps({
   },
   open: {
     required: true,
-    type: Boolean
+    type: Boolean,
   },
   id: {
     required: true,
-    type: String
+    type: String,
   },
   currentOption: {
     required: true,
-    type: String
-  }
+    type: String,
+  },
 })
 
 const emits = defineEmits(['goToggle', 'selectedOption'])
@@ -34,9 +34,56 @@ function toggleListVisbility() {
 }
 
 function updateSelectedOption(val: string) {
-  selectedOption.value = val;
-  emits('goToggle');
-  emits('selectedOption', val);
+  selectedOption.value = val
+  emits('goToggle')
+  emits('selectedOption', val)
+}
+
+// drop down animation
+
+const beforeEnter = (el: Element) => {
+  const element = el as HTMLElement
+
+  element.style.height = '0'
+  element.style.opacity = '0'
+  element.style.overflow = 'hidden'
+}
+
+const enter = (el: Element) => {
+  const element = el as HTMLElement
+
+  // Force the browser to apply the initial state
+  void element.offsetHeight
+
+  element.style.height = `${element.scrollHeight}px`
+  element.style.opacity = '1'
+}
+
+const afterEnter = (el: Element) => {
+  const element = el as HTMLElement
+
+  // Allow the content to grow/shrink naturally afterwards
+  element.style.height = 'auto'
+  element.style.overflow = ''
+}
+
+const beforeLeave = (el: Element) => {
+  const element = el as HTMLElement
+
+  // Start from the current natural height
+  element.style.height = `${element.scrollHeight}px`
+  element.style.opacity = '1'
+  element.style.overflow = 'hidden'
+}
+
+const leave = (el: Element) => {
+  const element = el as HTMLElement
+
+  // Force a reflow so the browser recognizes the starting height
+  void element.offsetHeight
+
+  element.style.height = '0'
+  element.style.opacity = '0'
 }
 
 watch(
@@ -53,9 +100,6 @@ watch(
 
 <template>
   <div class="dropdown-container">
-
-    <!-- TODO: create your own drop down that can be animated -->
-
     <div>
       <button @click="toggleListVisbility">
         <span>{{ selectedOption }}</span>
@@ -68,10 +112,21 @@ watch(
       </button>
     </div>
     <div class="listContainer" :class="{ visible: props.open, hidden: !props.open }">
-      <ul v-show="props.open">
-        <li v-if="!props.option" @click="updateSelectedOption('All')">All</li>
-        <li v-for="data in props.dataList" :key="data" @click="updateSelectedOption(data)">{{ data }}</li>
-      </ul>
+      <Transition
+        name="dropdown"
+        @before-enter="beforeEnter"
+        @enter="enter"
+        @after-enter="afterEnter"
+        @before-leave="beforeLeave"
+        @leave="leave"
+      >
+        <ul v-show="props.open">
+          <li v-if="!props.option" @click="updateSelectedOption('All')">All</li>
+          <li v-for="data in props.dataList" :key="data" @click="updateSelectedOption(data)">
+            {{ data }}
+          </li>
+        </ul>
+      </Transition>
     </div>
   </div>
 </template>
@@ -134,7 +189,7 @@ button {
   background-color: white;
   max-height: 20rem;
   width: 100%;
-  margin-top: 3rem;
+  margin-top: 3.5rem;
   overflow-y: auto;
   border-radius: 5px;
   z-index: 1;
@@ -144,7 +199,7 @@ button {
   }
 
   &.hidden {
-    border: none
+    border: none;
   }
 }
 
@@ -161,5 +216,16 @@ li {
     cursor: pointer;
     background-color: $color-primary-hover;
   }
+}
+
+// drop down animation
+
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition:
+    height 200ms ease,
+    opacity 200ms ease;
+
+  overflow: hidden;
 }
 </style>
