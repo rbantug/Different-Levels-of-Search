@@ -33,6 +33,8 @@ const debouncedQuery = refDebounced(searchText, 300)
 const keywordData = ref<AxiosResponse>()
 const hybridData = ref<AxiosResponse>()
 
+const loading = ref(false)
+
 async function runSearch() {
   // reset variables
   if (!debouncedQuery.value.trim()) {
@@ -48,6 +50,8 @@ async function runSearch() {
   }
 
   let res: AxiosResponse
+
+  loading.value = true
 
   // fetch data based on current option
   try {
@@ -87,6 +91,8 @@ async function runSearch() {
     currentPage.value = 1
   } catch (error: unknown) {
     console.error(error)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -223,7 +229,8 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
     </header>
 
     <!-- results -->
-    <main>
+     <p v-if="loading" class="loading">Loading...</p>
+    <main v-else>
       <div ref="resultText" class="resultText"></div>
       <ResultGrid :results="visibleRecipes" />
     </main>
@@ -266,7 +273,7 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
   position: absolute;
   top: 0;
   width: 360px;
-  height: fit-content;
+  height: 1335px;
   z-index: 1;
 }
 
@@ -293,6 +300,12 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
     flex-direction: column;
     flex: 1;
   }
+}
+
+.loading {
+  @include m-flex-center;
+  padding-top: 2rem;
+  font-size: 2rem;
 }
 
 .resultText {
