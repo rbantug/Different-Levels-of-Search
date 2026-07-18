@@ -16,11 +16,18 @@ export const useMainStore = defineStore('main', () => {
     hybridRecipes.value = val
   }
 
-  const currentOption = ref<'keyword'|'hybrid'|null>(null)
+  const currentOption = ref<'keyword' | 'hybrid' | null>(null)
   const getCurrentOption = computed(() => currentOption)
-  function updateCurrentOption(val:'keyword'|'hybrid') {
+  function updateCurrentOption(val: 'keyword' | 'hybrid') {
     currentOption.value = val
-  } 
+  }
 
-  return { getKeywordRecipes, getHybridRecipes, updateKeywordRecipes, updateHybridRecipes, getCurrentOption, updateCurrentOption }
+  return {
+    getKeywordRecipes,
+    getHybridRecipes,
+    updateKeywordRecipes,
+    updateHybridRecipes,
+    getCurrentOption,
+    updateCurrentOption,
+  }
 })

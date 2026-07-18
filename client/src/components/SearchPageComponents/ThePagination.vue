@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useBreakpoints } from '@vueuse/core'
 import 'iconify-icon'
 
 const props = defineProps({
@@ -15,11 +14,6 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['update:currentPage'])
-
-const breakpoints = useBreakpoints({
-  tablet: 768,
-  desktop: 1024,
-})
 
 const visiblePages = computed(() => {
   const pages = []
