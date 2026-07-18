@@ -16,7 +16,9 @@
   max-width: 360px;
   height: 800px;
   overflow-y: auto;
+  overflow-x: hidden;
   margin: 0 auto;
   border: 1px solid black;
+  position: relative;
 }
 </style>

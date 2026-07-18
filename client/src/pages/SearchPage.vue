@@ -266,12 +266,12 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
   position: absolute;
   top: 0;
   width: 360px;
-  height: 800px;
+  height: fit-content;
   z-index: 1;
 }
 
 .pagination {
-  position: fixed;
+  position: sticky;
   bottom: 10px;
   width: 100%;
 }
