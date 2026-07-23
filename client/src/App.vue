@@ -12,6 +12,7 @@
 
 <style lang="scss" scoped>
 .main {
+  @include custom-scrollbar(size, thumb, track, thumb-hover, radius, none);
   font-family: $font-family-base;
   max-width: 360px;
   height: 800px;
