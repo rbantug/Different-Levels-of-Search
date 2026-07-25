@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { getHybridSearch, getSearch } from "../controllers/searchController.js";
+import { getHybridSearch, getSearch, getSuggestions } from "../controllers/searchController.js";
 
 const router = Router()
 
@@ -12,4 +12,7 @@ router
     .route('/hybrid')
     .get(getHybridSearch)
 
+router
+    .route('/suggestion')
+    .get(getSuggestions)
 export default router

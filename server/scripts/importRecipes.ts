@@ -10,6 +10,9 @@ import { indexRecipe } from "../src/search/indexRecipe.js";
 import { validateCreateRecipe } from "../src/joiValidation.js";
 import { buildRecipeEmbeddingText } from "../src/embeddings/buildRecipeEmbeddingText.js";
 import { generateEmbedding } from "../src/embeddings/generateEmbedding.js";
+import { buildKeywords } from "../src/search/buildKeywords.js";
+import { normalizeKeyword } from "../src/search/normalizeKeywords.js";
+import { keywordIndex, meili } from "../src/search/meilisearch.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,8 +24,11 @@ const recipeData = JSON.parse(jsonData);
 export async function runImport() {
   try {
     const meals = recipeData.meals;
+    const allKeywords = new Set<string>();
+
+    // import recipes to meili and sqlite
     for (const recipe of meals) {
-      const ingArr = extractIngredients(recipe) || [];
+      const {ingredients: ingArr, ingredientName} = mergeIngredients(recipe) || [];
 
       const toBeInsertedRecipe = {
         recipeName: recipe.strMeal,
@@ -34,7 +40,7 @@ export async function runImport() {
         ingredients: ingArr,
       };
 
-      const validatedRecipe = validateCreateRecipe(toBeInsertedRecipe)
+      const validatedRecipe = validateCreateRecipe(toBeInsertedRecipe);
 
       const embeddingText = buildRecipeEmbeddingText(validatedRecipe);
 
@@ -50,9 +56,24 @@ export async function runImport() {
         area: validatedRecipe.area,
         category: validatedRecipe.category,
         ingredients: validatedRecipe.ingredients,
-        instructions: validatedRecipe.instructions
+        instructions: validatedRecipe.instructions,
+      });
+
+      buildKeywords(
+        toBeInsertedRecipe.category,
+        toBeInsertedRecipe.area,
+        ingredientName,
+      ).forEach((keyword: string) => {
+        allKeywords.add(normalizeKeyword(keyword));
       });
     }
+
+    // insert all keywords to meilisearch
+    const keywordDocuments = [...allKeywords].map(keyword => ({
+      id: keyword,
+      keyword
+    }))
+    const task = await keywordIndex.addDocuments(keywordDocuments)
   } catch (error: unknown) {
     console.error(error);
   }
@@ -60,8 +81,9 @@ export async function runImport() {
   console.log("import completed!");
 }
 
-function extractIngredients(recipe: any) {
+function mergeIngredients(recipe: any) {
   const ingredients = [];
+  const ingredientName = [];
 
   for (let i = 1; i <= 20; i++) {
     const ing = recipe[`strIngredient${i}`]?.trim().replace(/ {2,}/g, " ");
@@ -70,7 +92,8 @@ function extractIngredients(recipe: any) {
     if (ing) {
       const merge = `${measure} ${ing}`;
       ingredients.push(merge);
+      ingredientName.push(ing)
     }
   }
-  return ingredients;
+  return { ingredients, ingredientName };
 }
