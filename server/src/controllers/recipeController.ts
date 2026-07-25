@@ -88,6 +88,7 @@ export const postSingleRecipe = catchAsyncError(
       area: validateBody.area,
       category: validateBody.category,
       ingredients: validateBody.ingredients,
+      instructions: validateBody.instructions
     });
 
     res.status(200).json({
