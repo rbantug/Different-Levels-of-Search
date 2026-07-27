@@ -75,11 +75,9 @@ export async function runImport() {
       id: slugify(keyword),
       keyword,
     }));
-    const task = await keywordIndex.addDocuments(keywordDocuments);
-
-    await waitForTask(task.taskUid);
+    await keywordIndex.addDocuments(keywordDocuments);
   } catch (error: unknown) {
-    console.error(error);
+    throw new Error(error.message);
   }
 
   console.log("import completed!");
