@@ -113,9 +113,7 @@ export const postSingleRecipe = catchAsyncError(
       k,
     }));
 
-    const task = await keywordIndex.addDocuments(keywordDocuments);
-
-    await waitForTask(task.taskUid);
+    await keywordIndex.addDocuments(keywordDocuments);
 
     res.status(200).json({
       status: "success",
