@@ -15,6 +15,10 @@ import { indexRecipe } from "../search/indexRecipe.js";
 import { deleteRecipeIndex } from "../search/deleteRecipe.js";
 import { generateEmbedding } from "../embeddings/generateEmbedding.js";
 import { buildRecipeEmbeddingText } from "../embeddings/buildRecipeEmbeddingText.js";
+import { buildKeywords } from "../search/buildKeywords.js";
+import { normalizeKeyword } from "../search/normalizeKeywords.js";
+import { keywordIndex, meili } from "../search/meilisearch.js";
+import { waitForTask } from "../search/waitForTask.js";
 
 export const getAllRecipes = catchAsyncError(
   async (_: Request, res: Response) => {
@@ -57,9 +61,10 @@ export const postSingleRecipe = catchAsyncError(
       instructions,
       recipeThumbnail,
       ingredients,
+      ingredientNames = [],
     } = req.body;
 
-    const createSlug = slugify(recipeName)
+    const createSlug = slugify(recipeName);
 
     const validateBody = validateCreateRecipe({
       recipeName,
@@ -69,13 +74,14 @@ export const postSingleRecipe = catchAsyncError(
       instructions,
       recipeThumbnail,
       ingredients,
+      ingredientNames,
     });
 
-    const embeddingText = buildRecipeEmbeddingText(validateBody)
+    const embeddingText = buildRecipeEmbeddingText(validateBody);
 
-    const embedding = await generateEmbedding(embeddingText)
+    const embedding = await generateEmbedding(embeddingText);
 
-    validateBody.embedding = embedding
+    validateBody.embedding = embedding;
 
     const insertedId = await db
       .insert(recipes)
@@ -88,8 +94,28 @@ export const postSingleRecipe = catchAsyncError(
       area: validateBody.area,
       category: validateBody.category,
       ingredients: validateBody.ingredients,
-      instructions: validateBody.instructions
+      instructions: validateBody.instructions,
     });
+
+    // build, normalize and insert keywords to meilisearch
+    const keywords = new Set<string>();
+
+    buildKeywords({
+      category: validateBody.category,
+      area: validateBody.area,
+      ingredients: validateBody.ingredientNames,
+    }).forEach((keyword: string) => {
+      keywords.add(normalizeKeyword(keyword));
+    });
+
+    const keywordDocuments = [...keywords].map((k) => ({
+      id: slugify(k),
+      k,
+    }));
+
+    const task = await keywordIndex.addDocuments(keywordDocuments);
+
+    await waitForTask(task.taskUid);
 
     res.status(200).json({
       status: "success",
@@ -114,7 +140,11 @@ export const updateSingleRecipe = catchAsyncError(
 
     const createSlug = slugify(req.body.recipeName);
 
-    const validateBody = validateUpdateRecipe({ ...recipe[0], ...req.body, slug: createSlug });
+    const validateBody = validateUpdateRecipe({
+      ...recipe[0],
+      ...req.body,
+      slug: createSlug,
+    });
 
     const updatedRecipe = {
       ...validateBody,
@@ -122,11 +152,11 @@ export const updateSingleRecipe = catchAsyncError(
       updatedAt: new Date(),
     };
 
-    const embeddingText = buildRecipeEmbeddingText(updatedRecipe)
+    const embeddingText = buildRecipeEmbeddingText(updatedRecipe);
 
-    const embedding = await generateEmbedding(embeddingText)
+    const embedding = await generateEmbedding(embeddingText);
 
-    updatedRecipe.embedding = embedding
+    updatedRecipe.embedding = embedding;
 
     const result = await db
       .update(recipes)
