@@ -1,10 +1,31 @@
-export function buildKeywords( category:string, area:string, ingredients: string[] ): string[] {
-    const keywords = new Set<string>()
+interface BuildKeywords {
+  category: string;
+  area: string;
+  ingredients?: string[];
+}
 
-    keywords.add(category)
-    keywords.add(area)
+/**
+ * creates a list of keywords without duplicates from the recipe category, area and ingredients.
+ * @param {object} parameter
+ * @param {string} [parameter.category] 
+ * @param {string} [parameter.area] 
+ * @param {string[]} [parameter.ingredients] 
+ * @returns string[]
+ */
 
-    ingredients.forEach((ing) => keywords.add(ing));
+export function buildKeywords({
+  category,
+  area,
+  ingredients,
+}: BuildKeywords): string[] {
+  const keywords = new Set<string>();
 
-    return [...keywords]
+  keywords.add(category);
+  keywords.add(area);
+
+  if (ingredients) {
+      ingredients.forEach((ing) => keywords.add(ing));
+  }
+
+  return [...keywords];
 }

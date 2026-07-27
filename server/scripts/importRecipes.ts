@@ -12,7 +12,8 @@ import { buildRecipeEmbeddingText } from "../src/embeddings/buildRecipeEmbedding
 import { generateEmbedding } from "../src/embeddings/generateEmbedding.js";
 import { buildKeywords } from "../src/search/buildKeywords.js";
 import { normalizeKeyword } from "../src/search/normalizeKeywords.js";
-import { keywordIndex, meili } from "../src/search/meilisearch.js";
+import { keywordIndex } from "../src/search/meilisearch.js";
+import { waitForTask } from "../src/search/waitForTask.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,7 +29,8 @@ export async function runImport() {
 
     // import recipes to meili and sqlite
     for (const recipe of meals) {
-      const {ingredients: ingArr, ingredientName} = mergeIngredients(recipe) || [];
+      const { ingredients: ingArr, ingredientName } =
+        mergeIngredients(recipe) || [];
 
       const toBeInsertedRecipe = {
         recipeName: recipe.strMeal,
@@ -59,21 +61,23 @@ export async function runImport() {
         instructions: validatedRecipe.instructions,
       });
 
-      buildKeywords(
-        toBeInsertedRecipe.category,
-        toBeInsertedRecipe.area,
-        ingredientName,
-      ).forEach((keyword: string) => {
+      buildKeywords({
+        category: toBeInsertedRecipe.category,
+        area: toBeInsertedRecipe.area,
+        ingredients: ingredientName,
+      }).forEach((keyword: string) => {
         allKeywords.add(normalizeKeyword(keyword));
       });
     }
 
     // insert all keywords to meilisearch
-    const keywordDocuments = [...allKeywords].map(keyword => ({
-      id: keyword,
-      keyword
-    }))
-    const task = await keywordIndex.addDocuments(keywordDocuments)
+    const keywordDocuments = [...allKeywords].map((keyword) => ({
+      id: slugify(keyword),
+      keyword,
+    }));
+    const task = await keywordIndex.addDocuments(keywordDocuments);
+
+    await waitForTask(task.taskUid);
   } catch (error: unknown) {
     console.error(error);
   }
@@ -92,7 +96,7 @@ function mergeIngredients(recipe: any) {
     if (ing) {
       const merge = `${measure} ${ing}`;
       ingredients.push(merge);
-      ingredientName.push(ing)
+      ingredientName.push(ing);
     }
   }
   return { ingredients, ingredientName };
