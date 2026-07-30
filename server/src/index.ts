@@ -9,7 +9,7 @@ import searchRoutes from "./routes/search.js";
 import errorHandling from "./errorHandling.js";
 import { setupSearchIndex } from "./search/setup.js";
 import { runImport } from "../scripts/importRecipes.js";
-import { recipes } from "./db/schema.js";
+import { recipes } from "./db/schemas/recipe.js";
 import { exists, sql } from "drizzle-orm";
 
 const app = express();
