@@ -4,7 +4,8 @@ import { fileURLToPath } from "url";
 import slugify from "slugify";
 
 import { db } from "../src/db/index.js";
-import { recipes } from "../src/db/schema.js";
+import { recipes } from "../src/db/schemas/recipe.js";
+import { recipeKeywords } from "../src/db/schemas/recipeKeywords.js";
 
 import { indexRecipe } from "../src/search/indexRecipe.js";
 import { validateCreateRecipe } from "../src/joiValidation.js";
@@ -40,15 +41,24 @@ export async function runImport() {
         instructions: recipe.strInstructions,
         recipeThumbnail: recipe.strMealThumb,
         ingredients: ingArr,
+        ingredientNames: ingredientName
       };
 
       const validatedRecipe = validateCreateRecipe(toBeInsertedRecipe);
+
+      // build and normalize keywords
+      const recipeKW = buildKeywords({
+        category: validatedRecipe.category,
+        area: validatedRecipe.area,
+        ingredients: validatedRecipe.ingredientNames,
+      });
 
       const embeddingText = buildRecipeEmbeddingText(validatedRecipe);
 
       const embedding = await generateEmbedding(embeddingText);
 
       validatedRecipe.embedding = embedding;
+      validatedRecipe.keywords = recipeKW;
 
       await db.insert(recipes).values(validatedRecipe);
 
@@ -61,12 +71,17 @@ export async function runImport() {
         instructions: validatedRecipe.instructions,
       });
 
-      buildKeywords({
-        category: toBeInsertedRecipe.category,
-        area: toBeInsertedRecipe.area,
-        ingredients: ingredientName,
-      }).forEach((keyword: string) => {
-        allKeywords.add(normalizeKeyword(keyword));
+      // insert the current recipe's keywords to the recipeKeyword table (SQLite)
+      await db.insert(recipeKeywords).values(
+        recipeKW.map((keyword) => ({
+          recipeId: validatedRecipe.id,
+          keyword,
+        })),
+      );
+
+      // removed ALL duplicates for meilisearch keyword index
+      recipeKW.forEach((keyword: string) => {
+        allKeywords.add(keyword);
       });
     }
 
