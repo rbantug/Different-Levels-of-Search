@@ -3,6 +3,8 @@ import axios from "axios";
 import type { NextFunction, Request, Response } from "express";
 
 import catchAsyncError from "../../utils/catchAsyncError.js";
+import { db } from "../db/index.js";
+import { recipeKeywords } from "../db/schemas/recipeKeywords.js";
 
 
 export const getHealth = (_: Request, res: Response) => {
@@ -23,3 +25,13 @@ export const getEmbeddingTest = catchAsyncError(async (_: Request, res: Response
       data: response.data,
     });
   });
+
+export const getAllKeywords = catchAsyncError(async (_: Request, res: Response) => {
+  const data = await db.select().from(recipeKeywords);
+  
+      res.status(200).json({
+        status: "success",
+        count: data.length,
+        data,
+      });
+})
