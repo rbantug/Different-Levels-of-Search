@@ -1,3 +1,5 @@
+import { normalizeKeyword } from "./normalizeKeywords.js";
+
 interface BuildKeywords {
   category: string;
   area: string;
@@ -7,9 +9,9 @@ interface BuildKeywords {
 /**
  * creates a list of keywords without duplicates from the recipe category, area and ingredients.
  * @param {object} parameter
- * @param {string} [parameter.category] 
- * @param {string} [parameter.area] 
- * @param {string[]} [parameter.ingredients] 
+ * @param {string} [parameter.category]
+ * @param {string} [parameter.area]
+ * @param {string[]} [parameter.ingredients]
  * @returns string[]
  */
 
@@ -20,11 +22,11 @@ export function buildKeywords({
 }: BuildKeywords): string[] {
   const keywords = new Set<string>();
 
-  keywords.add(category);
-  keywords.add(area);
+  keywords.add(normalizeKeyword(category));
+  keywords.add(normalizeKeyword(area));
 
   if (ingredients) {
-      ingredients.forEach((ing) => keywords.add(ing));
+    ingredients.forEach((ing) => keywords.add(normalizeKeyword(ing)));
   }
 
   return [...keywords];
