@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
 import { db } from "../db/index.js";
-import { recipes } from "../db/schema.js";
+import { recipes } from "../db/schemas/recipe.js";
 import { recipeIndex, keywordIndex } from "../search/meilisearch.js";
 import catchAsyncError from "../../utils/catchAsyncError.js";
 import AppError from "../../utils/appError.js";
