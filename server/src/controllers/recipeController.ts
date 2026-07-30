@@ -112,12 +112,15 @@ export const postSingleRecipe = catchAsyncError(
       }
 
       // add keywords to DB
-      tran.insert(recipeKeywords).values(
-        keywords.map((keyword) => ({
-          recipeId: recipe.insertedId,
-          keyword,
-        })),
-      );
+      tran
+        .insert(recipeKeywords)
+        .values(
+          keywords.map((keyword) => ({
+            recipeId: recipe.insertedId,
+            keyword,
+          })),
+        )
+        .run();
 
       return recipe.insertedId;
     });
@@ -132,10 +135,10 @@ export const postSingleRecipe = catchAsyncError(
       instructions: validateBody.instructions,
     });
 
-    // add keywords to meilisearch
+    // add keywords to keyword index of meilisearch
     const keywordDocuments = keywords.map((k) => ({
       id: slugify(k),
-      k,
+      keyword: k,
     }));
 
     await keywordIndex.addDocuments(keywordDocuments);
