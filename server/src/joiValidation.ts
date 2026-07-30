@@ -41,7 +41,7 @@ export function validateCreateRecipe(data: any) {
   });
 
   if (error) {
-    throw new Error(`${value.recipeName} - ${error.message}`);
+    throw new Error(`Joi validation error: ${value.recipeName} - ${error.message}`);
   }
 
   return value;
