@@ -53,7 +53,7 @@ export const getSingleRecipe = catchAsyncError(
 );
 
 export const postSingleRecipe = catchAsyncError(
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const {
       recipeName,
       category,
@@ -63,6 +63,15 @@ export const postSingleRecipe = catchAsyncError(
       ingredients,
       ingredientNames = [],
     } = req.body;
+
+    if (
+      ingredientNames.length > 0 &&
+      ingredients.length !== ingredientNames.length
+    ) {
+      return next(
+        new AppError("ingredients and ingredientNames are not the same", 400),
+      );
+    }
 
     const createSlug = slugify(recipeName);
 
@@ -77,17 +86,43 @@ export const postSingleRecipe = catchAsyncError(
       ingredientNames,
     });
 
+    const keywords = buildKeywords({
+      category: validateBody.category,
+      area: validateBody.area,
+      ingredients: validateBody.ingredientNames,
+    });
+
     const embeddingText = buildRecipeEmbeddingText(validateBody);
 
     const embedding = await generateEmbedding(embeddingText);
 
     validateBody.embedding = embedding;
+    validateBody.keywords = keywords;
 
-    const insertedId = await db
-      .insert(recipes)
-      .values(validateBody)
-      .returning({ insertedId: recipes.id });
+    const insertedId = db.transaction((tran) => {
+      // insert recipe to DB
+      const [recipe] = tran
+        .insert(recipes)
+        .values(validateBody)
+        .returning({ insertedId: recipes.id })
+        .all();
 
+      if (!recipe) {
+        return next(new AppError("Failed to insert recipe", 400));
+      }
+
+      // add keywords to DB
+      tran.insert(recipeKeywords).values(
+        keywords.map((keyword) => ({
+          recipeId: recipe.insertedId,
+          keyword,
+        })),
+      );
+
+      return recipe.insertedId;
+    });
+
+    // add recipe to the recipe index of meilisearch
     await indexRecipe({
       id: validateBody.id,
       recipeName: validateBody.recipeName,
@@ -97,18 +132,8 @@ export const postSingleRecipe = catchAsyncError(
       instructions: validateBody.instructions,
     });
 
-    // build, normalize and insert keywords to meilisearch
-    const keywords = new Set<string>();
-
-    buildKeywords({
-      category: validateBody.category,
-      area: validateBody.area,
-      ingredients: validateBody.ingredientNames,
-    }).forEach((keyword: string) => {
-      keywords.add(normalizeKeyword(keyword));
-    });
-
-    const keywordDocuments = [...keywords].map((k) => ({
+    // add keywords to meilisearch
+    const keywordDocuments = keywords.map((k) => ({
       id: slugify(k),
       k,
     }));
