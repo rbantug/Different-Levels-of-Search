@@ -1,6 +1,7 @@
 import { db } from "../db/index.js";
-import { recipes } from "../db/schema.js";
-import { eq } from "drizzle-orm";
+import { recipes } from "../db/schemas/recipe.js";
+import { recipeKeywords } from "../db/schemas/recipeKeywords.js";
+import { eq, inArray, and } from "drizzle-orm";
 import slugify from "slugify";
 
 import type { Request, Response, NextFunction } from "express";
@@ -16,9 +17,7 @@ import { deleteRecipeIndex } from "../search/deleteRecipe.js";
 import { generateEmbedding } from "../embeddings/generateEmbedding.js";
 import { buildRecipeEmbeddingText } from "../embeddings/buildRecipeEmbeddingText.js";
 import { buildKeywords } from "../search/buildKeywords.js";
-import { normalizeKeyword } from "../search/normalizeKeywords.js";
-import { keywordIndex, meili } from "../search/meilisearch.js";
-import { waitForTask } from "../search/waitForTask.js";
+import { keywordIndex } from "../search/meilisearch.js";
 
 export const getAllRecipes = catchAsyncError(
   async (_: Request, res: Response) => {
@@ -36,7 +35,7 @@ export const getSingleRecipe = catchAsyncError(
     const id = req.params.id;
 
     if (!id || typeof id === "object") {
-      return next(new AppError("A recipe id is required", 404));
+      return next(new AppError("A recipe id is required", 400));
     }
 
     const recipe = await db.select().from(recipes).where(eq(recipes.id, id));
