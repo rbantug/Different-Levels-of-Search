@@ -84,9 +84,8 @@ function goToPage(page: number) {
 .pagination-container {
   width: fit;
   height: 7rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+  @include m-flex-center;
 }
 
 .pagination {

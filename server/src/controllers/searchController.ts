@@ -1,9 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 
 import { db } from "../db/index.js";
-import { recipes } from "../db/schema.js";
-import { recipeIndex } from "../search/meilisearch.js";
+import { recipes } from "../db/schemas/recipe.js";
+import { recipeIndex, keywordIndex } from "../search/meilisearch.js";
 import catchAsyncError from "../../utils/catchAsyncError.js";
+import AppError from "../../utils/appError.js";
 import { inArray } from "drizzle-orm";
 import { hybridSearch } from "../search/hybridSearch.js";
 
@@ -75,6 +76,28 @@ export const getHybridSearch = catchAsyncError(
       count: finalResult.length,
       data: finalResult,
       query
+    });
+  },
+);
+
+export const getSuggestions = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const query = String(req.query.q ?? "").trim();
+
+    if (!query) {
+      return next(new AppError("Invalid query", 404));
+    }
+
+    const result = await keywordIndex.search(query, {
+      limit: 5,
+      attributesToRetrieve: ["keyword"],
+    });
+
+    res.status(200).json({
+      status: "success",
+      count: result.hits.length,
+      data: result.hits,
+      query,
     });
   },
 );

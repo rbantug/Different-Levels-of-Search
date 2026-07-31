@@ -10,6 +10,7 @@ const recipeSchema = Joi.object({
   instructions: Joi.array().items(Joi.string()).required(),
   recipeThumbnail: Joi.string().allow(null),
   ingredients: Joi.array().items(Joi.string()).required(),
+  ingredientNames: Joi.array().items(Joi.string()),
   embedding: Joi.array().items(Joi.number()),
   createdAt: Joi.date(),
   updatedAt: Joi.date(),
@@ -22,6 +23,7 @@ export interface ValidateCreateRecipe {
   instructions: string[];
   recipeThumbnail: string;
   ingredients: string[];
+  ingredientNames: string[];
 }
 
 export function validateCreateRecipe(data: any) {
@@ -39,7 +41,7 @@ export function validateCreateRecipe(data: any) {
   });
 
   if (error) {
-    throw new Error(`${value.recipeName} - ${error.message}`);
+    throw new Error(`Joi validation error: ${value.recipeName} - ${error.message}`);
   }
 
   return value;

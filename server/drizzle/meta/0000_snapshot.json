@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c9959205-2794-4311-bc0f-9833a058ebe5",
+  "id": "d411a778-b0e9-4e7b-9f39-1d9e027c15d9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "recipes": {
@@ -63,6 +63,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "keywords": {
+          "name": "keywords",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "embedding": {
           "name": "embedding",
           "type": "text",
@@ -88,6 +95,60 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "recipe_keywords": {
+      "name": "recipe_keywords",
+      "columns": {
+        "recipe_id": {
+          "name": "recipe_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "keyword": {
+          "name": "keyword",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "recipe_keywords_keyword_idx": {
+          "name": "recipe_keywords_keyword_idx",
+          "columns": [
+            "keyword"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "recipe_keywords_recipe_id_recipes_id_fk": {
+          "name": "recipe_keywords_recipe_id_recipes_id_fk",
+          "tableFrom": "recipe_keywords",
+          "tableTo": "recipes",
+          "columnsFrom": [
+            "recipe_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "recipe_keywords_recipe_id_keyword_pk": {
+          "columns": [
+            "recipe_id",
+            "keyword"
+          ],
+          "name": "recipe_keywords_recipe_id_keyword_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     }

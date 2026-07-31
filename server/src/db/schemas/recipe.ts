@@ -17,6 +17,11 @@ export const recipes = sqliteTable("recipes", {
   })
     .$type<string[]>()
     .notNull(),
+  keywords: text("keywords", {
+    mode: "json",
+  })
+    .$type<string[]>()
+    .notNull(),
   embedding: text("embedding", {
     mode: "json",
   })

@@ -11,10 +11,11 @@
   $thumb: #888,
   $track: #f1f1f1,
   $thumb-hover: null,
-  $radius: 9999px
+  $radius: 9999px,
+  $width: thin
 ) {
   /* Firefox */
-  scrollbar-width: thin;
+  scrollbar-width: $width;
   scrollbar-color: #{$thumb} #{$track};
 
   /* Chrome, Edge, Safari */

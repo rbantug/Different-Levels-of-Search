@@ -12,3 +12,4 @@ export const meili = new Meilisearch({
 });
 
 export const recipeIndex = meili.index('recipes')
+export const keywordIndex = meili.index('keywords')

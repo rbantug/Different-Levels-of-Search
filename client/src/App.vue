@@ -12,11 +12,14 @@
 
 <style lang="scss" scoped>
 .main {
+  @include custom-scrollbar(size, thumb, track, thumb-hover, radius, none);
   font-family: $font-family-base;
   max-width: 360px;
   height: 800px;
   overflow-y: auto;
+  overflow-x: hidden;
   margin: 0 auto;
   border: 1px solid black;
+  position: relative;
 }
 </style>

@@ -2,7 +2,7 @@ import { recipeIndex } from "./meilisearch.js";
 import { generateEmbedding } from "../embeddings/generateEmbedding.js";
 import { cosineSimilarity } from "./cosineSimilarity.js";
 import { db } from "../db/index.js";
-import { recipes } from "../db/schema.js";
+import { recipes } from "../db/schemas/recipe.js";
 import { inArray } from "drizzle-orm";
 
 export async function hybridSearch(query: string, category: string[]) {
