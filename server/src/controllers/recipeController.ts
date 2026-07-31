@@ -299,13 +299,50 @@ export const deleteSingleRecipe = catchAsyncError(
     const id = req.params.id;
 
     if (!id || typeof id === "object") {
-      return next(new AppError("A recipe id is required", 404));
+      return next(new AppError("A recipe id is required", 400));
     }
 
-    const result = await db.delete(recipes).where(eq(recipes.id, id));
+    const keywordsToDelete: string[] = [];
+    const result = db.transaction((tran) => {
+      const checkRecipe = tran
+        .select()
+        .from(recipes)
+        .where(eq(recipes.id, id))
+        .get();
 
+      if (!checkRecipe) return;
+
+      const getKeywords = checkRecipe.keywords;
+
+      // delete recipe in recipe table in database
+      const deletedRecipe = tran.delete(recipes).where(eq(recipes.id, id)).run();
+
+      // delete keywords in recipeKeyword that has the same id with the deleted recipe
+      tran.delete(recipeKeywords).where(eq(recipeKeywords.recipeId, id)).run();
+
+      // check if the deleted recipe keywords are still being used in other recipes
+      for (const keyword of getKeywords) {
+        const keywordIsStillUsed = tran
+          .select({ recipeId: recipeKeywords.recipeId })
+          .from(recipeKeywords)
+          .where(eq(recipeKeywords.keyword, keyword))
+          .limit(1)
+          .all();
+
+        if (keywordIsStillUsed.length === 0) {
+          keywordsToDelete.push(slugify(keyword));
+        }
+      }
+      return deletedRecipe;
+    });
+
+    // delete recipe from recipe index in meilisearch
     await deleteRecipeIndex(id);
 
+    // delete unused keywords in keyword index in meilisearch
+    if (keywordsToDelete.length > 0) {
+      await keywordIndex.deleteDocuments(keywordsToDelete);
+    }
     res.status(200).json({
       status: "success",
       result,
