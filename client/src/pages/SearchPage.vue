@@ -270,10 +270,10 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
 }
 
 .dropdown-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   width: 360px;
-  height: 1335px;
+  height: 100dvh;
   z-index: 1;
 }
 
@@ -290,7 +290,8 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
 }
 
 .filter-container {
-  @include m-flex-center;
+  display: flex;
+  align-items: center;
   height: 6rem;
   width: 100%;
   justify-content: space-between;
