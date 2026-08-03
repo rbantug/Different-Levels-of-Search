@@ -4,5 +4,4 @@ export interface RecipeSearchDocument {
   category: string;
   area: string;
   ingredients: string[];
-  instructions: string[];
 }

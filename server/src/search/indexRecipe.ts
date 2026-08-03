@@ -9,7 +9,6 @@ export async function indexRecipe(recipe: RecipeSearchDocument) {
       category: recipe.category,
       area: recipe.area,
       ingredients: recipe.ingredients,
-      instructions: recipe.instructions
     },
   ]);
 }

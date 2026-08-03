@@ -12,9 +12,7 @@ import { validateCreateRecipe } from "../src/joiValidation.js";
 import { buildRecipeEmbeddingText } from "../src/embeddings/buildRecipeEmbeddingText.js";
 import { generateEmbedding } from "../src/embeddings/generateEmbedding.js";
 import { buildKeywords } from "../src/search/buildKeywords.js";
-import { normalizeKeyword } from "../src/search/normalizeKeywords.js";
 import { keywordIndex } from "../src/search/meilisearch.js";
-import { waitForTask } from "../src/search/waitForTask.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -68,7 +66,6 @@ export async function runImport() {
         area: validatedRecipe.area,
         category: validatedRecipe.category,
         ingredients: validatedRecipe.ingredients,
-        instructions: validatedRecipe.instructions,
       });
 
       // insert the current recipe's keywords to the recipeKeyword table (SQLite)
