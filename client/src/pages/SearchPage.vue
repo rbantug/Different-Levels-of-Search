@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { nextTick, ref, watch, type Ref } from 'vue'
-import { refDebounced } from '@vueuse/core'
 
 import SearchBar from '@/components/SearchPageComponents/SearchBar.vue'
 import DropDown from '@/components/SearchPageComponents/DropDown.vue'
@@ -28,16 +27,18 @@ const currentArea = ref<string>('All')
 const categoryList = ref<string[]>([])
 const areaList = ref<string[]>([])
 
-const debouncedQuery = refDebounced(searchText, 300)
-
-const keywordData = ref<AxiosResponse>()
-const hybridData = ref<AxiosResponse>()
+const keywordData = ref<AxiosResponse<Recipe>>()
+const hybridData = ref<AxiosResponse<Recipe>>()
 
 const loading = ref(false)
 
+function updateSearchText(keyword:string) {
+  searchText.value = keyword;
+}
+
 async function runSearch() {
   // reset variables
-  if (!debouncedQuery.value.trim()) {
+  if (!searchText.value.trim()) {
     recipeResult.value = []
     recipeCount.value = 0
     visibleRecipes.value = []
@@ -49,19 +50,19 @@ async function runSearch() {
     return
   }
 
-  let res: AxiosResponse
+  let res: AxiosResponse<Recipe>
 
   loading.value = true
 
   // fetch data based on current option
   try {
     if (searchOption.value === 'keyword') {
-      res = await keywordSearch(debouncedQuery.value)
+      res = await keywordSearch(searchText.value)
       keywordData.value = res
       mainStore.updateKeywordRecipes(res.data)
       mainStore.updateCurrentOption('keyword')
     } else if (searchOption.value === 'hybrid') {
-      res = await hybridSearch(debouncedQuery.value)
+      res = await hybridSearch(searchText.value)
       hybridData.value = res
       mainStore.updateHybridRecipes(res.data)
       mainStore.updateCurrentOption('hybrid')
@@ -164,30 +165,19 @@ async function updatePage(val: number) {
   })
 }
 
-// drop down overlay
-const ddOpenId = ref<string | null>(null)
-
-function toggleDD(id: string) {
-  ddOpenId.value = ddOpenId.value === id ? null : id
-}
-
-function closeDD() {
-  ddOpenId.value = null
-}
-
-watch([debouncedQuery, searchOption], runSearch, { immediate: true })
+watch([searchText, searchOption], runSearch, { immediate: true })
 watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
 </script>
 
 <template>
   <div>
-    <div v-show="ddOpenId" @click="closeDD" class="dropdown-overlay"></div>
+    <div v-if="mainStore.getDDOpenId" @click="mainStore.closeDD" class="dropdown-overlay" />
     <!-- search bar -->
     <header class="header">
       <h1 class="header__h1">Different Levels of Search</h1>
       <p class="header__paragraph">Compare Keyword-Only vs. Keyword + Semantic Search</p>
       <div class="searchbar-container">
-        <SearchBar v-model:search="searchText" @input-clicked="closeDD" />
+        <SearchBar v-model:search="searchText" @input-clicked="mainStore.closeDD" @emit-keyword="updateSearchText" />
       </div>
       <p>Total Recipes: {{ recipeCount }}</p>
       <div class="filter-container">
@@ -197,8 +187,8 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
             :data-list="searchOptionList"
             :option="true"
             id="searchOption"
-            @goToggle="toggleDD('searchOption')"
-            :open="ddOpenId === 'searchOption'"
+            @goToggle="mainStore.toggleDD('searchOption')"
+            :open="mainStore.getDDOpenId === 'searchOption'"
             v-model="searchOption"
           />
         </div>
@@ -208,8 +198,8 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
             :data-list="categoryList"
             :option="false"
             id="category"
-            @goToggle="toggleDD('category')"
-            :open="ddOpenId === 'category'"
+            @goToggle="mainStore.toggleDD('category')"
+            :open="mainStore.getDDOpenId === 'category'"
             v-model="currentCategory"
           />
         </div>
@@ -220,8 +210,8 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
             :data-list="areaList"
             :option="false"
             id="area"
-            @goToggle="toggleDD('area')"
-            :open="ddOpenId === 'area'"
+            @goToggle="mainStore.toggleDD('area')"
+            :open="mainStore.getDDOpenId === 'area'"
             v-model="currentArea"
           />
         </div>
@@ -270,10 +260,10 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
 }
 
 .dropdown-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   width: 360px;
-  height: 1335px;
+  height: 100dvh;
   z-index: 1;
 }
 
@@ -290,7 +280,8 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
 }
 
 .filter-container {
-  @include m-flex-center;
+  display: flex;
+  align-items: center;
   height: 6rem;
   width: 100%;
   justify-content: space-between;

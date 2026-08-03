@@ -22,6 +22,19 @@ export const useMainStore = defineStore('main', () => {
     currentOption.value = val
   }
 
+  // overlay for drop down list
+  const ddOpenId = ref<string | null>(null)
+
+  function toggleDD(id: 'searchOption' | 'category' | 'area' | 'searchbar') {
+    ddOpenId.value = ddOpenId.value === id ? null : id
+  }
+
+  function closeDD() {
+    ddOpenId.value = null
+  }
+
+  const getDDOpenId = computed(() => ddOpenId.value)
+
   return {
     getKeywordRecipes,
     getHybridRecipes,
@@ -29,5 +42,8 @@ export const useMainStore = defineStore('main', () => {
     updateHybridRecipes,
     getCurrentOption,
     updateCurrentOption,
+    toggleDD,
+    closeDD,
+    getDDOpenId
   }
 })
