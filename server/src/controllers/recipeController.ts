@@ -130,8 +130,7 @@ export const postSingleRecipe = catchAsyncError(
       recipeName: validateBody.recipeName,
       area: validateBody.area,
       category: validateBody.category,
-      ingredients: validateBody.ingredients,
-      instructions: validateBody.instructions,
+      ingredients: validateBody.ingredients
     });
 
     // add keywords to keyword index of meilisearch
