@@ -2,19 +2,35 @@
 import { type PropType } from 'vue'
 
 const props = defineProps({
+  /**
+   * It contains the list of options you can select from the drop down list
+   */
   dataList: {
     required: true,
     type: Array as PropType<string[]>,
   },
+  /**
+   * This is for drop down lists that needs to have a "All" option at the start of the list. Setting it to "false" will add the "All" option.
+   */
   option: {
     required: true,
     type: Boolean,
     default: false,
   },
+  /** 
+   * Will determine if the drop down list is open or hidden. It uses v-show to enable visibility.
+   */
   open: {
     required: true,
     type: Boolean,
   },
+  /**
+   * Specifically made for the Searchbar. If the search yielded no results, setting this to "true" will render a "No Results" text
+   */
+  noResultsOption: {
+    required: false,
+    type: Boolean,
+  }
 })
 
 const emits = defineEmits<{
@@ -85,6 +101,7 @@ const leave = (el: Element) => {
     >
       <ul v-show="props.open">
         <li v-if="!props.option" @click="updateSelectedOption('All')">All</li>
+        <li v-if="props.noResultsOption" class="no-results" @click.prevent>No Results</li>
         <li v-for="data in props.dataList" :key="data" @click="updateSelectedOption(data)">
           {{ data }}
         </li>
@@ -106,7 +123,7 @@ const leave = (el: Element) => {
   margin-top: 3.5rem;
   overflow-y: auto;
   border-radius: 5px;
-  z-index: 1;
+  z-index: 2;
 
   &.visible {
     border: 1px gray solid;
@@ -129,6 +146,15 @@ li {
   &:hover {
     cursor: pointer;
     background-color: $color-primary-hover;
+  }
+}
+
+li.no-results {
+  text-align: center;
+
+  &:hover {
+    cursor: not-allowed;
+    background-color: transparent;
   }
 }
 
