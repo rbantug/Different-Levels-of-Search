@@ -32,8 +32,8 @@ const hybridData = ref<AxiosResponse<Recipe>>()
 
 const loading = ref(false)
 
-function updateSearchText(keyword:string) {
-  searchText.value = keyword;
+function updateSearchText(keyword: string) {
+  searchText.value = keyword
 }
 
 async function runSearch() {
@@ -170,16 +170,23 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
 </script>
 
 <template>
-  <div>
+  <div class="searchpage-container">
     <div v-if="mainStore.getDDOpenId" @click="mainStore.closeDD" class="dropdown-overlay" />
+
     <!-- search bar -->
     <header class="header">
       <h1 class="header__h1">Different Levels of Search</h1>
       <p class="header__paragraph">Compare Keyword-Only vs. Keyword + Semantic Search</p>
       <div class="searchbar-container">
-        <SearchBar v-model:search="searchText" @input-clicked="mainStore.closeDD" @emit-keyword="updateSearchText" />
+        <SearchBar
+          v-model:search="searchText"
+          @input-clicked="mainStore.closeDD"
+          @emit-keyword="updateSearchText"
+        />
       </div>
       <p>Total Recipes: {{ recipeCount }}</p>
+
+      <!-- Filters -->
       <div class="filter-container">
         <div>
           <p>Search Option:</p>
@@ -219,7 +226,7 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
     </header>
 
     <!-- results -->
-     <p v-if="loading" class="loading">Loading...</p>
+    <p v-if="loading" class="loading">Loading...</p>
     <main v-else>
       <div ref="resultText" class="resultText"></div>
       <ResultGrid :results="visibleRecipes" />
@@ -237,6 +244,12 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
 </template>
 
 <style lang="scss" scoped>
+.searchpage-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .header {
   position: sticky;
   top: 0;
@@ -265,6 +278,10 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
   width: 360px;
   height: 100dvh;
   z-index: 1;
+}
+
+main {
+  height: 100%
 }
 
 .pagination {
