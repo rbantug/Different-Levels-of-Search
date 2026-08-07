@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
 
+import { useMainStore } from '@/stores/mainStore.ts'
 import type { Recipe } from '@/types/recipe'
 import RecipeCard from './RecipeCard.vue'
 
@@ -11,12 +12,14 @@ const props = defineProps({
     default: () => [],
   },
 })
+
+const mainStore = useMainStore()
 </script>
 
 <template>
   <div class="grid-container">
     <div class="grid">
-      <div v-for="recipe in props.results" :key="recipe.id">
+      <div v-for="recipe in props.results" :key="recipe.id" @click="mainStore.addToRecentRecipes(recipe)">
         <router-link :to="`/${recipe.slug}`">
           <RecipeCard
             :recipe-name="recipe.recipeName"

@@ -18,8 +18,8 @@ const searchText = ref('')
 const debouncedQuery = refDebounced(searchText, 300)
 const suggestions = ref<string[]>([])
 const isLoading = ref(false)
-let keypress = 0
 const noResult = ref(false)
+const justFetched = ref(false)
 
 /////////////////////////////
 // fetch keyword suggestions
@@ -51,6 +51,7 @@ async function runSuggestion() {
     console.error(error)
   } finally {
     isLoading.value = false
+    justFetched.value = true
   }
 }
 
@@ -62,7 +63,6 @@ function emitKeyword(keyword: string) {
   //dropdownIsOpen.value = false
   mainStore.closeDD()
   searchText.value = keyword
-  keypress = 0
   emits('emitKeyword', keyword)
 }
 
@@ -71,8 +71,11 @@ function emitKeyword(keyword: string) {
  */
 function submitKeyword() {
   mainStore.closeDD()
-  keypress = 0
   emits('emitKeyword', searchText.value)
+}
+
+function startFetch() {
+  justFetched.value = false
 }
 
 watch(
@@ -86,11 +89,8 @@ watch(
       return
     }
 
-    // the code below prevents runSuggestion() from running after selecting a keyword from the dropdown list
-    keypress++
-
-    if (keypress > 1) {
-      keypress = 0
+    // this will prevent another search after selecting an option in the drop down list
+    if (justFetched.value === false) {
       runSuggestion()
     }
   },
@@ -101,7 +101,13 @@ watch(
 <template>
   <div>
     <div class="searchbar-container">
-      <input type="text" v-model="searchText" placeholder="Search recipes..." @click="runEmit" />
+      <input
+        type="text"
+        v-model="searchText"
+        placeholder="Search recipes..."
+        @click="runEmit"
+        @keypress="startFetch"
+      />
       <!-- loading icon -->
       <div class="loading-container">
         <div v-show="isLoading" class="loading-container-svg">
@@ -147,6 +153,7 @@ watch(
           id="searchbar"
           :open="mainStore.getDDOpenId === 'searchbar'"
           :no-results-option="noResult"
+          :show-recent-recipes="true"
           @close-list="emitKeyword"
         />
       </div>
@@ -215,7 +222,7 @@ input {
   }
 
   &:hover {
-    cursor: pointer
+    cursor: pointer;
   }
 }
 

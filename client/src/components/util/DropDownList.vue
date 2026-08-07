@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { type PropType } from 'vue'
+import { type PropType, type Ref } from 'vue'
+import { useStorage } from '@vueuse/core'
+import { useRouter } from 'vue-router'
+
+import type { RecentRecipe } from '@/types/recentRecipe'
+import { useMainStore } from '@/stores/mainStore'
 
 const props = defineProps({
   /**
@@ -17,7 +22,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  /** 
+  /**
    * Will determine if the drop down list is open or hidden. It uses v-show to enable visibility.
    */
   open: {
@@ -30,16 +35,26 @@ const props = defineProps({
   noResultsOption: {
     required: false,
     type: Boolean,
-  }
+  },
+  /**
+   * Setting this to "true" will add recent recipes accessed by the user at the bottom of the drop down list
+   */
+  showRecentRecipes: {
+    required: false,
+    type: Boolean,
+  },
 })
 
 const emits = defineEmits<{
-    (e: 'closeList', val: string): void
+  (e: 'closeList', val: string): void
 }>()
 
 function updateSelectedOption(val: string) {
   emits('closeList', val)
 }
+
+const mainStore = useMainStore()
+const router = useRouter()
 
 // drop down animation
 
@@ -87,6 +102,25 @@ const leave = (el: Element) => {
   element.style.height = '0'
   element.style.opacity = '0'
 }
+
+// recent recipe related code
+
+const recentRecipeQueue: Ref<RecentRecipe[]> = useStorage('recent-recipes', [])
+
+//const getRecentRecipeQ = computed(() => recentRecipeQueue.value)
+
+function recentRecipeToRecipePage(recipeId: string, slug: string) {
+  mainStore.updateCurrentRecipeId(recipeId)
+
+  emits('closeList', '')
+
+  router.push({
+    name: 'recipePage',
+    params: {
+      slug
+    }
+  })
+}
 </script>
 
 <template>
@@ -105,6 +139,26 @@ const leave = (el: Element) => {
         <li v-for="data in props.dataList" :key="data" @click="updateSelectedOption(data)">
           {{ data }}
         </li>
+        <hr />
+        <div v-if="showRecentRecipes">
+          <div v-if="!recentRecipeQueue.length">No recent recipes</div>
+          <div v-else>
+            <p>Recently viewed recipes:</p>
+            <ul>
+              <li
+                v-for="{ recipeId, recipeName, recipeThumbnail, slug } in recentRecipeQueue"
+                :key="recipeId"
+                @click="recentRecipeToRecipePage(recipeId, slug)"
+                class="recent-recipe"
+              >
+                <span>{{ recipeName }}</span>
+                <span class="img-container">
+                  <img :src="recipeThumbnail" :alt="recipeName" />
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
       </ul>
     </Transition>
   </div>
@@ -167,5 +221,23 @@ li.no-results {
     opacity 200ms ease;
 
   overflow: hidden;
+}
+
+// recent recipe
+
+.recent-recipe {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+
+  .img-container {
+    height: 3rem;
+    width: 3rem;
+  }
+
+  img {
+    height: 3rem;
+  }
 }
 </style>
