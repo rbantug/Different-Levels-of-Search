@@ -83,7 +83,7 @@ function goToPage(page: number) {
 <style lang="scss" scoped>
 .pagination-container {
   width: fit;
-  height: 7rem;
+  height: 6rem;
 
   @include m-flex-center;
 }

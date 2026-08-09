@@ -285,7 +285,7 @@ main {
 
 .pagination {
   position: sticky;
-  bottom: 10px;
+  bottom: 0;
   width: 100%;
 }
 

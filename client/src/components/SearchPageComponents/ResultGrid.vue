@@ -14,12 +14,22 @@ const props = defineProps({
 })
 
 const mainStore = useMainStore()
+
+function addToRecentRecipe(recipe: Recipe) {
+  mainStore.addToRecentRecipes({
+    recipeId: recipe.id,
+    recipeName: recipe.recipeName,
+    recipeThumbnail: recipe.recipeThumbnail,
+    slug: recipe.slug,
+    createdAt: new Date(),
+  })
+}
 </script>
 
 <template>
   <div class="grid-container">
     <div class="grid">
-      <div v-for="recipe in props.results" :key="recipe.id" @click="mainStore.addToRecentRecipes(recipe)">
+      <div v-for="recipe in props.results" :key="recipe.id" @click="addToRecentRecipe(recipe)">
         <router-link :to="`/${recipe.slug}`">
           <RecipeCard
             :recipe-name="recipe.recipeName"
@@ -39,7 +49,8 @@ const mainStore = useMainStore()
   display: flex;
   justify-content: center;
   overflow-y: auto;
-  padding: 1rem 0;
+  padding-top: 1rem;
+  height: 100%;
 }
 
 .grid {
