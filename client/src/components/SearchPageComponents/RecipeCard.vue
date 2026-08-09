@@ -81,6 +81,7 @@ watch(
   width: 20rem;
   height: 10rem;
   border-radius: 5px;
+  padding-bottom: 0.1rem;
 }
 
 .card {

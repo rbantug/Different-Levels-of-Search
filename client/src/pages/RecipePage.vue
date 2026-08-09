@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 
 import { useMainStore } from '@/stores/mainStore'
 
 import type { Recipe } from '@/types/recipe'
 import BaseBadge from '@/components/util/BaseBadge.vue'
+import { getSingleRecipe } from '@/api/recipe'
 
 const route = useRoute()
 const router = useRouter()
@@ -14,23 +16,51 @@ const mainStore = useMainStore()
 const recipe = ref<Recipe | null>()
 const badgeText = ref<string[]>([])
 
-function loadRecipe(slug: string | string[] | undefined) {
+/**
+ * This will search for the recipe details that will be used in this component. Regarding the 2 arguments, you can only provide a slug or a recipeId. Not both.
+ * @param slug
+ * @param recipeId
+ */
+async function loadRecipe(slug: string | string[] | undefined) {
   const option = mainStore.getCurrentOption
 
   if (option.value === 'keyword') {
-    recipe.value = mainStore.getKeywordRecipes.value.find((r: Recipe) => r.slug === slug)
-  } else if (option.value === 'hybrid') {
-    recipe.value = mainStore.getHybridRecipes.value.find((r: Recipe) => r.slug === slug)
+      recipe.value = mainStore.getKeywordRecipes.value.find((r: Recipe) => r.slug === slug)
+    } else if (option.value === 'hybrid') {
+      recipe.value = mainStore.getHybridRecipes.value.find((r: Recipe) => r.slug === slug)
+    }
+
+
+  if (!recipe.value) {
+    const recipeId = mainStore.getCurrentRecipeId.value
+
+    try {
+      const { data } = await getSingleRecipe(recipeId!)
+      recipe.value = data
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.status === 404) {
+          router.push({
+            name: 'error',
+            params: {
+              anything: '404',
+            },
+          })
+        }
+        return
+      } else {
+        router.push({
+          name: 'error',
+          params: {
+            anything: '500',
+          },
+        })
+      }
+    }
   }
 
   if (!recipe.value) {
-    router.push({
-      name: 'error',
-      params: {
-        anything: '404',
-      },
-    })
-    return
+    throw new Error('Something went wrong with fetching the recipe')
   }
 
   // merge category and area into an array
@@ -40,15 +70,16 @@ function loadRecipe(slug: string | string[] | undefined) {
 function goBackToSearchPage() {
   recipe.value = null
   badgeText.value = []
+  mainStore.updateCurrentRecipeId(null)
   router.go(-1)
 }
 
 watch(
   () => route.params.slug,
-  (newVal) => {
+  async (newVal) => {
     if (!newVal) return
-    
-    loadRecipe(route.params.slug)
+
+    await loadRecipe(route.params.slug)
   },
   {
     immediate: true,

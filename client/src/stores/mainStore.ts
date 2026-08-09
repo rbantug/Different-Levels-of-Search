@@ -1,6 +1,9 @@
-import { ref, computed } from 'vue'
+import { type Ref, ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { useStorage } from '@vueuse/core'
+
 import type { Recipe } from '@/types/recipe'
+import type { RecentRecipe } from '@/types/recentRecipe'
 
 export const useMainStore = defineStore('main', () => {
   const keywordRecipes = ref<Recipe[]>([])
@@ -35,6 +38,43 @@ export const useMainStore = defineStore('main', () => {
 
   const getDDOpenId = computed(() => ddOpenId.value)
 
+  // recent recipe queue in local storage
+
+  const recentRecipeQueue: Ref<RecentRecipe[]> = useStorage('recent-recipes', [])
+  const currentRecipeId = ref<string|null>(null)
+
+  /**
+   * This update the recent recipe queue in the localStorage
+   * @param recipe - Some of the properties of the recipe object that will be stored in the local storage
+   */
+  function addToRecentRecipes({ recipeId, recipeName, recipeThumbnail, slug, createdAt }: RecentRecipe
+  ) {
+    currentRecipeId.value = recipeId
+    const findIndex = recentRecipeQueue.value.findIndex((x) => x.recipeId === recipeId)
+
+    if (findIndex !== -1) {
+      recentRecipeQueue.value.splice(findIndex, 1)
+    }
+
+    recentRecipeQueue.value.unshift({
+      recipeId,
+      recipeName,
+      recipeThumbnail,
+      slug,
+      createdAt: createdAt || new Date(),
+    })
+
+    if (recentRecipeQueue.value.length > 3) {
+      recentRecipeQueue.value.pop()
+    }
+  }
+
+  function updateCurrentRecipeId(recipeId: string|null) {
+    currentRecipeId.value = recipeId
+  }
+
+  const getCurrentRecipeId = computed(() => currentRecipeId)
+  
   return {
     getKeywordRecipes,
     getHybridRecipes,
@@ -44,6 +84,9 @@ export const useMainStore = defineStore('main', () => {
     updateCurrentOption,
     toggleDD,
     closeDD,
-    getDDOpenId
+    getDDOpenId,
+    addToRecentRecipes,
+    getCurrentRecipeId,
+    updateCurrentRecipeId
   }
 })

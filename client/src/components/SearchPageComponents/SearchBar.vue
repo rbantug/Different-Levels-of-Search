@@ -10,16 +10,12 @@ const mainStore = useMainStore()
 
 const emits = defineEmits(['inputClicked', 'emitKeyword'])
 
-function runEmit() {
-  emits('inputClicked')
-}
-
 const searchText = ref('')
 const debouncedQuery = refDebounced(searchText, 300)
 const suggestions = ref<string[]>([])
 const isLoading = ref(false)
-let keypress = 0
-const noResult = ref(false)
+const noResult = ref(true)
+const justFetched = ref(false)
 
 /////////////////////////////
 // fetch keyword suggestions
@@ -40,17 +36,20 @@ async function runSuggestion() {
     const { data } = await suggestion(debouncedQuery.value)
 
     if (data.length === 0) {
-      noResult.value = true
       suggestions.value = []
+      noResult.value = true
     } else {
       noResult.value = false
       suggestions.value = data.map((s) => s.keyword)
     }
-    mainStore.toggleDD('searchbar')
+    if (mainStore.getDDOpenId !== 'searchbar') {
+      mainStore.toggleDD('searchbar')
+    }
   } catch (error) {
     console.error(error)
   } finally {
     isLoading.value = false
+    justFetched.value = true
   }
 }
 
@@ -62,7 +61,6 @@ function emitKeyword(keyword: string) {
   //dropdownIsOpen.value = false
   mainStore.closeDD()
   searchText.value = keyword
-  keypress = 0
   emits('emitKeyword', keyword)
 }
 
@@ -71,26 +69,31 @@ function emitKeyword(keyword: string) {
  */
 function submitKeyword() {
   mainStore.closeDD()
-  keypress = 0
   emits('emitKeyword', searchText.value)
+}
+
+function startFetch() {
+  justFetched.value = false
+}
+
+function openDropdown() {
+  if (mainStore.getDDOpenId !== 'searchbar') {
+    mainStore.toggleDD('searchbar')
+  }
 }
 
 watch(
   debouncedQuery,
   (newVal) => {
     // the code below will force the parent component (SearchPage.vue) to discard all the fetched recipes if the search bar has no text.
-    if (!newVal) {
+    if (newVal === '') {
       suggestions.value = []
-      noResult.value = false
       emitKeyword('')
       return
     }
 
-    // the code below prevents runSuggestion() from running after selecting a keyword from the dropdown list
-    keypress++
-
-    if (keypress > 1) {
-      keypress = 0
+    // this will prevent another search after selecting an option in the drop down list
+    if (justFetched.value === false) {
       runSuggestion()
     }
   },
@@ -101,7 +104,13 @@ watch(
 <template>
   <div>
     <div class="searchbar-container">
-      <input type="text" v-model="searchText" placeholder="Search recipes..." @click="runEmit" />
+      <input
+        type="text"
+        v-model="searchText"
+        placeholder="Search recipes..."
+        @click="openDropdown"
+        @keypress="startFetch"
+      />
       <!-- loading icon -->
       <div class="loading-container">
         <div v-show="isLoading" class="loading-container-svg">
@@ -147,6 +156,7 @@ watch(
           id="searchbar"
           :open="mainStore.getDDOpenId === 'searchbar'"
           :no-results-option="noResult"
+          :show-recent-recipes="true"
           @close-list="emitKeyword"
         />
       </div>
@@ -215,7 +225,7 @@ input {
   }
 
   &:hover {
-    cursor: pointer
+    cursor: pointer;
   }
 }
 

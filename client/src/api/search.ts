@@ -12,7 +12,6 @@ export interface AxiosResponse<T> {
 const api = axios.create({
   baseURL: 'http://localhost:3000/api/search',
   timeout: 10000,
-  
 })
 
 export async function keywordSearch(query: string): Promise<AxiosResponse<Recipe>> {

@@ -180,7 +180,6 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
       <div class="searchbar-container">
         <SearchBar
           v-model:search="searchText"
-          @input-clicked="mainStore.closeDD"
           @emit-keyword="updateSearchText"
         />
       </div>
@@ -286,7 +285,7 @@ main {
 
 .pagination {
   position: sticky;
-  bottom: 10px;
+  bottom: 0;
   width: 100%;
 }
 
