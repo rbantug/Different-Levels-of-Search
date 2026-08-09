@@ -25,11 +25,10 @@ async function loadRecipe(slug: string | string[] | undefined) {
   const option = mainStore.getCurrentOption
 
   if (option.value === 'keyword') {
-      recipe.value = mainStore.getKeywordRecipes.value.find((r: Recipe) => r.slug === slug)
-    } else if (option.value === 'hybrid') {
-      recipe.value = mainStore.getHybridRecipes.value.find((r: Recipe) => r.slug === slug)
-    }
-
+    recipe.value = mainStore.getKeywordRecipes.value.find((r: Recipe) => r.slug === slug)
+  } else if (option.value === 'hybrid') {
+    recipe.value = mainStore.getHybridRecipes.value.find((r: Recipe) => r.slug === slug)
+  }
 
   if (!recipe.value) {
     const recipeId = mainStore.getCurrentRecipeId.value
@@ -124,9 +123,9 @@ watch(
     <!-- instructions -->
     <div class="instruction-container">
       <h1 class="heading-content">Instructions</h1>
-      <div v-for="(ins, index) in recipe?.instructions" :key="ins">
-        <span>{{ index + 1 }}. </span>
-        <span>{{ ins }}</span>
+      <div v-for="(ins, index) in recipe?.instructions" :key="ins" class="single-instruction">
+        <div>{{ index + 1 }}.</div>
+        <div>{{ ins }}</div>
       </div>
     </div>
   </div>
@@ -174,21 +173,6 @@ header {
   margin: 0.5rem 0.7rem;
 }
 
-/* .badge-container {
-  width: 80%;
-  max-width: 10rem;
-  margin: 0 auto;
-
-  #{&}--flex {
-    
-  }
-
-  #{&}--grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-  }
-} */
-
 .badge-container--flex {
   width: 80%;
   @include m-flex-center;
@@ -226,5 +210,21 @@ header {
 
 .instruction-container {
   margin: 1rem;
+}
+
+.single-instruction {
+  display: flex;
+  height: fit;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+
+  > :first-child {
+    width: 5%;
+    font-weight: bold;
+  }
+
+  > :last-child {
+    width: 95%;
+  }
 }
 </style>
