@@ -47,19 +47,21 @@ export const useMainStore = defineStore('main', () => {
    * This update the recent recipe queue in the localStorage
    * @param recipe - Some of the properties of the recipe object that will be stored in the local storage
    */
-  function addToRecentRecipes(recipe: Recipe) {
-    currentRecipeId.value = recipe.id
-    const findIndex = recentRecipeQueue.value.findIndex((x) => x.recipeId === recipe.id)
+  function addToRecentRecipes({ recipeId, recipeName, recipeThumbnail, slug, createdAt }: RecentRecipe
+  ) {
+    currentRecipeId.value = recipeId
+    const findIndex = recentRecipeQueue.value.findIndex((x) => x.recipeId === recipeId)
 
     if (findIndex !== -1) {
       recentRecipeQueue.value.splice(findIndex, 1)
     }
 
     recentRecipeQueue.value.unshift({
-      recipeId: recipe.id,
-      recipeName: recipe.recipeName,
-      recipeThumbnail: recipe.recipeThumbnail,
-      slug: recipe.slug
+      recipeId,
+      recipeName,
+      recipeThumbnail,
+      slug,
+      createdAt: createdAt || new Date(),
     })
 
     if (recentRecipeQueue.value.length > 3) {

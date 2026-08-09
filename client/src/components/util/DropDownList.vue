@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 
 import type { RecentRecipe } from '@/types/recentRecipe'
 import { useMainStore } from '@/stores/mainStore'
+import { useRelativeDate } from '@/composables/useRelativeDate'
 
 const props = defineProps({
   /**
@@ -55,6 +56,7 @@ function updateSelectedOption(val: string) {
 
 const mainStore = useMainStore()
 const router = useRouter()
+const { formatRelativeDate } = useRelativeDate()
 
 // drop down animation
 
@@ -107,19 +109,30 @@ const leave = (el: Element) => {
 
 const recentRecipeQueue: Ref<RecentRecipe[]> = useStorage('recent-recipes', [])
 
-//const getRecentRecipeQ = computed(() => recentRecipeQueue.value)
-
-function recentRecipeToRecipePage(recipeId: string, slug: string) {
-  mainStore.updateCurrentRecipeId(recipeId)
-
+function recentRecipeToRecipePage(recentRecipe: RecentRecipe) {
+  mainStore.addToRecentRecipes({
+    recipeId: recentRecipe.recipeId,
+    recipeName: recentRecipe.recipeName,
+    recipeThumbnail: recentRecipe.recipeThumbnail,
+    slug: recentRecipe.slug,
+    createdAt: recentRecipe.createdAt,
+  })
   emits('closeList', '')
 
   router.push({
     name: 'recipePage',
     params: {
-      slug
-    }
+      slug: recentRecipe.slug,
+    },
   })
+}
+
+function cutRecipeName(recipeName: string) {
+  if (recipeName && recipeName.length > 16) {
+    const editedRecipeName = recipeName.substring(0, 16)
+    return `${editedRecipeName}...`
+  }
+  return recipeName
 }
 </script>
 
@@ -139,24 +152,33 @@ function recentRecipeToRecipePage(recipeId: string, slug: string) {
         <li v-for="data in props.dataList" :key="data" @click="updateSelectedOption(data)">
           {{ data }}
         </li>
-        <hr />
+
+        <!-- recent recipe list -->
         <div v-if="showRecentRecipes">
-          <div v-if="!recentRecipeQueue.length">No recent recipes</div>
-          <div v-else>
-            <p>Recently viewed recipes:</p>
-            <ul>
-              <li
-                v-for="{ recipeId, recipeName, recipeThumbnail, slug } in recentRecipeQueue"
-                :key="recipeId"
-                @click="recentRecipeToRecipePage(recipeId, slug)"
-                class="recent-recipe"
-              >
-                <span>{{ recipeName }}</span>
-                <span class="img-container">
-                  <img :src="recipeThumbnail" :alt="recipeName" />
-                </span>
-              </li>
-            </ul>
+          <hr />
+          <div class="recent-recipe-container">
+            <div v-if="!recentRecipeQueue.length" class="no-recent-recipe-text">
+              No recent recipes
+            </div>
+            <div v-else>
+              <h1 class="recent-recipe-header">Recently Viewed Recipes:</h1>
+              <ul>
+                <li
+                  v-for="recentRecipe in recentRecipeQueue"
+                  :key="recentRecipe.recipeId"
+                  @click="recentRecipeToRecipePage(recentRecipe)"
+                  class="recent-recipe"
+                >
+                  <div class="img-container">
+                    <img :src="recentRecipe.recipeThumbnail" :alt="recentRecipe.recipeName" />
+                  </div>
+                  <div class="recent-recipe-details">
+                    <span>{{ cutRecipeName(recentRecipe.recipeName) }}</span>
+                    <span>Opened {{ formatRelativeDate(new Date(recentRecipe.createdAt)) }}</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </ul>
@@ -204,6 +226,7 @@ li {
 }
 
 li.no-results {
+  padding: 2rem 0;
   text-align: center;
 
   &:hover {
@@ -225,19 +248,58 @@ li.no-results {
 
 // recent recipe
 
+.recent-recipe-container {
+  margin: 1rem;
+}
+
+.no-recent-recipe-text {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.recent-recipe-header {
+  font-size: 1.3rem;
+  text-align: left;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
 .recent-recipe {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid $card-url-color;
 
-  .img-container {
-    height: 3rem;
-    width: 3rem;
+  &:hover {
+    background-color: transparent;
+  }
+}
+
+.recent-recipe-details {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: auto;
+
+  span:first-of-type {
+    font-size: 1.1rem;
+    font-weight: 600;
   }
 
-  img {
-    height: 3rem;
+  span:last-of-type {
+    font-size: 0.9rem;
   }
+}
+
+.img-container {
+  height: 4rem;
+  width: 4rem;
+}
+
+img {
+  height: 4rem;
+  border-radius: 5px;
 }
 </style>

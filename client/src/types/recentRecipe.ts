@@ -3,4 +3,5 @@ export interface RecentRecipe {
     recipeName: string
     recipeThumbnail: string
     slug: string
+    createdAt: Date
 }
