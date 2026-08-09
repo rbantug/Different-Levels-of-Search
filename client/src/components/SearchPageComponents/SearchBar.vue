@@ -10,15 +10,11 @@ const mainStore = useMainStore()
 
 const emits = defineEmits(['inputClicked', 'emitKeyword'])
 
-function runEmit() {
-  emits('inputClicked')
-}
-
 const searchText = ref('')
 const debouncedQuery = refDebounced(searchText, 300)
 const suggestions = ref<string[]>([])
 const isLoading = ref(false)
-const noResult = ref(false)
+const noResult = ref(true)
 const justFetched = ref(false)
 
 /////////////////////////////
@@ -40,13 +36,15 @@ async function runSuggestion() {
     const { data } = await suggestion(debouncedQuery.value)
 
     if (data.length === 0) {
-      noResult.value = true
       suggestions.value = []
+      noResult.value = true
     } else {
       noResult.value = false
       suggestions.value = data.map((s) => s.keyword)
     }
-    mainStore.toggleDD('searchbar')
+    if (mainStore.getDDOpenId !== 'searchbar') {
+      mainStore.toggleDD('searchbar')
+    }
   } catch (error) {
     console.error(error)
   } finally {
@@ -78,13 +76,18 @@ function startFetch() {
   justFetched.value = false
 }
 
+function openDropdown() {
+  if (mainStore.getDDOpenId !== 'searchbar') {
+    mainStore.toggleDD('searchbar')
+  }
+}
+
 watch(
   debouncedQuery,
   (newVal) => {
     // the code below will force the parent component (SearchPage.vue) to discard all the fetched recipes if the search bar has no text.
-    if (!newVal) {
+    if (newVal === '') {
       suggestions.value = []
-      noResult.value = false
       emitKeyword('')
       return
     }
@@ -105,7 +108,7 @@ watch(
         type="text"
         v-model="searchText"
         placeholder="Search recipes..."
-        @click="runEmit"
+        @click="openDropdown"
         @keypress="startFetch"
       />
       <!-- loading icon -->
