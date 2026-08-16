@@ -1,8 +1,15 @@
 import joi from "joi";
+import slugify from "slugify";
 
-import uuid from "../utils/uuid.js";
+import uuid from "../utils/recipe/uuid.js";
+import { buildKeywords } from "../utils/recipe/buildKeywords.js";
 import buildMakeRecipe from "./recipe.js";
 
-const { makeRecipe, updateRecipe } = buildMakeRecipe({ joi, uuid });
+const { makeRecipe, updateRecipe } = buildMakeRecipe({
+  joi,
+  uuid,
+  slugify,
+  buildKeywords,
+});
 
 export { makeRecipe, updateRecipe };

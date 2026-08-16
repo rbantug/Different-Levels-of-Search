@@ -11,7 +11,7 @@ export const recipes = sqliteTable("recipes", {
   })
     .$type<string[]>()
     .notNull(),
-  recipeThumbnail: text("recipeThumbnail").notNull(),
+  recipeThumbnail: text("recipeThumbnail"),
   ingredients: text("ingredients", {
     mode: "json",
   })

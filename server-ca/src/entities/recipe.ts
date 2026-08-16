@@ -7,43 +7,59 @@ import type {
 
 import buildRecipeValidation from "./validation.js";
 
-export default function buildMakeRecipe({ uuid, joi }: RecipeDependencies) {
+export default function buildMakeRecipe({
+  uuid,
+  joi,
+  slugify,
+}: RecipeDependencies) {
   const { validateCreateRecipe, validateUpdateRecipe } = buildRecipeValidation({
     joi,
   });
 
-  function makeRecipe(data: CreateRecipe): RecipeValidated {
+  function makeRecipe({ data }: { data: CreateRecipe }): RecipeValidated {
     const validatedData = validateCreateRecipe(data);
 
     const now = new Date();
 
     return Object.freeze({
-      recipeId: uuid.makeId(),
+      id: uuid.makeId(),
       recipeName: validatedData.recipeName,
       category: validatedData.category,
       area: validatedData.area,
-      slug: validatedData.slug,
+      slug: slugify(validatedData.slug, { lower: true }),
       instructions: validatedData.instructions,
       recipeThumbnail: validatedData.recipeThumbnail,
       ingredients: validatedData.ingredients,
-      ingredientNames: validatedData.ingredientNames,
+      keywords: validatedData.keywords,
       embedding: [],
       createdAt: now,
       updatedAt: now,
     });
   }
 
-  function updateRecipe(
-    oldRecipe: RecipeValidated,
-    changes: UpdateRecipe,
-  ): RecipeValidated {
+  function updateRecipe({
+    oldRecipe,
+    changes,
+  }: {
+    oldRecipe: RecipeValidated;
+    changes: UpdateRecipe;
+  }): RecipeValidated {
     const validateChanges = validateUpdateRecipe(changes);
 
-    return Object.freeze({
+    const recipeNameChanged =
+      validateChanges.recipeName &&
+      validateChanges.recipeName !== oldRecipe.recipeName;
+
+    const updatedRecipe = {
       ...oldRecipe,
       ...validateChanges,
+      slug: recipeNameChanged
+        ? slugify(validateChanges.recipeName!, { lower: true })
+        : oldRecipe.slug,
       updatedAt: new Date(),
-    });
+    };
+
+    return Object.freeze(updatedRecipe);
   }
 
   return {

@@ -1,4 +1,6 @@
 import type { Root as JoiRoot } from "joi";
+import slugify from "slugify";
+import type { BuildKeywords } from "../utils/recipe/buildKeywords.js";
 
 export interface UUID {
   makeId: () => string;
@@ -7,6 +9,8 @@ export interface UUID {
 export interface RecipeDependencies {
   joi: JoiRoot;
   uuid: UUID;
+  slugify: typeof slugify;
+  buildKeywords: (param: BuildKeywords) => string[];
 }
 
 export interface ValidationDependencies {
@@ -14,7 +18,7 @@ export interface ValidationDependencies {
 }
 
 export interface RecipeValidated {
-  recipeId: string;
+  id: string;
   recipeName: string;
   category: string;
   area: string;
@@ -22,7 +26,7 @@ export interface RecipeValidated {
   recipeThumbnail: string | null;
   instructions: string[];
   ingredients: string[];
-  ingredientNames: string[];
+  keywords: string[];
   embedding: number[];
   createdAt: Date;
   updatedAt: Date;
@@ -37,6 +41,7 @@ export interface CreateRecipe {
   instructions: string[];
   ingredients: string[];
   ingredientNames: string[];
+  keywords: string[];
 }
 
 export type UpdateRecipe = Partial<CreateRecipe>;
