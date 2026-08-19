@@ -1,4 +1,15 @@
-export function cosineSimilarity(a: number[], b: number[]) {
+/**
+ * Compares the query string that was converted into vector and the vector in each recipe found in the database 
+ * @param a - for query embedding
+ * @param b - for the recipe embedding
+ * @returns number
+ */
+
+export default function cosineSimilarity(a: number[], b: number[]):number {
+  if (a.length !== b.length) {
+    throw new Error("Vectors must have the same dimensions");
+  }
+
   let dotProduct = 0;
   let normA = 0;
   let normB = 0;
