@@ -3,13 +3,21 @@ import type buildKeywords from "../utils/recipe/buildKeywords.js";
 import type buildRecipeEmbeddingText from "../utils/recipe/buildRecipeEmbeddingText.js";
 import type makeRecipeDB from "../database/recipeDB.js";
 import type makeGenerateEmbedding from "../services/embeddings/generateEmbedding.js";
-import type makeRecipeIndex from "../services/meilisearch/recipeIndex.js"
-import type makeKeywordIndex from "../services/meilisearch/keywordIndex.js"
+import type makeRecipeIndex from "../services/meilisearch/recipeIndex.js";
+import type makeKeywordIndex from "../services/meilisearch/keywordIndex.js";
 
 import type { RecipeValidated, UpdateRecipe } from "../entities/types.js";
 
+type RecipeDB = ReturnType<typeof makeRecipeDB>;
+type RecipeIndex = ReturnType<typeof makeRecipeIndex>;
+type KeywordIndex = ReturnType<typeof makeKeywordIndex>;
+
 interface UpdateRecipeDependencies {
-  recipeDB: ReturnType<typeof makeRecipeDB>;
+  recipeDB: {
+    findRecipeById: RecipeDB["findRecipeById"];
+    updateRecipe: RecipeDB["updateRecipe"];
+    isKeywordInUse: RecipeDB["isKeywordInUse"];
+  };
 
   updateRecipeEntity: typeof updateRecipe;
 
@@ -19,9 +27,14 @@ interface UpdateRecipeDependencies {
 
   generateEmbedding: ReturnType<typeof makeGenerateEmbedding>;
 
-  recipeSearchIndex: ReturnType<typeof makeRecipeIndex>;
+  recipeIndex: {
+    addRecipe: RecipeIndex["addRecipe"];
+  };
 
-  keywordSearchIndex: ReturnType<typeof makeKeywordIndex>;
+  keywordIndex: {
+    addKeywords: KeywordIndex["addKeywords"];
+    deleteKeywords: KeywordIndex["deleteKeywords"];
+  };
 }
 
 export default function makeUpdateRecipe({
@@ -30,8 +43,8 @@ export default function makeUpdateRecipe({
   buildKeywords,
   buildRecipeEmbeddingText,
   generateEmbedding,
-  recipeSearchIndex,
-  keywordSearchIndex,
+  recipeIndex,
+  keywordIndex,
 }: UpdateRecipeDependencies) {
   return async function updateRecipe({
     id,
@@ -97,11 +110,11 @@ export default function makeUpdateRecipe({
     });
 
     // update recipe in meilisearch
-    await recipeSearchIndex.addRecipe(finalRecipe);
+    await recipeIndex.addRecipe(finalRecipe);
 
     // add new keywords in meilisearch
     if (keywordsToAdd.length > 0) {
-      await keywordSearchIndex.addKeywords(keywordsToAdd);
+      await keywordIndex.addKeywords(keywordsToAdd);
     }
 
     // find unused keywords in keyword index in meilisearch
@@ -114,7 +127,7 @@ export default function makeUpdateRecipe({
     }
 
     if (keywordIdsToDelete.length > 0) {
-      await keywordSearchIndex.deleteKeywords(keywordIdsToDelete);
+      await keywordIndex.deleteKeywords(keywordIdsToDelete);
     }
 
     return savedRecipe;

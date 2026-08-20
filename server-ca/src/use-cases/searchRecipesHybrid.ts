@@ -1,17 +1,19 @@
 import type makeRecipeDB from "../database/recipeDB.js";
-import type { meiliRecipeIndex } from "../services/meilisearch/index.js";
+import type makeRecipeIndex from "../services/meilisearch/recipeIndex.js";
 import type makeGenerateEmbedding from "../services/embeddings/generateEmbedding.js";
 import type cosineSimilarity from "../utils/vector/cosineSimilarity.js";
 interface Dependencies {
   recipeDB: ReturnType<typeof makeRecipeDB>;
-  searchRecipeIndex: typeof meiliRecipeIndex.searchRecipe;
+  recipeIndex: {
+    searchRecipe: ReturnType<typeof makeRecipeIndex>['searchRecipe']
+  }
   generateEmbedding: ReturnType<typeof makeGenerateEmbedding>;
   cosineSimilarity: typeof cosineSimilarity;
 }
 
 export default function makeSearchRecipeHybrid({
   recipeDB,
-  searchRecipeIndex,
+  recipeIndex,
   generateEmbedding,
   cosineSimilarity,
 }: Dependencies) {
@@ -23,7 +25,7 @@ export default function makeSearchRecipeHybrid({
     limit?: number;
   }) {
     // search recipes in meilisearch that matches the user provided query
-    const fetchedMeiliRecipes = await searchRecipeIndex({ query, limit });
+    const fetchedMeiliRecipes = await recipeIndex.searchRecipe({ query, limit });
 
     // convert query string to embedding
     const queryEmbedding = await generateEmbedding(query);

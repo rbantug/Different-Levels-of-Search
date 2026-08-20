@@ -3,10 +3,8 @@ import type buildKeywords from "../utils/recipe/buildKeywords.js";
 import type buildRecipeEmbeddingText from "../utils/recipe/buildRecipeEmbeddingText.js";
 import type makeRecipeDB from "../database/recipeDB.js";
 import type makeGenerateEmbedding from "../services/embeddings/generateEmbedding.js";
-import type {
-  meiliRecipeIndex,
-  meiliKeywordIndex,
-} from "../services/meilisearch/index.js";
+import type makeRecipeIndex from "../services/meilisearch/recipeIndex.js";
+import type makeKeywordIndex from "../services/meilisearch/keywordIndex.js";
 import type { CreateRecipe } from "../entities/types.js";
 
 type RecipeDB = ReturnType<typeof makeRecipeDB>;
@@ -15,7 +13,9 @@ type GenerateEmbedding = ReturnType<typeof makeGenerateEmbedding>;
 interface AddRecipeDependencies {
   makeRecipe: typeof makeRecipe;
 
-  recipeDB: RecipeDB;
+  recipeDB: {
+    insertRecipe: RecipeDB["insertRecipe"];
+  };
 
   generateEmbedding: GenerateEmbedding;
 
@@ -23,9 +23,13 @@ interface AddRecipeDependencies {
 
   buildRecipeEmbeddingText: typeof buildRecipeEmbeddingText;
 
-  addRecipeIndex: typeof meiliRecipeIndex.addRecipe;
+  recipeIndex: {
+    addRecipe: ReturnType<typeof makeRecipeIndex>["addRecipe"];
+  };
 
-  addKeywordsIndex: typeof meiliKeywordIndex.addKeywords;
+  keywordsIndex: {
+    addKeywords: ReturnType<typeof makeKeywordIndex>["addKeywords"];
+  };
 }
 
 export default function makeAddRecipe({
@@ -34,8 +38,8 @@ export default function makeAddRecipe({
   buildKeywords,
   generateEmbedding,
   buildRecipeEmbeddingText,
-  addRecipeIndex,
-  addKeywordsIndex,
+  recipeIndex,
+  keywordsIndex,
 }: AddRecipeDependencies) {
   return async function addRecipe(recipeInfo: CreateRecipe) {
     // build keywords and add it to the recipe that will be validated
@@ -69,8 +73,8 @@ export default function makeAddRecipe({
     });
 
     // insert recipe and keywords to meilisearch
-    await addRecipeIndex(savedRecipe);
-    await addKeywordsIndex(recipe.keywords);
+    await recipeIndex.addRecipe(savedRecipe);
+    await keywordsIndex.addKeywords(recipe.keywords);
 
     return savedRecipe;
   };

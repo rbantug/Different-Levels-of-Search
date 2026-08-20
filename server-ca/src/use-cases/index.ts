@@ -10,6 +10,7 @@ import makeRemoveRecipe from "./removeRecipe.js";
 import makeSearchRecipesByKeyword from "./searchRecipesByKeyword.js";
 import makeSearchRecipeHybrid from "./searchRecipesHybrid.js";
 import makeUpdateRecipe from "./updateRecipe.js";
+import makeFindKeywords from "./findKeywords.js";
 
 import { recipeDB } from "../database/index.js";
 import { generateEmbedding } from "../services/embeddings/index.js";
@@ -27,8 +28,8 @@ const addRecipe = makeAddRecipe({
   buildKeywords,
   generateEmbedding,
   buildRecipeEmbeddingText,
-  addRecipeIndex: meiliRecipeIndex.addRecipe,
-  addKeywordsIndex: meiliKeywordIndex.addKeywords,
+  recipeIndex: meiliRecipeIndex,
+  keywordsIndex: meiliKeywordIndex,
 });
 
 const findRecipeById = makeFindRecipeById({ recipeDB });
@@ -37,19 +38,19 @@ const listRecipes = makeListRecipes({ recipeDB });
 
 const removeRecipe = makeRemoveRecipe({
   recipeDB,
-  recipeSearchIndex: meiliRecipeIndex,
-  keywordSearchIndex: meiliKeywordIndex,
+  recipeIndex: meiliRecipeIndex,
+  keywordIndex: meiliKeywordIndex,
 });
 
 const searchRecipesByKeyword = makeSearchRecipesByKeyword({
-  searchRecipeIndex: meiliRecipeIndex.searchRecipe,
+  recipeIndex: meiliRecipeIndex,
 });
 
 const searchRecipesHybrid = makeSearchRecipeHybrid({
   recipeDB,
   generateEmbedding,
   cosineSimilarity,
-  searchRecipeIndex: meiliRecipeIndex.searchRecipe,
+  recipeIndex: meiliRecipeIndex,
 });
 
 const updateRecipe = makeUpdateRecipe({
@@ -57,8 +58,8 @@ const updateRecipe = makeUpdateRecipe({
   buildKeywords,
   buildRecipeEmbeddingText,
   generateEmbedding,
-  keywordSearchIndex: meiliKeywordIndex,
-  recipeSearchIndex: meiliRecipeIndex,
+  keywordIndex: meiliKeywordIndex,
+  recipeIndex: meiliRecipeIndex,
   updateRecipeEntity,
 });
 

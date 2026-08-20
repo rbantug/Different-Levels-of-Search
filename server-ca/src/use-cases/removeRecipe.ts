@@ -2,16 +2,26 @@ import type makeRecipeDB from "../database/recipeDB.js";
 import type makeRecipeIndex from "../services/meilisearch/recipeIndex.js";
 import type makeKeywordIndex from "../services/meilisearch/keywordIndex.js";
 
+type RecipeDB = ReturnType<typeof makeRecipeDB>;
+
 interface Dependencies {
-  recipeDB: ReturnType<typeof makeRecipeDB>;
-  recipeSearchIndex: ReturnType<typeof makeRecipeIndex>;
-  keywordSearchIndex: ReturnType<typeof makeKeywordIndex>;
+  recipeDB: {
+    findRecipeById: RecipeDB["findRecipeById"];
+    deleteRecipe: RecipeDB["deleteRecipe"];
+    isKeywordInUse: RecipeDB["isKeywordInUse"];
+  };
+  recipeIndex: {
+    deleteRecipe: ReturnType<typeof makeRecipeIndex>["deleteRecipe"];
+  };
+  keywordIndex: {
+    deleteKeywords: ReturnType<typeof makeKeywordIndex>["deleteKeywords"];
+  };
 }
 
 export default function makeRemoveRecipe({
   recipeDB,
-  recipeSearchIndex,
-  keywordSearchIndex,
+  recipeIndex,
+  keywordIndex,
 }: Dependencies) {
   return async function removeRecipe({ recipeId }: { recipeId: string }) {
     const res = recipeDB.findRecipeById(recipeId);
@@ -26,7 +36,7 @@ export default function makeRemoveRecipe({
     const deletedRecipe = recipeDB.deleteRecipe(recipeId);
 
     // delete recipe in meilisearch
-    await recipeSearchIndex.deleteRecipe(recipeId);
+    await recipeIndex.deleteRecipe(recipeId);
 
     // remove orphaned keywords in meilisearch
     const keywordIdsToDelete: string[] = [];
@@ -38,7 +48,7 @@ export default function makeRemoveRecipe({
     }
 
     if (keywordIdsToDelete.length > 0) {
-      await keywordSearchIndex.deleteKeywords(keywordIdsToDelete);
+      await keywordIndex.deleteKeywords(keywordIdsToDelete);
     }
 
     return deletedRecipe;

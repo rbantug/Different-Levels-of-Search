@@ -1,13 +1,13 @@
-import { meiliRecipeIndex } from "../services/meilisearch/index.js";
+import type makeRecipeIndex from "../services/meilisearch/recipeIndex.js";
 
-interface Param {
-  searchRecipeIndex: typeof meiliRecipeIndex.searchRecipe;
+interface Dependencies {
+  recipeIndex: {
+    searchRecipe: ReturnType<typeof makeRecipeIndex>['searchRecipe'];
+  };
 }
 
-export default function makeSearchRecipesByKeyword({
-  searchRecipeIndex,
-}: Param) {
+export default function makeSearchRecipesByKeyword({ recipeIndex }: Dependencies) {
   return async function searchRecipesByKeyword({ query }: { query: string }) {
-    return await searchRecipeIndex({ query });
+    return await recipeIndex.searchRecipe({ query });
   };
 }

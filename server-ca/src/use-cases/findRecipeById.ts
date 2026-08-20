@@ -1,7 +1,9 @@
 import type makeRecipeDB from "../database/recipeDB.js";
 
 interface Dependencies {
-  recipeDB: ReturnType<typeof makeRecipeDB>;
+  recipeDB: {
+    findRecipeById: ReturnType<typeof makeRecipeDB>["findRecipeById"];
+  };
 }
 
 export default function makeFindRecipeById({ recipeDB }: Dependencies) {
