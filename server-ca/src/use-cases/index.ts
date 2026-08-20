@@ -62,6 +62,10 @@ const updateRecipe = makeUpdateRecipe({
   updateRecipeEntity,
 });
 
+const findKeywords = makeFindKeywords({
+  keywordIndex: meiliKeywordIndex,
+});
+
 export {
   addRecipe,
   findRecipeById,
@@ -69,5 +73,6 @@ export {
   removeRecipe,
   searchRecipesByKeyword,
   searchRecipesHybrid,
-  updateRecipe
+  updateRecipe,
+  findKeywords,
 };

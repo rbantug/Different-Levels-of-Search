@@ -32,5 +32,12 @@ export default function makeKeywordIndex({ client }: { client: Meilisearch }) {
     return index.deleteDocuments(ids);
   }
 
-  return { setupKeywordIndex, addKeywords, deleteKeywords };
+  async function searchKeywords(keyword: string) {
+    return index.search(keyword, {
+      limit: 5,
+      attributesToRetrieve: ["keyword"],
+    });
+  }
+
+  return { setupKeywordIndex, addKeywords, deleteKeywords, searchKeywords };
 }
