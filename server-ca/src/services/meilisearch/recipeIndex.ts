@@ -44,7 +44,7 @@ export default function makeRecipeIndex({ client }: { client: Meilisearch }) {
     return index.deleteDocument(id);
   }
 
-  async function searchRecipe({ query, limit = 20 }: { query: string, limit?: number }) {
+  async function searchRecipe({ query, limit = 20 }: { query: string, limit?: number | undefined }) {
     return index.search(query, { limit, showRankingScore: true });
   }
 
