@@ -30,6 +30,7 @@ export default function buildRecipeValidation({ joi }: ValidationDependencies) {
   function validateCreateRecipe(data: CreateRecipe): CreateRecipe {
     const { error, value } = createRecipeSchema.validate(data, {
       convert: false,
+      abortEarly: false
     });
 
     if (error) {
@@ -42,6 +43,7 @@ export default function buildRecipeValidation({ joi }: ValidationDependencies) {
   function validateUpdateRecipe(data: UpdateRecipe): UpdateRecipe {
     const { error, value } = updateRecipeSchema.validate(data, {
       convert: false,
+      abortEarly: false
     });
 
     if (error) {
