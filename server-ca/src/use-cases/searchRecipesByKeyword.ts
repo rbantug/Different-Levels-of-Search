@@ -7,7 +7,11 @@ interface Dependencies {
 }
 
 export default function makeSearchRecipesByKeyword({ recipeIndex }: Dependencies) {
-  return async function searchRecipesByKeyword({ query }: { query: string }) {
-    return await recipeIndex.searchRecipe({ query });
+  return async function searchRecipesByKeyword({ query, limit }: { query: string, limit?: number | undefined }) {
+    const result = await recipeIndex.searchRecipe({ query, limit });
+    return {
+      recipes: result.hits,
+      count: result.estimatedTotalHits
+    };
   };
 }

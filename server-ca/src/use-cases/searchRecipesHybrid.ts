@@ -22,7 +22,7 @@ export default function makeSearchRecipeHybrid({
     limit = 100,
   }: {
     query: string;
-    limit?: number;
+    limit?: number | undefined;
   }) {
     // search recipes in meilisearch that matches the user provided query
     const fetchedMeiliRecipes = await recipeIndex.searchRecipe({ query, limit });
