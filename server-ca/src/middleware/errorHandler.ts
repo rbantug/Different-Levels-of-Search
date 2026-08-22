@@ -27,7 +27,7 @@ export default function errorHandler(
     });
   }
 
-  console.error(error);
+  console.error('This is a programming error', error);
 
   return res.status(500).json({
     status: "error",
