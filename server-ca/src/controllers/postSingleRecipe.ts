@@ -11,8 +11,10 @@ export default function makePostSingleRecipe({ addRecipe }: Dependencies) {
 
     return {
       statusCode: 201,
-      status: "success",
-      data: recipe,
+      body: {
+        status: "success",
+        data: recipe,
+      },
     };
   };
 }

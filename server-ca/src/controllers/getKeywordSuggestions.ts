@@ -19,8 +19,10 @@ export default function makeGetKeywordSuggestions({
 
     return {
       statusCode: 200,
-      status: "success",
-      data: keywords,
+      body: {
+        status: "success",
+        data: keywords,
+      },
     };
   };
 }

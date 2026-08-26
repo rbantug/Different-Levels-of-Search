@@ -15,8 +15,10 @@ export default function makeGetSingleRecipe({ findRecipeById }: Dependencies) {
 
     return {
       statusCode: 200,
-      status: "success",
-      data: recipe,
+      body: {
+        status: "success",
+        data: recipe,
+      },
     };
   };
 }

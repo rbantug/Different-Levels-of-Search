@@ -10,8 +10,10 @@ export default function makeGetAllRecipes({ listRecipes }: Dependencies) {
 
     return {
       statusCode: 200,
-      status: "success",
-      data: recipes,
+      body: {
+        status: "success",
+        data: recipes,
+      },
     };
   };
 }

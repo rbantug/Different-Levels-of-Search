@@ -30,9 +30,11 @@ export default function makeGetSearchRecipe({
 
     return {
       statusCode: 200,
-      status: "success",
-      count,
-      data: recipes,
+      body: {
+        status: "success",
+        count,
+        data: recipes,
+      },
     };
   };
 }

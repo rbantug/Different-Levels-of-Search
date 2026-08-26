@@ -30,9 +30,11 @@ export default function makeGetHybridRecipe({
 
     return {
       statusCode: 200,
-      status: "success",
-      count: recipes.length,
-      data: recipes,
+      body: {
+        status: "success",
+        count: recipes.length,
+        data: recipes,
+      },
     };
   };
 }
