@@ -13,6 +13,7 @@ services:
       - "3000:3000"
     environment:
       - OLLAMA_MODEL=${OLLAMA_MODEL}
+      - OLLAMA_HOST=${OLLAMA_HOST}
       - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
     depends_on:
       meilisearch:
