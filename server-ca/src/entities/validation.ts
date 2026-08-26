@@ -15,6 +15,7 @@ export default function buildRecipeValidation({ joi }: ValidationDependencies) {
     recipeThumbnail: joi.string().allow(null).required(),
     ingredients: joi.array().items(joi.string()).required(),
     ingredientNames: joi.array().items(joi.string()),
+    keywords: joi.array().items(joi.string()),
   });
 
   const updateRecipeSchema = joi.object({
