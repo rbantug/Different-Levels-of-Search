@@ -31,7 +31,7 @@ router
   );
 
 router
-  .route(":/id")
+  .route("/:id")
   .get(
     expressCallback({
       controller: getSingleRecipe,
