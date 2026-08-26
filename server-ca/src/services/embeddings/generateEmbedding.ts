@@ -12,6 +12,6 @@ export default function makeGenerateEmbedding({ httpClient, model }: GenerateEmb
             input: text
         });
 
-        return response.data.embedding
+        return response.data.embeddings[0]
     }
 }
