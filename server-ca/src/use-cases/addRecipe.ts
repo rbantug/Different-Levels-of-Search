@@ -64,11 +64,14 @@ export default function makeAddRecipe({
 
     const createEmbedding = await generateEmbedding(embeddingText);
 
-    recipe.embedding = createEmbedding;
+    const finalRecipe = {
+      ...recipe,
+      embedding: createEmbedding
+    }
 
     // insert to database
     const savedRecipe = recipeDB.insertRecipe({
-      recipe,
+      recipe: finalRecipe,
       keywords: recipe.keywords,
     });
 
