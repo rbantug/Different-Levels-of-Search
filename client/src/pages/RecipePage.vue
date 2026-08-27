@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
 import { useMainStore } from '@/stores/mainStore'
 
 import type { Recipe } from '@/types/recipe'
+import type { RecentRecipe } from '@/types/recentRecipe'
 import BaseBadge from '@/components/util/BaseBadge.vue'
 import { getSingleRecipe } from '@/api/recipe'
+import { useStorage } from '@vueuse/core'
 
 const route = useRoute()
 const router = useRouter()
 const mainStore = useMainStore()
+const recentRecipeQueue: Ref<RecentRecipe[]> = useStorage('recent-recipes', [])
 
 const recipe = ref<Recipe | null>()
 const badgeText = ref<string[]>([])
@@ -31,7 +34,24 @@ async function loadRecipe(slug: string | string[] | undefined) {
   }
 
   if (!recipe.value) {
-    const recipeId = mainStore.getCurrentRecipeId.value
+    // we need to check if the provided slug is in the recipes found in the local storage
+    const checkRecipeInQueue = recentRecipeQueue.value.findIndex(
+      (recipe: RecentRecipe) => recipe.slug === slug,
+    )
+
+    // if it does not exist in the local storage, we will route to the error page
+    if (checkRecipeInQueue === -1) {
+      router.push({
+        name: 'error',
+        params: {
+          anything: '404',
+        },
+      })
+      return
+    }
+
+    // recipe date will be fetched from the backend using the recipeId
+    const recipeId = recentRecipeQueue.value[checkRecipeInQueue]?.recipeId
 
     try {
       const { data } = await getSingleRecipe(recipeId!)
@@ -97,35 +117,62 @@ watch(
         <p>Back</p>
       </div>
     </header>
-    <!-- top image, recipe name, area and category -->
-    <div class="top-container">
-      <img :src="recipe?.recipeThumbnail" :alt="recipe?.recipeName" class="img" />
-      <h1 :class="['recipe-name']">{{ recipe?.recipeName }}</h1>
-      <div
-        :class="{
-          'badge-container--flex': badgeText.length < 3,
-          'badge-container--grid': badgeText.length >= 3,
-        }"
-      >
-        <BaseBadge v-for="badge in badgeText" :key="badge">{{ badge }}</BaseBadge>
+    <!-- loading state -->
+    <div v-if="!recipe">
+      <div class="recipe-is-loading">
+        <!-- line-md:loading-loop -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 3c4.97 0 9 4.03 9 9"
+          >
+            <animateTransform
+              attributeName="transform"
+              dur="1.5s"
+              repeatCount="indefinite"
+              type="rotate"
+              values="0 12 12;360 12 12"
+            />
+          </path>
+        </svg>
       </div>
     </div>
-    <!-- Ingredients -->
-    <div class="ingredient-container">
-      <h1 class="heading-content">Ingredients</h1>
-      <div class="ingredient-list">
-        <div v-for="ing in recipe?.ingredients" :key="ing" class="ingredient">
-          <div>•</div>
-          <div>{{ ing }}</div>
+    <div v-else>
+      <!-- top image, recipe name, area and category -->
+      <div class="top-container">
+        <img :src="recipe?.recipeThumbnail" :alt="recipe?.recipeName" class="img" />
+        <h1 :class="['recipe-name']">{{ recipe?.recipeName }}</h1>
+        <div
+          :class="{
+            'badge-container--flex': badgeText.length < 3,
+            'badge-container--grid': badgeText.length >= 3,
+          }"
+        >
+          <BaseBadge v-for="badge in badgeText" :key="badge">{{ badge }}</BaseBadge>
         </div>
       </div>
-    </div>
-    <!-- instructions -->
-    <div class="instruction-container">
-      <h1 class="heading-content">Instructions</h1>
-      <div v-for="(ins, index) in recipe?.instructions" :key="ins" class="single-instruction">
-        <div>{{ index + 1 }}.</div>
-        <div>{{ ins }}</div>
+      <!-- Ingredients -->
+      <div class="ingredient-container">
+        <h1 class="heading-content">Ingredients</h1>
+        <div class="ingredient-list">
+          <div v-for="ing in recipe?.ingredients" :key="ing" class="ingredient">
+            <div>•</div>
+            <div>{{ ing }}</div>
+          </div>
+        </div>
+      </div>
+      <!-- instructions -->
+      <div class="instruction-container">
+        <h1 class="heading-content">Instructions</h1>
+        <div v-for="(ins, index) in recipe?.instructions" :key="ins" class="single-instruction">
+          <div>{{ index + 1 }}.</div>
+          <div>{{ ins }}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -221,10 +268,17 @@ header {
   > :first-child {
     width: 5%;
     font-weight: bold;
+    text-align: right;
   }
 
   > :last-child {
     width: 95%;
   }
+}
+
+.recipe-is-loading {
+  @include m-flex-center;
+  scale: 500%;
+  margin: 20rem 0 auto;
 }
 </style>
