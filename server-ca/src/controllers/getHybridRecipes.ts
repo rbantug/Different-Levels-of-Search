@@ -34,6 +34,7 @@ export default function makeGetHybridRecipe({
         status: "success",
         count: recipes.length,
         data: recipes,
+        query
       },
     };
   };
