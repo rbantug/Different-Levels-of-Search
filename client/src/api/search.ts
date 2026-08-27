@@ -18,6 +18,7 @@ export async function keywordSearch(query: string): Promise<AxiosResponse<Recipe
   const { data } = await api.get('/', {
     params: {
       q: query,
+      limit: 100,
     },
   })
 
@@ -28,6 +29,7 @@ export async function hybridSearch(query: string): Promise<AxiosResponse<Recipe>
   const { data } = await api.get('/hybrid', {
     params: {
       q: query,
+      limit: 100
     },
   })
 
