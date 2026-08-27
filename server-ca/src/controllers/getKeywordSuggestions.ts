@@ -15,13 +15,15 @@ export default function makeGetKeywordSuggestions({
 
     const getQuery = query.trim();
 
-    const keywords = findKeywords({ query: getQuery });
+    const { hits, query: queryStr } = await findKeywords({ query: getQuery });
 
     return {
       statusCode: 200,
       body: {
         status: "success",
-        data: keywords,
+        data: hits,
+        query: queryStr,
+        count: hits.length
       },
     };
   };
