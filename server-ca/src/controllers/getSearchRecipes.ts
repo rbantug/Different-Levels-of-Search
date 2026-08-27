@@ -23,7 +23,7 @@ export default function makeGetSearchRecipe({
 
     const getLimit = limit ? Number(limit) : undefined;
 
-    const { recipes, count } = await searchRecipesByKeyword({
+    const recipes = await searchRecipesByKeyword({
       query: searchQuery,
       limit: getLimit,
     });
@@ -32,8 +32,9 @@ export default function makeGetSearchRecipe({
       statusCode: 200,
       body: {
         status: "success",
-        count,
+        count: recipes.length,
         data: recipes,
+        query
       },
     };
   };
