@@ -1,16 +1,20 @@
 import type { Root as JoiRoot } from "joi";
-import slugify from "slugify";
-import type { BuildKeywords } from "../utils/recipe/buildKeywords.js";
 
 export interface UUID {
   makeId: () => string;
 }
 
+type Slugify = (
+  string: string,
+  options?: {
+    lower?: boolean;
+  },
+) => string;
+
 export interface RecipeDependencies {
   joi: JoiRoot;
   uuid: UUID;
-  slugify: typeof slugify;
-  buildKeywords: (param: BuildKeywords) => string[];
+  slugify: Slugify;
 }
 
 export interface ValidationDependencies {
@@ -40,7 +44,6 @@ export interface CreateRecipe {
   recipeThumbnail: string | null;
   instructions: string[];
   ingredients: string[];
-  ingredientNames: string[];
   keywords: string[];
 }
 
