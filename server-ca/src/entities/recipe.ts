@@ -20,13 +20,14 @@ export default function buildMakeRecipe({
     const validatedData = validateCreateRecipe(data);
 
     const now = new Date();
+    now.setSeconds(0,0)
 
     return Object.freeze({
       id: uuid.makeId(),
       recipeName: validatedData.recipeName,
       category: validatedData.category,
       area: validatedData.area,
-      slug: slugify(validatedData.slug, { lower: true }),
+      slug: slugify(validatedData.recipeName, { lower: true }),
       instructions: validatedData.instructions,
       recipeThumbnail: validatedData.recipeThumbnail,
       ingredients: validatedData.ingredients,
@@ -50,13 +51,16 @@ export default function buildMakeRecipe({
       validateChanges.recipeName &&
       validateChanges.recipeName !== oldRecipe.recipeName;
 
+    const now = new Date()
+    now.setSeconds(0,0)
+
     const updatedRecipe = {
       ...oldRecipe,
       ...validateChanges,
       slug: recipeNameChanged
         ? slugify(validateChanges.recipeName!, { lower: true })
         : oldRecipe.slug,
-      updatedAt: new Date(),
+      updatedAt: now,
     };
 
     return Object.freeze(updatedRecipe);
