@@ -8,6 +8,7 @@ import errorHandler from "./middleware/errorHandler.js";
 import runImport from "../scripts/importRecipes.js";
 import { db } from "./database/index.js";
 import { recipes } from "./database/schemas/recipe.js";
+import AppError from "./errors/AppError.js";
 
 const app = express();
 
@@ -16,6 +17,9 @@ app.use(express.json());
 
 app.use("/api/recipes", recipeRoutes);
 app.use("/api/search", searchRoutes);
+app.use((req, res, next) => {
+  next(new AppError(`Route ${req.originalUrl} not found`, 404));
+});
 
 app.use(errorHandler);
 
