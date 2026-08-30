@@ -32,6 +32,10 @@ interface AddRecipeDependencies {
   };
 }
 
+type AddRecipeParam = Omit<CreateRecipe, "keywords"> & {
+  ingredientNames: string[];
+};
+
 export default function makeAddRecipe({
   makeRecipe,
   recipeDB,
@@ -41,7 +45,7 @@ export default function makeAddRecipe({
   recipeIndex,
   keywordsIndex,
 }: AddRecipeDependencies) {
-  return async function addRecipe(recipeInfo: CreateRecipe) {
+  return async function addRecipe(recipeInfo: AddRecipeParam) {
     // build keywords and add it to the recipe that will be validated
     const keywords = buildKeywords({
       area: recipeInfo.area,
@@ -49,9 +53,7 @@ export default function makeAddRecipe({
       ingredients: recipeInfo.ingredientNames,
     });
 
-    recipeInfo.keywords = keywords;
-
-    const recipe = makeRecipe({ data: recipeInfo });
+    const recipe = makeRecipe({ data: {...recipeInfo, keywords} });
 
     // create the embedding and add it to the validated recipe
     const embeddingText = buildRecipeEmbeddingText({
@@ -66,8 +68,8 @@ export default function makeAddRecipe({
 
     const finalRecipe = {
       ...recipe,
-      embedding: createEmbedding
-    }
+      embedding: createEmbedding,
+    };
 
     // insert to database
     const savedRecipe = recipeDB.insertRecipe({
