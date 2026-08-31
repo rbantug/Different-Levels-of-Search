@@ -6,7 +6,7 @@ import type makeGenerateEmbedding from "../services/embeddings/generateEmbedding
 import type makeRecipeIndex from "../services/meilisearch/recipeIndex.js";
 import type makeKeywordIndex from "../services/meilisearch/keywordIndex.js";
 
-import type { RecipeValidated, UpdateRecipe } from "../entities/types.js";
+import type { RecipeValidated } from "../entities/types.js";
 
 type RecipeDB = ReturnType<typeof makeRecipeDB>;
 type RecipeIndex = ReturnType<typeof makeRecipeIndex>;
@@ -37,6 +37,18 @@ interface UpdateRecipeDependencies {
   };
 }
 
+interface UpdateRecipeParam {
+  recipeName?: string;
+  category?: string;
+  area?: string;
+  slug?: string;
+  recipeThumbnail?: string | null;
+  instructions?: string[];
+  ingredients?: string[];
+  keywords?: string[];
+  ingredientNames?: string[];
+}
+
 export default function makeUpdateRecipe({
   updateRecipeEntity,
   recipeDB,
@@ -51,7 +63,7 @@ export default function makeUpdateRecipe({
     changes,
   }: {
     id: string;
-    changes: UpdateRecipe;
+    changes: UpdateRecipeParam;
   }) {
     // get existing recipe from database
     const currentRecipe = recipeDB.findRecipeById(id);
@@ -67,23 +79,30 @@ export default function makeUpdateRecipe({
     });
 
     // find keywords that will be added and/or removed
-    const oldKeywords = new Set(currentRecipe.keywords);
+    const shouldUpdateKeywords = changes.area !== undefined || changes.category !== undefined || changes.ingredientNames !== undefined
 
-    const newKeywords = new Set(
-      buildKeywords({
-        area: changes.area || "",
-        category: changes.category || "",
-        ingredients: changes.ingredientNames || [],
-      }),
-    );
+    let keywordsToAdd: string[] = [];
+    let keywordsToRemove: string[] = [];
 
-    const keywordsToAdd = [...newKeywords].filter(
-      (keyword) => !oldKeywords.has(keyword),
-    );
+    if (shouldUpdateKeywords) {
+      const oldKeywords = new Set(currentRecipe.keywords);
 
-    const keywordsToRemove = [...oldKeywords].filter(
-      (keyword) => !newKeywords.has(keyword),
-    );
+      const newKeywords = new Set(
+        buildKeywords({
+          area: changes.area ?? currentRecipe.area,
+          category: changes.category ?? currentRecipe.category,
+          ingredients: changes.ingredientNames ?? [],
+        }),
+      );
+
+      keywordsToAdd = [...newKeywords].filter(
+        (keyword) => !oldKeywords.has(keyword),
+      );
+
+      keywordsToRemove = [...oldKeywords].filter(
+        (keyword) => !newKeywords.has(keyword),
+      );
+    }
 
     // generate embedding for updated recipe
     const embeddingText = buildRecipeEmbeddingText({
