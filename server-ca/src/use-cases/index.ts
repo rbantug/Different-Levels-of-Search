@@ -44,6 +44,7 @@ const removeRecipe = makeRemoveRecipe({
 
 const searchRecipesByKeyword = makeSearchRecipesByKeyword({
   recipeIndex: meiliRecipeIndex,
+  recipeDB
 });
 
 const searchRecipesHybrid = makeSearchRecipeHybrid({
