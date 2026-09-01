@@ -37,7 +37,7 @@ interface UpdateRecipeDependencies {
   };
 }
 
-interface UpdateRecipeParam {
+export interface UpdateRecipeParam {
   recipeName?: string;
   category?: string;
   area?: string;
