@@ -5,8 +5,8 @@ import type cosineSimilarity from "../utils/vector/cosineSimilarity.js";
 interface Dependencies {
   recipeDB: ReturnType<typeof makeRecipeDB>;
   recipeIndex: {
-    searchRecipe: ReturnType<typeof makeRecipeIndex>['searchRecipe']
-  }
+    searchRecipe: ReturnType<typeof makeRecipeIndex>["searchRecipe"];
+  };
   generateEmbedding: ReturnType<typeof makeGenerateEmbedding>;
   cosineSimilarity: typeof cosineSimilarity;
 }
@@ -25,17 +25,20 @@ export default function makeSearchRecipeHybrid({
     limit?: number | undefined;
   }) {
     // search recipes in meilisearch that matches the user provided query
-    const fetchedMeiliRecipes = await recipeIndex.searchRecipe({ query, limit });
+    const fetchedMeiliRecipes = await recipeIndex.searchRecipe({
+      query,
+      limit,
+    });
+
+    if (fetchedMeiliRecipes.hits.length === 0) {
+      return [];
+    }
 
     // convert query string to embedding
     const queryEmbedding = await generateEmbedding(query);
 
     // fetch full recipes from DB using data from meilisearch
     const recipeIds = fetchedMeiliRecipes.hits.map((recipe: any) => recipe.id);
-
-    if (recipeIds.length === 0) {
-      return [];
-    }
 
     const recipes = recipeDB.findRecipesById(recipeIds);
 
@@ -47,11 +50,14 @@ export default function makeSearchRecipeHybrid({
     const results = recipes.map((recipe) => {
       const keywordScore = mapKeywordScores.get(recipe.id) ?? 0;
 
-      const semanticScore = recipe.embedding
-        ? cosineSimilarity(queryEmbedding, recipe.embedding)
-        : 0;
+      const semanticScore =
+        recipe.embedding.length > 0
+          ? cosineSimilarity(queryEmbedding, recipe.embedding)
+          : 0;
 
-      const finalScore = keywordScore * 0.7 + semanticScore * 0.3;
+      const finalScore = Number(
+        (keywordScore * 0.7 + semanticScore * 0.3).toFixed(2),
+      );
 
       return {
         ...recipe,
