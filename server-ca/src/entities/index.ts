@@ -9,7 +9,6 @@ const { makeRecipe, updateRecipe } = buildMakeRecipe({
   joi,
   uuid,
   slugify,
-  buildKeywords,
 });
 
 export { makeRecipe, updateRecipe };
