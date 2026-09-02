@@ -66,7 +66,7 @@ export default function makeRecipeDB({ db }: { db: DatabaseClient }) {
   function findRecipeKeywords(recipeId: string) {
     return db
       .select({ keyword: recipeKeywords.keyword })
-      .from(recipes)
+      .from(recipeKeywords)
       .where(eq(recipeKeywords.recipeId, recipeId))
       .all();
   }
@@ -86,7 +86,7 @@ export default function makeRecipeDB({ db }: { db: DatabaseClient }) {
         .returning()
         .all();
 
-      if (!updateRecipe) {
+      if (!updatedRecipe) {
         throw new Error("Recipe not found");
       }
 
