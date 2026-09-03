@@ -18,7 +18,6 @@ const testRecipe = {
   recipeName: "Chicken Adobo",
   category: "Main Course",
   area: "Filipino",
-  slug: "Chicken Adobo",
   instructions: ["Cook the chicken", "Add soy sauce"],
   recipeThumbnail: "https:meals/04axct1763793018.jpg",
   ingredients: ["1 kg Chicken", "1/2 cup Soy Sauce"],

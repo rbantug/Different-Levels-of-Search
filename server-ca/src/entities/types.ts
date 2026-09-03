@@ -40,7 +40,6 @@ export interface CreateRecipe {
   recipeName: string;
   category: string;
   area: string;
-  slug: string;
   recipeThumbnail: string | null;
   instructions: string[];
   ingredients: string[];

@@ -9,7 +9,6 @@ export default function buildRecipeValidation({ joi }: ValidationDependencies) {
     recipeName: joi.string().required(),
     category: joi.string().required(),
     area: joi.string().required(),
-    slug: joi.string().required(),
     instructions: joi.array().items(joi.string()).required(),
     recipeThumbnail: joi.string().allow(null).required(),
     ingredients: joi.array().items(joi.string()).required(),
