@@ -1,12 +1,5 @@
 import type { Request, Response, NextFunction, RequestHandler } from "express";
 
-interface HttpRequest {
-  body: unknown;
-  params: Record<string, string | string[]>;
-  query: Record<string, unknown>;
-  headers: Record<string, string | string[] | undefined>;
-}
-
 interface HttpResponse {
   statusCode: number;
   body?: unknown;
