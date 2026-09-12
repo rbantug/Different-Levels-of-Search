@@ -2,7 +2,7 @@ import type { ParsedQs } from "qs";
 import AppError from "../../errors/AppError.js";
 
 /**
- * This is meant to ensure that the route param is a string on runtime. This will also stop typescript from complaining.
+ * This will ensure that the route param to be a string on runtime. This will also stop typescript from complaining.
  */
 export function getRequiredParam({
   params,
