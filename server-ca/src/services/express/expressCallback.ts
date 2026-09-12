@@ -1,12 +1,12 @@
 import type { Request, Response, NextFunction, RequestHandler } from "express";
 
-interface HttpResponse {
+export interface HttpResponse {
   statusCode: number;
   body?: unknown;
   headers?: Record<string, string>;
 }
 
-type Controller<Input> = (input: Input) => HttpResponse | Promise<HttpResponse>;
+export type Controller<Input> = (input: Input) => HttpResponse | Promise<HttpResponse>;
 
 type RequestMapper<Input> = (req: Request) => Input;
 
