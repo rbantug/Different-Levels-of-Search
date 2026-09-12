@@ -5,8 +5,12 @@ interface Dependencies {
   addRecipe: ReturnType<typeof makeAddRecipe>;
 }
 
+export type PostSingleRecipeParam = CreateRecipe & {
+  ingredientNames: string[]
+}
+
 export default function makePostSingleRecipe({ addRecipe }: Dependencies) {
-  return async function postSingleRecipe({ body }: { body: CreateRecipe }) {
+  return async function postSingleRecipe({ body }: { body: PostSingleRecipeParam }) {
     const recipe = await addRecipe(body);
 
     return {
