@@ -9,6 +9,7 @@ function required(name: string): string {
 }
 
 const config = {
+  meiliHost: required("MEILI_HOST"),
   meiliMasterKey: required("MEILI_MASTER_KEY"),
   ollamaHost: required("OLLAMA_HOST"),
   ollamaModel: required("OLLAMA_MODEL"),
