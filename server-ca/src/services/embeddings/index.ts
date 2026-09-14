@@ -1,17 +1,15 @@
-import axios from 'axios'
+import axios from "axios";
 
-import config from '../../config.js'
-import makeGenerateEmbedding from './generateEmbedding.js'
+import config from "../../config.js";
+import makeGenerateEmbedding from "./generateEmbedding.js";
 
-const host = config.ollamaHost
-const model = config.ollamaModel
+const host = config.ollamaHost;
+const model = config.ollamaModel;
 
 const httpClient = axios.create({
-    baseURL: host
-})
+  baseURL: host,
+});
 
-const generateEmbedding = makeGenerateEmbedding({ httpClient, model })
+const generateEmbedding = makeGenerateEmbedding({ httpClient, model });
 
-export {
-    generateEmbedding
-}
+export { generateEmbedding };
