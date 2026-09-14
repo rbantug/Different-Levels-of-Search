@@ -22,7 +22,6 @@ export default async function runImport() {
       recipeName: recipe.strMeal,
       category: recipe.strCategory,
       area: recipe.strArea,
-      slug: recipe.strMeal,
       instructions: recipe.strInstructions,
       recipeThumbnail: recipe.strMealThumb,
       ingredients: ingArr,
