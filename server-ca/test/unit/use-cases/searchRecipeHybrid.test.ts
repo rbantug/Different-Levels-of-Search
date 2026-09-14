@@ -192,9 +192,8 @@ describe("searchRecipeHybrid use case", () => {
         hits: [
           {
             id: "recipe-1",
-            _rankingScore: 0
           },
-        ],
+        ] as any, // to stop typescript from complaining
       },
       recipes: [recipeOne],
     });
