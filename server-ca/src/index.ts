@@ -1,6 +1,6 @@
 import createApp from "./app.js";
 
-import runImport from "../scripts/importRecipes.js";
+import runImport from "./scripts/importRecipes.js";
 import { db } from "./database/index.js";
 import { recipes } from "./database/schemas/recipe.js";
 import { meiliRecipeIndex, meiliKeywordIndex } from "./services/meilisearch/index.js";
