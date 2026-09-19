@@ -15,9 +15,12 @@ export default function cosineSimilarity(a: number[], b: number[]):number {
   let normB = 0;
 
   for (let i = 0; i < a.length; i++) {
-    dotProduct += a[i] * b[i];
-    normA += a[i] * a[i];
-    normB += b[i] * b[i];
+    const x = a[i]!;
+    const y = b[i]!;
+
+    dotProduct += x * y;
+    normA += x * x;
+    normB += y * y;
   }
 
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
