@@ -1,0 +1,27 @@
+/**
+ * Compares the query string that was converted into vector and the vector in each recipe found in the database 
+ * @param a - for query embedding
+ * @param b - for the recipe embedding
+ * @returns number
+ */
+
+export default function cosineSimilarity(a: number[], b: number[]):number {
+  if (a.length !== b.length) {
+    throw new Error("Vectors must have the same dimensions");
+  }
+
+  let dotProduct = 0;
+  let normA = 0;
+  let normB = 0;
+
+  for (let i = 0; i < a.length; i++) {
+    const x = a[i]!;
+    const y = b[i]!;
+
+    dotProduct += x * y;
+    normA += x * x;
+    normB += y * y;
+  }
+
+  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+}

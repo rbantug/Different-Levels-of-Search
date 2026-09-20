@@ -8,12 +8,16 @@ services:
         condition: service_started
   
   server:
-    build: ./server
+    build: ./server-ca
     ports:
       - "3000:3000"
     environment:
+      - MEILI_HOST=${MEILI_HOST}
       - OLLAMA_MODEL=${OLLAMA_MODEL}
+      - OLLAMA_HOST=${OLLAMA_HOST}
       - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - PORT=${PORT}
+      - DATABASE_PATH=${DATABASE_PATH}
     depends_on:
       meilisearch:
         condition: service_started
