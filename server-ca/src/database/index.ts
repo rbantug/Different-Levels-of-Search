@@ -1,7 +1,8 @@
 import createDB from "./client.js";
 import makeRecipeDB from "./recipeDB.js";
+import config from "../config.js";
 
-const db = createDB("sqlite.db");
+const db = createDB(config.databasePath);
 const recipeDB = makeRecipeDB({ db })
 
 export {
