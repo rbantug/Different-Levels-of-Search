@@ -16,6 +16,7 @@ services:
       - OLLAMA_MODEL=${OLLAMA_MODEL}
       - OLLAMA_HOST=${OLLAMA_HOST}
       - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - PORT=${PORT}
     depends_on:
       meilisearch:
         condition: service_started
