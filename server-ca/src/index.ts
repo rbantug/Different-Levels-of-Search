@@ -4,6 +4,7 @@ import runImport from "./scripts/importRecipes.js";
 import { db } from "./database/index.js";
 import { recipes } from "./database/schemas/recipe.js";
 import { meiliRecipeIndex, meiliKeywordIndex } from "./services/meilisearch/index.js";
+import config from "./config.js";
 
 import {
   deleteSingleRecipe,
@@ -16,7 +17,7 @@ import {
   getSearchRecipes,
 } from "./controllers/index.js";
 
-const PORT = 3000;
+const PORT = Number(config.expressPort);
 
 async function start() {
   const checkDB = db.select().from(recipes).limit(1).get();
@@ -39,7 +40,7 @@ async function start() {
     getSearchRecipes,
   });
 
-  app.listen(PORT, () => {
+  app.listen(PORT, "0.0.0.0", () => {
     console.log(`Backend running on port ${PORT}`);
   });
 }

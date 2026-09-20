@@ -13,6 +13,7 @@ const config = {
   meiliMasterKey: required("MEILI_MASTER_KEY"),
   ollamaHost: required("OLLAMA_HOST"),
   ollamaModel: required("OLLAMA_MODEL"),
+  expressPort: required("PORT")
 };
 
 export default config;
