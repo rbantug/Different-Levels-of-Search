@@ -5,6 +5,7 @@ import { db } from "./database/index.js";
 import { recipes } from "./database/schemas/recipe.js";
 import { meiliRecipeIndex, meiliKeywordIndex } from "./services/meilisearch/index.js";
 import config from "./config.js";
+import runMigrations from "./database/migrate.js";
 
 import {
   deleteSingleRecipe,
@@ -20,6 +21,8 @@ import {
 const PORT = Number(config.expressPort);
 
 async function start() {
+  runMigrations()
+
   const checkDB = db.select().from(recipes).limit(1).get();
 
   if (!checkDB) {
