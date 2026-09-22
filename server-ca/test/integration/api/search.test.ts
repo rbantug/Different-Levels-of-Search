@@ -11,6 +11,7 @@ import type makeUpdateSingleRecipe from "../../../src/controllers/updateSingleRe
 import type makeGetHybridRecipe from "../../../src/controllers/getHybridRecipes.js";
 import type makeGetKeywordSuggestions from "../../../src/controllers/getKeywordSuggestions.js";
 import type makeGetSearchRecipe from "../../../src/controllers/getSearchRecipes.js";
+import type makeGetHealth from "../../../src/controllers/getHealth.js";
 
 function notImplementedController(): never {
   throw new Error("This controller should not be called in this test");
@@ -48,6 +49,10 @@ function makeDefaultControllers() {
 
     getSearchRecipes: notImplementedController as ReturnType<
       typeof makeGetSearchRecipe
+    >,
+    
+    getHealth: notImplementedController as ReturnType<
+      typeof makeGetHealth
     >,
   };
 }
