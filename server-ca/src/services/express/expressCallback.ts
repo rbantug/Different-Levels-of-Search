@@ -15,13 +15,13 @@ export default function expressCallback<Input>({
   mapRequest,
 }: {
   controller: Controller<Input>;
-  mapRequest: RequestMapper<Input>;
+  mapRequest?: RequestMapper<Input>;
 }): RequestHandler {
   return async function expressHandler(req: Request, res: Response, next: NextFunction) {
     try {
-      const input = mapRequest(req);
+      const input = mapRequest ? mapRequest(req) : undefined;
 
-      const httpResponse = await controller(input);
+      const httpResponse = await controller(input as Input);
 
       if (httpResponse.headers) {
         for (const [key, value] of Object.entries(httpResponse.headers)) {

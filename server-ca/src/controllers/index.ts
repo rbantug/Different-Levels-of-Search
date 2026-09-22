@@ -6,6 +6,7 @@ import makeGetSearchRecipe from "./getSearchRecipes.js";
 import makeGetSingleRecipe from "./getSingleRecipe.js";
 import makePostSingleRecipe from "./postSingleRecipe.js";
 import makeUpdateSingleRecipe from "./updateSingleRecipe.js";
+import makeGetHealth from "./getHealth.js";
 
 import {
   removeRecipe,
@@ -26,6 +27,7 @@ const getSearchRecipes = makeGetSearchRecipe({ searchRecipesByKeyword });
 const getSingleRecipe = makeGetSingleRecipe({ findRecipeById });
 const postSingleRecipe = makePostSingleRecipe({ addRecipe });
 const updateSingleRecipe = makeUpdateSingleRecipe({ updateRecipe });
+const getHealth = makeGetHealth()
 
 export {
   deleteSingleRecipe,
@@ -36,4 +38,5 @@ export {
   getSingleRecipe,
   postSingleRecipe,
   updateSingleRecipe,
+  getHealth
 };
