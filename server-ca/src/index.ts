@@ -16,6 +16,7 @@ import {
   getHybridRecipe,
   getKeywordSuggestions,
   getSearchRecipes,
+  getHealth
 } from "./controllers/index.js";
 
 const PORT = Number(config.expressPort);
@@ -41,6 +42,7 @@ async function start() {
     getHybridRecipe,
     getKeywordSuggestions,
     getSearchRecipes,
+    getHealth
   });
 
   app.listen(PORT, "0.0.0.0", () => {
