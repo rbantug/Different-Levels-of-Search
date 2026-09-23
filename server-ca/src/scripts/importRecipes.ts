@@ -11,7 +11,7 @@ const filePath = path.join(__dirname, "recipes.json");
 const jsonData = fs.readFileSync(filePath, "utf-8");
 const recipeData = JSON.parse(jsonData);
 
-async function runImport() {
+export default async function runImport() {
   const meals = recipeData.meals;
 
   for (const recipe of meals) {
@@ -56,12 +56,3 @@ function mergeIngredients(recipe: any) {
   }
   return { ingredients, ingredientName };
 }
-
-runImport()
-  .then(() => {
-    console.log("Recipe import completed");
-  })
-  .catch((error) => {
-    console.error("Recipe import failed", error);
-    process.exit(1);
-  });
