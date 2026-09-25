@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { Recipe } from '@/types/recipe'
 import type { Suggestion } from '@/types/suggestions'
+import config from '@/config'
 
 export interface AxiosResponse<T> {
   count: number
@@ -10,7 +11,7 @@ export interface AxiosResponse<T> {
 }
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api/search',
+  baseURL: `${config.apiUrl}/api/search`,
   timeout: 10000,
 })
 
