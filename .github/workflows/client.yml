@@ -1,12 +1,16 @@
 name: Client CI
 
-on:
-  push:
-    paths:
-      - "client/**"
-
-  pull_request:
-    paths:
+on: 
+  push: 
+    branches: 
+      - main 
+    paths: 
+      - "client/**" 
+  
+  pull_request: 
+    branches: 
+      - main 
+    paths: 
       - "client/**"
 
 jobs:
