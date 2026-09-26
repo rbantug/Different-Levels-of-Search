@@ -62,6 +62,6 @@ function addToRecentRecipe(recipe: Recipe) {
 .no-result-text {
   @include m-flex-center;
   font-size: 2rem;
-  padding-top: 2rem;
+  padding-top: 9rem;
 }
 </style>
