@@ -225,11 +225,13 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
     </header>
 
     <!-- results -->
-    <p v-if="loading" class="loading">Loading...</p>
-    <main v-else>
-      <div ref="resultText" class="resultText"></div>
-      <ResultGrid :results="visibleRecipes" />
-    </main>
+    <div class="results-container">
+      <p v-if="loading" class="loading">Loading...</p>
+      <main v-else>
+        <div ref="resultText" class="resultText"></div>
+        <ResultGrid :results="visibleRecipes" />
+      </main>
+    </div>
 
     <!-- pagination -->
     <div v-if="totalPages > 0" class="pagination">
@@ -311,11 +313,15 @@ main {
 
 .loading {
   @include m-flex-center;
-  padding-top: 2rem;
+  padding-top: 9rem;
   font-size: 2rem;
 }
 
 .resultText {
   scroll-margin-top: 358px;
+}
+
+.results-container {
+  height: 100%
 }
 </style>
