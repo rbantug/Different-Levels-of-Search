@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, watch, type Ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 
 import SearchBar from '@/components/SearchPageComponents/SearchBar.vue'
 import DropDown from '@/components/SearchPageComponents/DropDown.vue'
@@ -12,6 +12,7 @@ import type { Recipe } from '@/types/recipe'
 import type { AxiosResponse } from '@/api/search'
 
 import usePagination from '@/composables/usePagination'
+import useRecipeFilter from '@/composables/useRecipeFilter'
 
 const mainStore = useMainStore()
 
@@ -20,14 +21,10 @@ const searchOptionList = ['keyword', 'hybrid']
 const searchText = ref('')
 const searchOption = ref<'keyword' | 'hybrid'>('keyword')
 const recipeResult = ref<Recipe[]>([])
-const filteredRecipe = ref<Recipe[]>([])
 const visibleRecipes = ref<Recipe[]>([])
-const recipeCount = ref(0)
 
 const currentCategory = ref<string>('All')
 const currentArea = ref<string>('All')
-const categoryList = ref<string[]>([])
-const areaList = ref<string[]>([])
 
 const keywordData = ref<AxiosResponse<Recipe>>()
 const hybridData = ref<AxiosResponse<Recipe>>()
@@ -42,13 +39,9 @@ async function runSearch() {
   // reset variables
   if (!searchText.value.trim()) {
     recipeResult.value = []
-    recipeCount.value = 0
     visibleRecipes.value = []
-    filteredRecipe.value = []
     currentArea.value = ''
     currentCategory.value = ''
-    areaList.value = []
-    categoryList.value = []
     return
   }
 
@@ -76,18 +69,7 @@ async function runSearch() {
     recipeResult -> filteredRecipe -> visibleRecipe
     */
     recipeResult.value = res.data
-
-    // update area and category list and store them in a variable
-    categoryList.value = filterCategory(recipeResult)
-    areaList.value = filterArea(recipeResult)
-
-    // show first x number of recipes for pagination
-    if (recipeResult.value.length <= resultPerPage) {
-      recipeCount.value = recipeResult.value.length
-      visibleRecipes.value = recipeResult.value
-    } else {
-      updateFilteredRecipe()
-    }
+    resetPage()
   } catch (error: unknown) {
     console.error(error)
   } finally {
@@ -95,54 +77,19 @@ async function runSearch() {
   }
 }
 
-function updateFilteredRecipe() {
-  if (currentCategory.value === 'All' && currentArea.value === 'All') {
-    filteredRecipe.value = recipeResult.value
-  } else if (currentCategory.value === 'All') {
-    filteredRecipe.value = recipeResult.value.filter((r: Recipe) => r.area === currentArea.value)
-  } else if (currentArea.value === 'All') {
-    filteredRecipe.value = recipeResult.value.filter(
-      (r: Recipe) => r.category === currentCategory.value,
-    )
-  } else {
-    filteredRecipe.value = recipeResult.value.filter(
-      (r: Recipe) => r.category === currentCategory.value && r.area === currentArea.value,
-    )
-  }
-
-  recipeCount.value = filteredRecipe.value.length
-  resetPage()
-}
-
-function filterCategory(data: Ref) {
-  const res: string[] = []
-  const setCategory = new Set()
-  data.value.forEach((r: Recipe) => {
-    if (!setCategory.has(r.category)) {
-      setCategory.add(r.category)
-      res.push(r.category)
-    }
-  })
-  return res
-}
-
-function filterArea(data: Ref) {
-  const res: string[] = []
-  const setArea = new Set()
-  data.value.forEach((r: Recipe) => {
-    if (!setArea.has(r.area)) {
-      setArea.add(r.area)
-      res.push(r.area)
-    }
-  })
-  return res
-}
+// recipe filter
+const {
+  categoryList,
+    areaList,
+    filteredRecipes,
+    recipeCount
+} = useRecipeFilter(recipeResult, currentCategory, currentArea )
 
 // Pagination
 const resultPerPage = 5
 
 const { currentPage, totalPages, visibleItems, goToPage, resetPage } = usePagination(
-  filteredRecipe,
+  filteredRecipes,
   resultPerPage,
 )
 
@@ -157,7 +104,7 @@ watch(currentPage, async () => {
   })
 })
 watch([searchText, searchOption], runSearch, { immediate: true })
-watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
+watch([currentCategory, currentArea], resetPage)
 </script>
 
 <template>
