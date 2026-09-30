@@ -5,37 +5,26 @@ import SearchBar from '@/components/SearchPageComponents/SearchBar.vue'
 import DropDown from '@/components/SearchPageComponents/DropDown.vue'
 import ResultGrid from '@/components/SearchPageComponents/ResultGrid.vue'
 import ThePagination from '@/components/SearchPageComponents/ThePagination.vue'
-import { hybridSearch, keywordSearch } from '@/api/search'
 import { useMainStore } from '@/stores/mainStore'
-
-import type { Recipe } from '@/types/recipe'
-import type { AxiosResponse } from '@/api/search'
 
 import usePagination from '@/composables/usePagination'
 import useRecipeFilter from '@/composables/useRecipeFilter'
+import useRecipeSearch from '@/composables/useRecipeSearch'
 
 const mainStore = useMainStore()
 
 const searchOptionList = ['keyword', 'hybrid']
 
-const searchText = ref('')
-const searchOption = ref<'keyword' | 'hybrid'>('keyword')
-const recipeResult = ref<Recipe[]>([])
-const visibleRecipes = ref<Recipe[]>([])
-
 const currentCategory = ref<string>('All')
 const currentArea = ref<string>('All')
-
-const keywordData = ref<AxiosResponse<Recipe>>()
-const hybridData = ref<AxiosResponse<Recipe>>()
-
-const loading = ref(false)
 
 function updateSearchText(keyword: string) {
   searchText.value = keyword
 }
 
-async function runSearch() {
+// search recipes
+
+/* async function runSearch() {
   // reset variables
   if (!searchText.value.trim()) {
     recipeResult.value = []
@@ -64,10 +53,6 @@ async function runSearch() {
     } else {
       throw new Error('Something is wrong with the search option')
     }
-
-    /* 
-    recipeResult -> filteredRecipe -> visibleRecipe
-    */
     recipeResult.value = res.data
     resetPage()
   } catch (error: unknown) {
@@ -75,7 +60,15 @@ async function runSearch() {
   } finally {
     loading.value = false
   }
-}
+} */
+
+const {
+  searchText,
+  searchOption,
+  recipeResult,
+  loading,
+  runSearch
+} = useRecipeSearch()
 
 // recipe filter
 const {
@@ -95,6 +88,7 @@ const { currentPage, totalPages, visibleItems, goToPage, resetPage } = usePagina
 
 const resultText = ref<HTMLElement | null>(null)
 
+// watcher for forcing the browser to scroll back to the top of the page. resultText is located at the top of the results container
 watch(currentPage, async () => {
   await nextTick()
 
@@ -103,7 +97,10 @@ watch(currentPage, async () => {
     block: 'start',
   })
 })
+
 watch([searchText, searchOption], runSearch, { immediate: true })
+
+// watcher for setting the current page of the pagination back to 1 if there either the category or area was changed
 watch([currentCategory, currentArea], resetPage)
 </script>
 
@@ -147,7 +144,6 @@ watch([currentCategory, currentArea], resetPage)
         <div>
           <p>Area:</p>
           <DropDown
-            v-model:selected-option="currentArea"
             :data-list="areaList"
             :option="false"
             id="area"
