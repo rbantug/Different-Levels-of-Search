@@ -11,6 +11,8 @@ import { useMainStore } from '@/stores/mainStore'
 import type { Recipe } from '@/types/recipe'
 import type { AxiosResponse } from '@/api/search'
 
+import usePagination from '@/composables/usePagination'
+
 const mainStore = useMainStore()
 
 const searchOptionList = ['keyword', 'hybrid']
@@ -80,16 +82,12 @@ async function runSearch() {
     areaList.value = filterArea(recipeResult)
 
     // show first x number of recipes for pagination
-    if (recipeResult.value.length <= resultPerPage.value) {
+    if (recipeResult.value.length <= resultPerPage) {
       recipeCount.value = recipeResult.value.length
-      totalPages.value = Math.ceil(recipeResult.value.length / resultPerPage.value)
       visibleRecipes.value = recipeResult.value
     } else {
       updateFilteredRecipe()
     }
-
-    // go back to the first page when this function runs
-    currentPage.value = 1
   } catch (error: unknown) {
     console.error(error)
   } finally {
@@ -113,9 +111,7 @@ function updateFilteredRecipe() {
   }
 
   recipeCount.value = filteredRecipe.value.length
-  currentPage.value = 1
-  visibleRecipes.value = filteredRecipe.value.slice(0, currentPage.value * resultPerPage.value)
-  totalPages.value = Math.ceil(filteredRecipe.value.length / resultPerPage.value)
+  resetPage()
 }
 
 function filterCategory(data: Ref) {
@@ -143,28 +139,23 @@ function filterArea(data: Ref) {
 }
 
 // Pagination
+const resultPerPage = 5
 
-const resultPerPage = ref(5)
-const totalPages = ref(Math.ceil(filteredRecipe.value.length / resultPerPage.value))
-const currentPage = ref(1)
+const { currentPage, totalPages, visibleItems, goToPage, resetPage } = usePagination(
+  filteredRecipe,
+  resultPerPage,
+)
+
 const resultText = ref<HTMLElement | null>(null)
 
-async function updatePage(val: number) {
-  currentPage.value = val
-  visibleRecipes.value = filteredRecipe.value.slice(
-    (currentPage.value - 1) * resultPerPage.value,
-    currentPage.value * resultPerPage.value,
-  )
-  totalPages.value = Math.ceil(filteredRecipe.value.length / resultPerPage.value)
+watch(currentPage, async () => {
+  await nextTick()
 
-  nextTick(() => {
-    resultText.value?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    })
+  resultText.value?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
   })
-}
-
+})
 watch([searchText, searchOption], runSearch, { immediate: true })
 watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
 </script>
@@ -178,10 +169,7 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
       <h1 class="header__h1">Different Levels of Search</h1>
       <p class="header__paragraph">Compare Keyword-Only vs. Keyword + Semantic Search</p>
       <div class="searchbar-container">
-        <SearchBar
-          v-model:search="searchText"
-          @emit-keyword="updateSearchText"
-        />
+        <SearchBar v-model:search="searchText" @emit-keyword="updateSearchText" />
       </div>
       <p>Total Recipes: {{ recipeCount }}</p>
 
@@ -229,7 +217,7 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
       <p v-if="loading" class="loading">Loading...</p>
       <main v-else>
         <div ref="resultText" class="resultText"></div>
-        <ResultGrid :results="visibleRecipes" />
+        <ResultGrid :results="visibleItems" />
       </main>
     </div>
 
@@ -238,7 +226,7 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
       <ThePagination
         :total-pages="totalPages"
         :current-page="currentPage"
-        @update:current-page="updatePage"
+        @update:current-page="goToPage"
       />
     </div>
   </div>
@@ -282,7 +270,7 @@ watch([currentArea, currentCategory], updateFilteredRecipe, { immediate: true })
 }
 
 main {
-  height: 100%
+  height: 100%;
 }
 
 .pagination {
@@ -322,6 +310,6 @@ main {
 }
 
 .results-container {
-  height: 100%
+  height: 100%;
 }
 </style>
