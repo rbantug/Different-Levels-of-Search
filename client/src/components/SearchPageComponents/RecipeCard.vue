@@ -28,7 +28,7 @@ const props = defineProps({
 
 const imageLoaded = ref(false)
 
-const checkRecipeNameLength = computed(() => {
+const truncatedRecipeName = computed(() => {
   if (props.recipeName.length < 35) {
     return props.recipeName
   }
@@ -36,12 +36,8 @@ const checkRecipeNameLength = computed(() => {
   return `${props.recipeName.slice(0, 35)}...`
 })
 
-watch(
-  () => props.recipeThumbnail,
-  (newVal) => {
-    if (!newVal) return
-
-    imageLoaded.value = false
+function loadImage(src: string) {
+  imageLoaded.value = false
     const img = new Image()
     img.onload = () => {
       imageLoaded.value = true
@@ -51,7 +47,15 @@ watch(
       imageLoaded.value = true
     }
 
-    img.src = newVal
+    img.src = src
+}
+
+watch(
+  () => props.recipeThumbnail,
+  (newVal) => {
+    if (!newVal) return
+
+    loadImage(newVal)
   },
   { immediate: true },
 )
@@ -67,7 +71,7 @@ watch(
           <img :src="props.recipeThumbnail" :alt="props.recipeName" class="recipe-thumbnail__img" />
         </div>
         <div class="recipe-details">
-          <h3 class="recipe-details__name">{{ checkRecipeNameLength }}</h3>
+          <h3 class="recipe-details__name">{{ truncatedRecipeName }}</h3>
           <p class="recipe-details__area">Cuisine: {{ props.area }}</p>
           <p class="recipe-details__category">Category: {{ props.category }}</p>
         </div>
