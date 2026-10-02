@@ -8,9 +8,12 @@ import { suggestion } from '@/api/search.ts'
 
 const mainStore = useMainStore()
 
-const emits = defineEmits(['inputClicked', 'emitKeyword'])
+const emits = defineEmits(['emitKeyword'])
 
-const searchText = ref('')
+//const searchText = ref('')
+const searchText = defineModel<string>('search', {
+  default: '',
+})
 const debouncedQuery = refDebounced(searchText, 300)
 const suggestions = ref<string[]>([])
 const isLoading = ref(false)
@@ -35,18 +38,16 @@ async function runSuggestion() {
   try {
     const { data } = await suggestion(debouncedQuery.value)
 
-    if (data.length === 0) {
-      suggestions.value = []
-      noResult.value = true
-    } else {
-      noResult.value = false
-      suggestions.value = data.map((s) => s.keyword)
-    }
+    suggestions.value = data.map((s) => s.keyword)
+    noResult.value = data.length === 0
+
     if (mainStore.getDDOpenId !== 'searchbar') {
       mainStore.toggleDD('searchbar')
     }
   } catch (error) {
     console.error(error)
+    suggestions.value = []
+    noResult.value = true
   } finally {
     isLoading.value = false
     justFetched.value = true
@@ -58,7 +59,6 @@ async function runSuggestion() {
  * @param keyword - The keyword emitted from the DropDownList.vue
  */
 function emitKeyword(keyword: string) {
-  //dropdownIsOpen.value = false
   mainStore.closeDD()
   searchText.value = keyword
   emits('emitKeyword', keyword)
@@ -93,7 +93,7 @@ watch(
     }
 
     // this will prevent another search after selecting an option in the drop down list
-    if (justFetched.value === false) {
+    if (!justFetched.value) {
       runSuggestion()
     }
   },
