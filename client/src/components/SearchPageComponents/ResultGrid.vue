@@ -9,7 +9,6 @@ const props = defineProps({
   results: {
     type: Array as PropType<Array<Recipe>>,
     required: true,
-    default: () => [],
   },
 })
 
