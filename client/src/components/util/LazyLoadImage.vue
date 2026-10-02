@@ -1,19 +1,32 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-interface Props {
-  imgPath: string | undefined
-  blurryImgPath?: string | undefined
-  altName?: string
-  notLazy?: boolean
-  class?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  notLazy: false,
-  class: '',
-  imgPath: '',
-  blurryImgPath: '',
+const props = defineProps({
+  imgPath: {
+    type: String,
+    default: '',
+  },
+  blurryImgPath: {
+    type: String,
+    required: false,
+    default: ''
+  },
+  altName: {
+    type: String,
+    required: false,
+    default: ''
+  },
+  notLazy: {
+    type: Boolean,
+    required: false,
+    default: false,
+    
+  },
+  class: {
+    type: String,
+    required: false,
+    default: ''
+  }
 })
 
 const loaded = ref(false)
@@ -44,7 +57,7 @@ onMounted(() => {
       :src="props.blurryImgPath"
       :alt="props.altName"
       class="placeholder"
-      :loading="notLazy ? 'eager' : 'lazy'"
+      :loading="props.notLazy ? 'eager' : 'lazy'"
     />
 
     <!-- Main Image -->
@@ -52,8 +65,8 @@ onMounted(() => {
       v-if="!error"
       :src="props.imgPath"
       :alt="props.altName"
-      :class="['main-img', loaded ? 'main-img__loaded' : 'main-img__not-loaded', props.class]"
-      :loading="notLazy ? 'eager' : 'lazy'"
+      :class="['main-img', loaded ? 'main-img__loaded' : 'main-img__not-loaded']"
+      :loading="props.notLazy ? 'eager' : 'lazy'"
     />
 
     <!-- Error Fallback -->
@@ -114,6 +127,6 @@ onMounted(() => {
   background-color: $color-search-icon;
   color: $color-text-secondary;
   font-size: 0.875rem;
-  list-style: calc(1.25 / 0.875);
+  line-height: calc(1.25 / 0.875);
 }
 </style>
