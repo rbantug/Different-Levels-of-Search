@@ -38,7 +38,7 @@ const props = defineProps({
     type: Boolean,
   },
   /**
-   * Setting this to "true" will add recent recipes accessed by the user at the bottom of the drop down list
+   * Another prop made for the Searchbar. Setting this to "true" will add recent recipes accessed by the user at the bottom of the drop down list
    */
   showRecentRecipes: {
     required: false,
@@ -193,9 +193,9 @@ function cutRecipeName(recipeName: string) {
   position: absolute;
   top: 0;
   left: 0;
-  background-color: white;
   max-height: 20rem;
   width: 100%;
+  background-color: white;
   margin-top: 3.5rem;
   overflow-y: auto;
   border-radius: 5px;
