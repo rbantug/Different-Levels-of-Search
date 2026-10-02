@@ -123,7 +123,7 @@ watch([currentCategory, currentArea], resetPage)
           <p>Search Option:</p>
           <DropDown
             :data-list="searchOptionList"
-            :option="true"
+            :set-to-all="true"
             id="searchOption"
             @goToggle="mainStore.toggleDD('searchOption')"
             :open="mainStore.getDDOpenId === 'searchOption'"
@@ -134,7 +134,7 @@ watch([currentCategory, currentArea], resetPage)
           <p>Category:</p>
           <DropDown
             :data-list="categoryList"
-            :option="false"
+            :set-to-all="false"
             id="category"
             @goToggle="mainStore.toggleDD('category')"
             :open="mainStore.getDDOpenId === 'category'"
@@ -145,7 +145,7 @@ watch([currentCategory, currentArea], resetPage)
           <p>Area:</p>
           <DropDown
             :data-list="areaList"
-            :option="false"
+            :set-to-all="false"
             id="area"
             @goToggle="mainStore.toggleDD('area')"
             :open="mainStore.getDDOpenId === 'area'"

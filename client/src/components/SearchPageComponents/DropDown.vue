@@ -7,7 +7,10 @@ const props = defineProps({
     required: true,
     type: Array as PropType<string[]>,
   },
-  option: {
+  /**
+   * If set to false, "All" should be included in the list options.
+   */
+  setToAll: {
     required: true,
     type: Boolean,
     default: false,
@@ -16,15 +19,11 @@ const props = defineProps({
     required: true,
     type: Boolean,
   },
-  id: {
-    required: true,
-    type: String,
-  },
 })
 
-const emits = defineEmits(['goToggle', 'selectedOption'])
+const emits = defineEmits(['goToggle'])
 
-const selectedOption = defineModel()
+const selectedOption = defineModel<string>()
 
 function toggleListVisbility() {
   emits('goToggle')
@@ -38,7 +37,7 @@ function updateSelectedOption(val:string) {
 watch(
   () => props.dataList,
   () => {
-    if (!props.option) {
+    if (!props.setToAll) {
       selectedOption.value = 'All'
     }
     return
@@ -62,7 +61,7 @@ watch(
     </div>
     <DropDownList
       :data-list="props.dataList"
-      :option="props.option"
+      :option="props.setToAll"
       :open="props.open"
       @close-list="updateSelectedOption"
     />
