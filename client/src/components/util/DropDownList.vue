@@ -115,7 +115,7 @@ function recentRecipeToRecipePage(recentRecipe: RecentRecipe) {
     recipeName: recentRecipe.recipeName,
     recipeThumbnail: recentRecipe.recipeThumbnail,
     slug: recentRecipe.slug,
-    createdAt: recentRecipe.createdAt,
+    createdAt: new Date(),
   })
   emits('closeList', '')
 
