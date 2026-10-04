@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { type PropType, type Ref } from 'vue'
-import { useStorage } from '@vueuse/core'
+import { type PropType } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { RecentRecipe } from '@/types/recentRecipe'
@@ -107,8 +106,6 @@ const leave = (el: Element) => {
 
 // recent recipe related code
 
-const recentRecipeQueue: Ref<RecentRecipe[]> = useStorage('recent-recipes', [])
-
 function recentRecipeToRecipePage(recentRecipe: RecentRecipe) {
   mainStore.addToRecentRecipes({
     recipeId: recentRecipe.recipeId,
@@ -157,14 +154,14 @@ function cutRecipeName(recipeName: string) {
         <div v-if="showRecentRecipes">
           <hr />
           <div class="recent-recipe-container">
-            <div v-if="!recentRecipeQueue.length" class="no-recent-recipe-text">
+            <div v-if="!mainStore.recentRecipeQueue.length" class="no-recent-recipe-text">
               No recent recipes
             </div>
             <div v-else>
               <h1 class="recent-recipe-header">Recently Viewed Recipes:</h1>
               <ul>
                 <li
-                  v-for="recentRecipe in recentRecipeQueue"
+                  v-for="recentRecipe in mainStore.recentRecipeQueue"
                   :key="recentRecipe.recipeId"
                   @click="recentRecipeToRecipePage(recentRecipe)"
                   class="recent-recipe"
