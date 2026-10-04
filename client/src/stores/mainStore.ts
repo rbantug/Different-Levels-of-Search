@@ -35,7 +35,6 @@ export const useMainStore = defineStore('main', () => {
   // recent recipe queue in local storage
 
   const recentRecipeQueue = useStorage<RecentRecipe[]>('recent-recipes', [])
-  const currentRecipeId = ref<string|null>(null)
 
   /**
    * This update the recent recipe queue in the localStorage
@@ -43,7 +42,6 @@ export const useMainStore = defineStore('main', () => {
    */
   function addToRecentRecipes({ recipeId, recipeName, recipeThumbnail, slug, createdAt }: RecentRecipe
   ) {
-    currentRecipeId.value = recipeId
     const findIndex = recentRecipeQueue.value.findIndex((x) => x.recipeId === recipeId)
 
     if (findIndex !== -1) {
@@ -62,10 +60,6 @@ export const useMainStore = defineStore('main', () => {
       recentRecipeQueue.value.pop()
     }
   }
-
-  function updateCurrentRecipeId(recipeId: string|null) {
-    currentRecipeId.value = recipeId
-  }
   
   return {
     keywordRecipes,
@@ -78,8 +72,6 @@ export const useMainStore = defineStore('main', () => {
     closeDD,
     ddOpenId,
     addToRecentRecipes,
-    currentRecipeId,
-    updateCurrentRecipeId,
     recentRecipeQueue,
   }
 })

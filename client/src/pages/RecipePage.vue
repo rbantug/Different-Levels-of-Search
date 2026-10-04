@@ -110,7 +110,6 @@ async function loadRecipe(slug: string) {
 
 function goBackToSearchPage() {
   recipe.value = null
-  mainStore.updateCurrentRecipeId(null)
   router.go(-1)
 }
 
