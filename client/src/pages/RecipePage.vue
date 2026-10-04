@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, type Ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -14,91 +14,115 @@ import { useStorage } from '@vueuse/core'
 const route = useRoute()
 const router = useRouter()
 const mainStore = useMainStore()
-const recentRecipeQueue: Ref<RecentRecipe[]> = useStorage('recent-recipes', [])
+const recentRecipeQueue = useStorage<RecentRecipe[]>('recent-recipes', [])
 
 const recipe = ref<Recipe | null>()
-const badgeText = ref<string[]>([])
+const badgeText = computed(() => {
+  if (!recipe.value) {
+    return []
+  }
+
+  return [recipe.value.area, recipe.value.category]
+})
+
+function findRecipeInSearchResults(slug: string): Recipe | undefined {
+  const option = mainStore.getCurrentOption.value
+
+  if (option === 'keyword') {
+    return mainStore.getKeywordRecipes.value.find((recipe: Recipe) => recipe.slug === slug)
+  }
+
+  if (option === 'hybrid') {
+    return mainStore.getHybridRecipes.value.find((recipe: Recipe) => recipe.slug === slug)
+  }
+
+  return undefined
+}
+
+function findRecentRecipe(slug: string): RecentRecipe | undefined {
+  return recentRecipeQueue.value.find((recipe) => recipe.slug === slug)
+}
+
+function goToNotFound() {
+  router.push({
+    name: 'error',
+    params: {
+      anything: '404',
+    },
+  })
+}
+
+function goToServerError() {
+  router.push({
+    name: 'error',
+    params: {
+      anything: '500',
+    },
+  })
+}
+
+async function fetchRecentRecipe(recipeId: string) {
+  try {
+    const { data } = await getSingleRecipe(recipeId)
+
+    return data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.status === 404) {
+        goToNotFound()
+      }
+
+      return null
+    }
+
+    goToServerError()
+    return null
+  }
+}
 
 /**
- * This will search for the recipe details that will be used in this component. Regarding the 2 arguments, you can only provide a slug or a recipeId. Not both.
+ * Everything starts from this function. It goes through this sequence:
+ * - find recipe in existing recipe list in pinia
+ * - find recipe in local storage
+ * - fetch recipe from backend
+ * - 404 or 500 errors will be thrown depending on where the error happened
  * @param slug
- * @param recipeId
  */
-async function loadRecipe(slug: string | string[] | undefined) {
-  const option = mainStore.getCurrentOption
+async function loadRecipe(slug: string) {
+  recipe.value = findRecipeInSearchResults(slug)
 
-  if (option.value === 'keyword') {
-    recipe.value = mainStore.getKeywordRecipes.value.find((r: Recipe) => r.slug === slug)
-  } else if (option.value === 'hybrid') {
-    recipe.value = mainStore.getHybridRecipes.value.find((r: Recipe) => r.slug === slug)
+  if (recipe.value) {
+    return
   }
 
-  if (!recipe.value) {
-    // we need to check if the provided slug is in the recipes found in the local storage
-    const checkRecipeInQueue = recentRecipeQueue.value.findIndex(
-      (recipe: RecentRecipe) => recipe.slug === slug,
-    )
+  const recentRecipe = findRecentRecipe(slug)
 
-    // if it does not exist in the local storage, we will route to the error page
-    if (checkRecipeInQueue === -1) {
-      router.push({
-        name: 'error',
-        params: {
-          anything: '404',
-        },
-      })
-      return
-    }
-
-    // recipe date will be fetched from the backend using the recipeId
-    const recipeId = recentRecipeQueue.value[checkRecipeInQueue]?.recipeId
-
-    try {
-      const { data } = await getSingleRecipe(recipeId!)
-      recipe.value = data
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.status === 404) {
-          router.push({
-            name: 'error',
-            params: {
-              anything: '404',
-            },
-          })
-        }
-        return
-      } else {
-        router.push({
-          name: 'error',
-          params: {
-            anything: '500',
-          },
-        })
-      }
-    }
+  if (!recentRecipe) {
+    goToNotFound()
+    return
   }
 
-  if (!recipe.value) {
-    throw new Error('Something went wrong with fetching the recipe')
-  }
+  const fetchedRecipe = await fetchRecentRecipe(recentRecipe.recipeId)
 
-  // merge category and area into an array
-  badgeText.value.push(recipe.value.area, recipe.value.category)
+  if (fetchedRecipe) {
+    recipe.value = fetchedRecipe
+  }
 }
 
 function goBackToSearchPage() {
   recipe.value = null
-  badgeText.value = []
   mainStore.updateCurrentRecipeId(null)
   router.go(-1)
 }
 
 watch(
   () => route.params.slug,
-  async (newVal) => {
-    if (!newVal) return
+  async (slug) => {
+    if (typeof slug !== 'string') {
+      return
+    }
 
-    await loadRecipe(route.params.slug)
+    await loadRecipe(slug)
   },
   {
     immediate: true,
