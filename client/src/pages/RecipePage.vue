@@ -246,7 +246,6 @@ header {
   width: 80%;
   @include m-flex-center;
   column-gap: 1rem;
-  max-width: 10rem;
   margin: 0 auto;
 }
 
