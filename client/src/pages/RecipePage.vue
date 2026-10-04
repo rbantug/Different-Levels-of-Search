@@ -9,12 +9,11 @@ import type { Recipe } from '@/types/recipe'
 import type { RecentRecipe } from '@/types/recentRecipe'
 import BaseBadge from '@/components/util/BaseBadge.vue'
 import { getSingleRecipe } from '@/api/recipe'
-import { useStorage } from '@vueuse/core'
 
 const route = useRoute()
 const router = useRouter()
 const mainStore = useMainStore()
-const recentRecipeQueue = useStorage<RecentRecipe[]>('recent-recipes', [])
+//const recentRecipeQueue = useStorage<RecentRecipe[]>('recent-recipes', [])
 
 const recipe = ref<Recipe | null>()
 const badgeText = computed(() => {
@@ -26,21 +25,21 @@ const badgeText = computed(() => {
 })
 
 function findRecipeInSearchResults(slug: string): Recipe | undefined {
-  const option = mainStore.getCurrentOption.value
+  const option = mainStore.currentOption
 
   if (option === 'keyword') {
-    return mainStore.getKeywordRecipes.value.find((recipe: Recipe) => recipe.slug === slug)
+    return mainStore.keywordRecipes.find((recipe: Recipe) => recipe.slug === slug)
   }
 
   if (option === 'hybrid') {
-    return mainStore.getHybridRecipes.value.find((recipe: Recipe) => recipe.slug === slug)
+    return mainStore.hybridRecipes.find((recipe: Recipe) => recipe.slug === slug)
   }
 
   return undefined
 }
 
 function findRecentRecipe(slug: string): RecentRecipe | undefined {
-  return recentRecipeQueue.value.find((recipe) => recipe.slug === slug)
+  return mainStore.recentRecipeQueue.find((recipe) => recipe.slug === slug)
 }
 
 function goToNotFound() {

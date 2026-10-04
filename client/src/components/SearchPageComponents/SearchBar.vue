@@ -41,7 +41,7 @@ async function runSuggestion() {
     suggestions.value = data.map((s) => s.keyword)
     noResult.value = data.length === 0
 
-    if (mainStore.getDDOpenId !== 'searchbar') {
+    if (mainStore.ddOpenId !== 'searchbar') {
       mainStore.toggleDD('searchbar')
     }
   } catch (error) {
@@ -77,7 +77,7 @@ function startFetch() {
 }
 
 function openDropdown() {
-  if (mainStore.getDDOpenId !== 'searchbar') {
+  if (mainStore.ddOpenId !== 'searchbar') {
     mainStore.toggleDD('searchbar')
   }
 }
@@ -154,7 +154,7 @@ watch(
           :data-list="suggestions"
           :option="true"
           id="searchbar"
-          :open="mainStore.getDDOpenId === 'searchbar'"
+          :open="mainStore.ddOpenId === 'searchbar'"
           :no-results-option="noResult"
           :show-recent-recipes="true"
           @close-list="emitKeyword"

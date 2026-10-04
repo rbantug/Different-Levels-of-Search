@@ -106,7 +106,7 @@ watch([currentCategory, currentArea], resetPage)
 
 <template>
   <div class="searchpage-container">
-    <div v-if="mainStore.getDDOpenId" @click="mainStore.closeDD" class="dropdown-overlay" />
+    <div v-if="mainStore.ddOpenId" @click="mainStore.closeDD" class="dropdown-overlay" />
 
     <!-- search bar -->
     <header class="header">
@@ -126,7 +126,7 @@ watch([currentCategory, currentArea], resetPage)
             :set-to-all="true"
             id="searchOption"
             @goToggle="mainStore.toggleDD('searchOption')"
-            :open="mainStore.getDDOpenId === 'searchOption'"
+            :open="mainStore.ddOpenId === 'searchOption'"
             v-model="searchOption"
           />
         </div>
@@ -137,7 +137,7 @@ watch([currentCategory, currentArea], resetPage)
             :set-to-all="false"
             id="category"
             @goToggle="mainStore.toggleDD('category')"
-            :open="mainStore.getDDOpenId === 'category'"
+            :open="mainStore.ddOpenId === 'category'"
             v-model="currentCategory"
           />
         </div>
@@ -148,7 +148,7 @@ watch([currentCategory, currentArea], resetPage)
             :set-to-all="false"
             id="area"
             @goToggle="mainStore.toggleDD('area')"
-            :open="mainStore.getDDOpenId === 'area'"
+            :open="mainStore.ddOpenId === 'area'"
             v-model="currentArea"
           />
         </div>
