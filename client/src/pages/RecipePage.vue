@@ -13,7 +13,6 @@ import { getSingleRecipe } from '@/api/recipe'
 const route = useRoute()
 const router = useRouter()
 const mainStore = useMainStore()
-//const recentRecipeQueue = useStorage<RecentRecipe[]>('recent-recipes', [])
 
 const recipe = ref<Recipe | null>()
 const badgeText = computed(() => {
