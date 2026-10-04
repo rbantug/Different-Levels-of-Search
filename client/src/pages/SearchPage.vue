@@ -23,45 +23,6 @@ function updateSearchText(keyword: string) {
 }
 
 // search recipes
-
-/* async function runSearch() {
-  // reset variables
-  if (!searchText.value.trim()) {
-    recipeResult.value = []
-    visibleRecipes.value = []
-    currentArea.value = ''
-    currentCategory.value = ''
-    return
-  }
-
-  let res: AxiosResponse<Recipe>
-
-  loading.value = true
-
-  // fetch data based on current option
-  try {
-    if (searchOption.value === 'keyword') {
-      res = await keywordSearch(searchText.value)
-      keywordData.value = res
-      mainStore.updateKeywordRecipes(res.data)
-      mainStore.updateCurrentOption('keyword')
-    } else if (searchOption.value === 'hybrid') {
-      res = await hybridSearch(searchText.value)
-      hybridData.value = res
-      mainStore.updateHybridRecipes(res.data)
-      mainStore.updateCurrentOption('hybrid')
-    } else {
-      throw new Error('Something is wrong with the search option')
-    }
-    recipeResult.value = res.data
-    resetPage()
-  } catch (error: unknown) {
-    console.error(error)
-  } finally {
-    loading.value = false
-  }
-} */
-
 const {
   searchText,
   searchOption,
