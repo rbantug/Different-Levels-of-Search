@@ -1,17 +1,18 @@
 import AppError from "../errors/AppError.js";
-import type makeFindRecipeById from "../use-cases/findRecipeById.js";
+import type makeFindRecipeBySlug from "../use-cases/findRecipeBySlug.js"
+
 
 interface Dependencies {
-  findRecipeById: ReturnType<typeof makeFindRecipeById>;
+  findRecipeBySlug: ReturnType<typeof makeFindRecipeBySlug>;
 }
 
-export default function makeGetSingleRecipe({ findRecipeById }: Dependencies) {
-  return function getSingleRecipe({ recipeId }: { recipeId: string }) {
-    if (!recipeId) {
-      throw new AppError("A recipe id is required", 400);
+export default function makeGetSingleRecipe({ findRecipeBySlug }: Dependencies) {
+  return function getSingleRecipe({ slug }: { slug: string }) {
+    if (!slug) {
+      throw new AppError("A slug is required", 400);
     }
 
-    const recipe = findRecipeById({ recipeId });
+    const recipe = findRecipeBySlug({ slug });
 
     return {
       statusCode: 200,

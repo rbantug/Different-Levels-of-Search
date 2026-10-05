@@ -46,14 +46,6 @@ export default function makeRecipeRoutes({
 
   router
     .route("/:id")
-    .get(
-      expressCallback({
-        controller: getSingleRecipe,
-        mapRequest: (req) => ({
-          recipeId: getRequiredParam({ name: "id", params: req.params }),
-        }),
-      }),
-    )
     .delete(
       expressCallback({
         controller: deleteSingleRecipe,
@@ -71,6 +63,15 @@ export default function makeRecipeRoutes({
         }),
       }),
     );
+
+  router.route("/:slug").get(
+    expressCallback({
+      controller: getSingleRecipe,
+      mapRequest: (req) => ({
+        slug: getRequiredParam({ name: "slug", params: req.params }),
+      }),
+    }),
+  );
 
   return router;
 }

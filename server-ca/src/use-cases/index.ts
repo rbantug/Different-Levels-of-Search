@@ -21,6 +21,7 @@ import {
   meiliKeywordIndex,
 } from "../services/meilisearch/index.js";
 import cosineSimilarity from "../utils/vector/cosineSimilarity.js";
+import makeFindRecipeBySlug from "./findRecipeBySlug.js";
 
 const addRecipe = makeAddRecipe({
   makeRecipe,
@@ -32,7 +33,7 @@ const addRecipe = makeAddRecipe({
   keywordsIndex: meiliKeywordIndex,
 });
 
-const findRecipeById = makeFindRecipeById({ recipeDB });
+const findRecipeBySlug = makeFindRecipeBySlug({ recipeDB })
 
 const listRecipes = makeListRecipes({ recipeDB });
 
@@ -70,7 +71,7 @@ const findKeywords = makeFindKeywords({
 
 export {
   addRecipe,
-  findRecipeById,
+  findRecipeBySlug,
   listRecipes,
   removeRecipe,
   searchRecipesByKeyword,

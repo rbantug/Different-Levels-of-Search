@@ -14,7 +14,7 @@ import {
   searchRecipesHybrid,
   findKeywords,
   searchRecipesByKeyword,
-  findRecipeById,
+  findRecipeBySlug,
   addRecipe,
   updateRecipe,
 } from "../use-cases/index.js";
@@ -24,7 +24,7 @@ const getAllRecipes = makeGetAllRecipes({ listRecipes });
 const getHybridRecipe = makeGetHybridRecipe({ searchRecipesHybrid });
 const getKeywordSuggestions = makeGetKeywordSuggestions({ findKeywords });
 const getSearchRecipes = makeGetSearchRecipe({ searchRecipesByKeyword });
-const getSingleRecipe = makeGetSingleRecipe({ findRecipeById });
+const getSingleRecipe = makeGetSingleRecipe({ findRecipeBySlug });
 const postSingleRecipe = makePostSingleRecipe({ addRecipe });
 const updateSingleRecipe = makeUpdateSingleRecipe({ updateRecipe });
 const getHealth = makeGetHealth()

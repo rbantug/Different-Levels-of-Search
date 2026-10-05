@@ -55,6 +55,10 @@ export default function makeRecipeDB({ db }: { db: DatabaseClient }) {
     return db.select().from(recipes).where(eq(recipes.id, id)).get();
   }
 
+  function findRecipeBySlug(slug: string) {
+    return db.select().from(recipes).where(eq(recipes.slug, slug)).get();
+  }
+
   function findRecipesById(recipeIdArr: string[]) {
     return db.select().from(recipes).where(inArray(recipes.id, recipeIdArr)).all()
   }
@@ -137,6 +141,7 @@ export default function makeRecipeDB({ db }: { db: DatabaseClient }) {
     insertRecipe,
     findAllRecipes,
     findRecipeById,
+    findRecipeBySlug,
     findRecipesById,
     findAllKeywords,
     findRecipeKeywords,
