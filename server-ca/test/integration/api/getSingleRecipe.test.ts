@@ -18,8 +18,8 @@ const recipe = {
 };
 
 describe("getSingleRecipe controller", () => {
-  it("should pass the recipe id to the use-case", () => {
-    let receivedRecipeId: string | undefined;
+  it("should pass the slug to the use-case", () => {
+    let receivedSlug: string | undefined;
 
     const recipe = {
       id: "recipe-1",
@@ -36,31 +36,31 @@ describe("getSingleRecipe controller", () => {
       updatedAt: new Date(),
     };
 
-    const findRecipeById = ({ recipeId }: { recipeId: string }) => {
-      receivedRecipeId = recipeId;
+    const findRecipeBySlug = ({ slug }: { slug: string }) => {
+      receivedSlug = slug;
       return recipe;
     };
 
     const getSingleRecipe = makeGetSingleRecipe({
-      findRecipeById,
+      findRecipeBySlug,
     });
 
     getSingleRecipe({
-      recipeId: "recipe-1",
+      slug: "recipe-1",
     });
 
-    expect(receivedRecipeId).toBe("recipe-1");
+    expect(receivedSlug).toBe("recipe-1");
   });
 
   it("should return the recipe in an HTTP response", () => {
-    const findRecipeById = () => recipe;
+    const findRecipeBySlug = () => recipe;
 
     const getSingleRecipe = makeGetSingleRecipe({
-      findRecipeById,
+      findRecipeBySlug,
     });
 
     const result = getSingleRecipe({
-      recipeId: "recipe-1",
+      slug: "carbonara",
     });
 
     expect(result).toEqual({
@@ -72,16 +72,16 @@ describe("getSingleRecipe controller", () => {
     });
   });
 
-  it("should throw an error if the recipe id was not provided", () => {
-    const findRecipeById = () => recipe;
+  it("should throw an error if the slug was not provided", () => {
+    const findRecipeBySlug = () => recipe;
 
     const getSingleRecipe = makeGetSingleRecipe({
-      findRecipeById,
+      findRecipeBySlug,
     });
 
     expect(() =>
       getSingleRecipe({
-        recipeId: "",
+        slug: "",
       }),
     ).toThrow();
   });

@@ -122,7 +122,7 @@ describe("GET /api/recipes", () => {
 describe("GET /api/recipes/:id", () => {
   it("should return a single recipe", async () => {
     const getSingleRecipe: ReturnType<typeof makeGetSingleRecipe> = ({
-      recipeId,
+      slug,
     }) => {
       return {
         statusCode: 200,
@@ -152,13 +152,13 @@ describe("GET /api/recipes/:id", () => {
     });
   });
 
-  it("should pass the recipe id to the controller", async () => {
-    let receivedRecipeId: string | undefined;
+  it("should pass the slug to the controller", async () => {
+    let receivedSlug: string | undefined;
 
     const getSingleRecipe: ReturnType<typeof makeGetSingleRecipe> = ({
-      recipeId,
+      slug,
     }) => {
-      receivedRecipeId = recipeId;
+      receivedSlug = slug;
 
       return {
         statusCode: 200,
@@ -176,8 +176,8 @@ describe("GET /api/recipes/:id", () => {
 
     await request(app).get("/api/recipes/recipe-1");
 
-    expect(receivedRecipeId).toBe("recipe-1");
-    expect(receivedRecipeId).not.toBe("recipe");
+    expect(receivedSlug).toBe("recipe-1");
+    expect(receivedSlug).not.toBe("recipe");
   });
 });
 
