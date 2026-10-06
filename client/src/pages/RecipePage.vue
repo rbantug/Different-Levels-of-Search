@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
 import { useMainStore } from '@/stores/mainStore'
 
-import type { Recipe } from '@/types/recipe'
-import type { RecentRecipe } from '@/types/recentRecipe'
 import BaseBadge from '@/components/util/BaseBadge.vue'
-import { getSingleRecipe } from '@/api/recipe'
+import useRecipeLoader from '@/composables/useRecipeLoader'
 
 const route = useRoute()
 const router = useRouter()
 const mainStore = useMainStore()
 
-const recipe = ref<Recipe | null>()
+const { recipe, loading, loadRecipe } = useRecipeLoader(
+  mainStore.keywordRecipes,
+  mainStore.hybridRecipes,
+)
+
 const badgeText = computed(() => {
   if (!recipe.value) {
     return []
@@ -22,24 +24,6 @@ const badgeText = computed(() => {
 
   return [recipe.value.area, recipe.value.category]
 })
-
-function findRecipeInSearchResults(slug: string): Recipe | undefined {
-  const option = mainStore.currentOption
-
-  if (option === 'keyword') {
-    return mainStore.keywordRecipes.find((recipe: Recipe) => recipe.slug === slug)
-  }
-
-  if (option === 'hybrid') {
-    return mainStore.hybridRecipes.find((recipe: Recipe) => recipe.slug === slug)
-  }
-
-  return undefined
-}
-
-function findRecentRecipe(slug: string): RecentRecipe | undefined {
-  return mainStore.recentRecipeQueue.find((recipe) => recipe.slug === slug)
-}
 
 function goToNotFound() {
   router.push({
@@ -59,56 +43,34 @@ function goToServerError() {
   })
 }
 
-async function fetchRecentRecipe(recipeId: string) {
-  try {
-    const { data } = await getSingleRecipe(recipeId)
-
-    return data
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.status === 404) {
-        goToNotFound()
-      }
-
-      return null
-    }
-
-    goToServerError()
-    return null
-  }
-}
-
 /**
  * Everything starts from this function. It goes through this sequence:
  * - find recipe in existing recipe list in pinia
- * - find recipe in local storage
- * - fetch recipe from backend
+ * - if not found, fetch recipe from backend
  * - 404 or 500 errors will be thrown depending on where the error happened
  * @param slug
  */
-async function loadRecipe(slug: string) {
-  recipe.value = findRecipeInSearchResults(slug)
+async function loadRecipePage(slug: string) {
+  try {
+    const loadedRecipe = await loadRecipe(slug)
 
-  if (recipe.value) {
-    return
-  }
+    if (!loadedRecipe) {
+      goToNotFound()
+      return
+    }
+  } catch(error) {
+    if (axios.isAxiosError(error)) {
+      if (error.status === 404) {
+        goToNotFound()
+        return
+      }
+    }
 
-  const recentRecipe = findRecentRecipe(slug)
-
-  if (!recentRecipe) {
-    goToNotFound()
-    return
-  }
-
-  const fetchedRecipe = await fetchRecentRecipe(recentRecipe.recipeId)
-
-  if (fetchedRecipe) {
-    recipe.value = fetchedRecipe
+    goToServerError()
   }
 }
 
 function goBackToSearchPage() {
-  recipe.value = null
   router.go(-1)
 }
 
@@ -119,7 +81,7 @@ watch(
       return
     }
 
-    await loadRecipe(slug)
+    await loadRecipePage(slug)
   },
   {
     immediate: true,
@@ -139,7 +101,7 @@ watch(
       </div>
     </header>
     <!-- loading state -->
-    <div v-if="!recipe">
+    <div v-if="loading">
       <div class="recipe-is-loading">
         <!-- line-md:loading-loop -->
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
