@@ -16,7 +16,7 @@ export const useMainStore = defineStore('main', () => {
     hybridRecipes.value = val
   }
 
-  const currentOption = ref<'keyword' | 'hybrid' | null>(null)
+  const currentOption = ref<'keyword' | 'hybrid' | null>('keyword')
   function updateCurrentOption(val: 'keyword' | 'hybrid') {
     currentOption.value = val
   }
