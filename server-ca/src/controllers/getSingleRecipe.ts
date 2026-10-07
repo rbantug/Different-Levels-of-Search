@@ -14,6 +14,10 @@ export default function makeGetSingleRecipe({ findRecipeBySlug }: Dependencies) 
 
     const recipe = findRecipeBySlug({ slug });
 
+    if (!recipe) {
+      throw new AppError("The recipe does not exist", 404);
+    }
+
     return {
       statusCode: 200,
       body: {
