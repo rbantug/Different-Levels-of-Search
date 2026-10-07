@@ -1,6 +1,7 @@
 import type makeRecipeDB from "../database/recipeDB.js";
 import type makeRecipeIndex from "../services/meilisearch/recipeIndex.js";
 import type makeKeywordIndex from "../services/meilisearch/keywordIndex.js";
+import AppError from "../errors/AppError.js";
 
 type RecipeDB = ReturnType<typeof makeRecipeDB>;
 
@@ -27,7 +28,7 @@ export default function makeRemoveRecipe({
     const res = recipeDB.findRecipeById(recipeId);
 
     if (!res) {
-      throw new Error("The recipe does not exist");
+      throw new AppError("The recipe does not exist", 404);
     }
 
     const getKeywords = res.keywords;
