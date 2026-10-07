@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import makeGetSingleRecipe from "../../../src/controllers/getSingleRecipe.js";
+import AppError from "../../../src/errors/AppError.js";
 
 const recipe = {
   id: "recipe-1",
@@ -73,7 +74,7 @@ describe("getSingleRecipe controller", () => {
   });
 
   it("should throw an error if the slug was not provided", () => {
-    const findRecipeBySlug = () => recipe;
+    const findRecipeBySlug = vi.fn().mockReturnValue(recipe)
 
     const getSingleRecipe = makeGetSingleRecipe({
       findRecipeBySlug,
@@ -83,6 +84,26 @@ describe("getSingleRecipe controller", () => {
       getSingleRecipe({
         slug: "",
       }),
-    ).toThrow();
+    ).toThrow(new AppError("A slug is required", 400));
+
+    expect(findRecipeBySlug).not.toHaveBeenCalled()
   });
+
+  it("should throw an error if the recipe is not in the database", () => {
+    const findRecipeBySlug = vi.fn().mockReturnValue(undefined);
+
+    const getSingleRecipe = makeGetSingleRecipe({
+      findRecipeBySlug,
+    });
+
+    expect(() =>
+      getSingleRecipe({
+        slug: "asasasa",
+      }),
+    ).toThrow(new AppError("The recipe does not exist", 404));
+
+    expect(findRecipeBySlug).toHaveBeenCalledWith({
+      slug: "asasasa"
+    });
+  })
 });

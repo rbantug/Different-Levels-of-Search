@@ -119,7 +119,7 @@ describe("GET /api/recipes", () => {
   });
 });
 
-describe("GET /api/recipes/:id", () => {
+describe("GET /api/recipes/:slug", () => {
   it("should return a single recipe", async () => {
     const getSingleRecipe: ReturnType<typeof makeGetSingleRecipe> = ({
       slug,
