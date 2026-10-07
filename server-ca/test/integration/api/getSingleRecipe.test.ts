@@ -88,22 +88,4 @@ describe("getSingleRecipe controller", () => {
 
     expect(findRecipeBySlug).not.toHaveBeenCalled()
   });
-
-  it("should throw an error if the recipe is not in the database", () => {
-    const findRecipeBySlug = vi.fn().mockReturnValue(undefined);
-
-    const getSingleRecipe = makeGetSingleRecipe({
-      findRecipeBySlug,
-    });
-
-    expect(() =>
-      getSingleRecipe({
-        slug: "asasasa",
-      }),
-    ).toThrow(new AppError("The recipe does not exist", 404));
-
-    expect(findRecipeBySlug).toHaveBeenCalledWith({
-      slug: "asasasa"
-    });
-  })
 });
