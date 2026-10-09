@@ -9,7 +9,7 @@ const router = createRouter({
   routes: [
     { path: '/', name: 'home', component: SearchPage },
     { path: '/:slug', name: 'recipePage', component: RecipePage },
-    { path: '/:anything(.*)', name: 'error', component: ErrorPage },
+    { path: '/:errorCode(.*)', name: 'error', component: ErrorPage },
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
