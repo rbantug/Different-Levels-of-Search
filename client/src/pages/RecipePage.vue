@@ -29,7 +29,7 @@ function goToNotFound() {
   router.push({
     name: 'error',
     params: {
-      anything: '404',
+      errorCode: '404',
     },
   })
 }
@@ -38,7 +38,7 @@ function goToServerError() {
   router.push({
     name: 'error',
     params: {
-      anything: '500',
+      errorCode: '500',
     },
   })
 }
@@ -59,11 +59,9 @@ async function loadRecipePage(slug: string) {
       return
     }
   } catch(error) {
-    if (axios.isAxiosError(error)) {
-      if (error.status === 404) {
-        goToNotFound()
-        return
-      }
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      goToNotFound()
+      return
     }
 
     goToServerError()
@@ -90,7 +88,7 @@ watch(
 </script>
 
 <template>
-  <div>
+  <div class="recipepage-container">
     <header>
       <div class="back-btn" @click="goBackToSearchPage">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
@@ -162,6 +160,10 @@ watch(
 </template>
 
 <style lang="scss" scoped>
+.recipepage-container {
+  background-color: $background-color;
+}
+
 header {
   height: 3rem;
   background-color: white;
