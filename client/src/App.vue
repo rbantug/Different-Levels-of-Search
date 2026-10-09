@@ -1,6 +1,29 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import BaseModal from './components/util/BaseModal.vue'
+import apiHealthCheck from './api/general.ts'
+
+const apiStatus = ref<'checking' | 'successful' | 'failed'>('checking')
+const modalIsVisibile = ref(true)
+
+onMounted(async () => {
+  try {
+    const apiCheck = await apiHealthCheck()
+    if (apiCheck.status === 'ok') {
+      apiStatus.value = 'successful'
+    }
+
+    setTimeout(() => {
+      modalIsVisibile.value = false
+    }, 5000)
+  } catch {
+    apiStatus.value = 'failed'
+  }
+})
+</script>
 
 <template>
+  <BaseModal :open="modalIsVisibile" :status="apiStatus" />
   <div class="main">
     <router-view v-slot="{ Component }">
       <keep-alive>
