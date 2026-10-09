@@ -96,7 +96,6 @@ function goToPage(page: number) {
   padding: 0 0.5rem;
   height: 4rem;
   border-radius: 5px;
-  box-shadow: $shadow-card;
 
   @include m-flex-center;
 }

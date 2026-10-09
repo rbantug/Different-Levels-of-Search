@@ -267,7 +267,7 @@ li.no-results {
   align-items: center;
   gap: 1rem;
   padding: 0.5rem 1rem;
-  border-top: 1px solid $card-url-color;
+  border-top: 1px solid $color-primary;
 
   &:hover {
     background-color: transparent;

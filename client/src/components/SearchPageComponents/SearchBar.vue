@@ -187,7 +187,6 @@ input {
   border: none;
   outline: none;
   border-radius: 10px;
-  box-shadow: $shadow-search;
   font-size: 1.5rem;
 
   &:focus {

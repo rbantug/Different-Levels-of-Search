@@ -93,7 +93,7 @@ watch(
   height: 100%;
   outline: 1px solid $color-primary;
   border-radius: 5px;
-  background-color: $color-surface;
+  background-color: $background-color;
   transition:
     background-color 250ms ease-out,
     outline 250ms ease-out;
