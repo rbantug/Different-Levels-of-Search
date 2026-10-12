@@ -43,13 +43,21 @@ const props = defineProps({
     required: false,
     type: Boolean,
   },
+  /**
+   * It is either "All Categories" or "All Areas"
+   */
+  allOption: {
+    required: false,
+    type: String,
+  },
 })
 
 const emits = defineEmits<{
   (e: 'closeList', val: string): void
 }>()
 
-function updateSelectedOption(val: string) {
+function updateSelectedOption(val: string | undefined) {
+  if (!val) return
   emits('closeList', val)
 }
 
@@ -144,7 +152,9 @@ function cutRecipeName(recipeName: string) {
       @leave="leave"
     >
       <ul v-show="props.open">
-        <li v-if="!props.option" @click="updateSelectedOption('All')">All</li>
+        <li v-if="!props.option" @click="updateSelectedOption(props.allOption)">
+          {{ props.allOption }}
+        </li>
         <li v-if="props.noResultsOption" class="no-results" @click.prevent>No Results</li>
         <li v-for="data in props.dataList" :key="data" @click="updateSelectedOption(data)">
           {{ data }}
@@ -152,7 +162,6 @@ function cutRecipeName(recipeName: string) {
 
         <!-- recent recipe list -->
         <div v-if="showRecentRecipes">
-          <hr />
           <div class="recent-recipe-container">
             <div v-if="!mainStore.recentRecipeQueue.length" class="no-recent-recipe-text">
               No recent recipes
@@ -194,8 +203,9 @@ function cutRecipeName(recipeName: string) {
   width: 100%;
   background-color: white;
   margin-top: 3.5rem;
+  padding-left: 0.5rem;
   overflow-y: auto;
-  border-radius: 5px;
+  border-radius: 20px;
   z-index: 2;
 
   &.visible {
