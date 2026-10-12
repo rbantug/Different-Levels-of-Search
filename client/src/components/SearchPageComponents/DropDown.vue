@@ -69,16 +69,6 @@ watch(
 </template>
 
 <style lang="scss" scoped>
-@mixin reset {
-  margin: 0;
-  padding: 0.5rem;
-  border: none;
-  border-radius: 5px;
-  background: none;
-  font: inherit;
-  color: inherit;
-}
-
 .dropdown-container {
   position: relative;
 }
@@ -88,8 +78,10 @@ watch(
 }
 
 button {
-  @include reset;
-  @include m-flex-center;
+  @include m-reset;
+
+  display: flex;
+  align-items: center;
   position: relative;
   width: 7rem;
   height: 2.5rem;

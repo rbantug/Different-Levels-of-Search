@@ -92,6 +92,8 @@ const header = computed(() => {
   padding: 0 20px;
   background: rgb(36 46 65 / 55%);
   backdrop-filter: blur(5px);
+
+  @include m-permanent-mobile-view;
 }
 
 .api-modal {
