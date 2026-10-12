@@ -73,7 +73,7 @@ const header = computed(() => {
           </div>
 
           <!-- spinner -->
-          <div class="api-modal__status" role="status" aria-live="polite">
+          <div v-show="props.status !== 'successful'" class="api-modal__status" role="status" aria-live="polite">
             <span>Fetching health check...</span>
           </div>
         </div>
