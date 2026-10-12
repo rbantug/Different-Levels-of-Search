@@ -30,9 +30,9 @@ export default function useRecipeFilter(
   const filteredRecipes = computed(() => {
     return recipes.value.filter((recipe) => {
       const categoryMatches =
-        currentCategory.value === 'All' || recipe.category === currentCategory.value
+        currentCategory.value === 'All Categories' || recipe.category === currentCategory.value
 
-      const areaMatches = currentArea.value === 'All' || recipe.area === currentArea.value
+      const areaMatches = currentArea.value === 'All Areas' || recipe.area === currentArea.value
 
       return categoryMatches && areaMatches
     })
