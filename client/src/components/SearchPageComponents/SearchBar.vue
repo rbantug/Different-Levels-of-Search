@@ -8,7 +8,7 @@ import { suggestion } from '@/api/search.ts'
 
 const mainStore = useMainStore()
 
-const emits = defineEmits(['emitKeyword'])
+const emits = defineEmits(['emitKeyword', 'clearKeyword'])
 
 //const searchText = ref('')
 const searchText = defineModel<string>('search', {
@@ -64,12 +64,10 @@ function emitKeyword(keyword: string) {
   emits('emitKeyword', keyword)
 }
 
-/**
- * A function made for a click event. This will run a search using whatever text is in the search bar
- */
-function submitKeyword() {
+function deleteKeyword() {
+  searchText.value = ''
   mainStore.closeDD()
-  emits('emitKeyword', searchText.value)
+  emits('clearKeyword')
 }
 
 function startFetch() {
@@ -136,10 +134,9 @@ watch(
           </svg>
         </div>
       </div>
-      <!-- search button -->
-      <div v-show="!isLoading" class="search-container" @click="submitKeyword">
+      <div class="search-icon-left">
         <!-- material-symbols:search -->
-        <div class="search-container-svg">
+        <div class="search-icon-left-svg">
           <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
             <path d="M0 0h24v24H0z" fill="none" />
             <path
@@ -148,6 +145,20 @@ watch(
             />
           </svg>
         </div>
+      </div>
+
+      <!-- delete input field text -->
+      <div v-if="!isLoading && searchText.length > 0" class="delete-icon-right" @click="deleteKeyword">
+        <!-- basil:cross-solid -->
+        <div class="delete-icon-right-svg">
+           <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+             <path d="M0 0h24v24H0z" fill="none" />
+             <path
+               fill="currentColor"
+               d="M16.066 8.995a.75.75 0 1 0-1.06-1.061L12 10.939L8.995 7.934a.75.75 0 1 0-1.06 1.06L10.938 12l-3.005 3.005a.75.75 0 0 0 1.06 1.06L12 13.06l3.005 3.006a.75.75 0 0 0 1.06-1.06L13.062 12z"
+             />
+           </svg>
+         </div>
       </div>
       <div class="dropdown-container">
         <DropDownList
@@ -168,14 +179,14 @@ watch(
 @use 'sass:math';
 
 $searchbar-height: 4rem;
-@function loadingIconInsetTop($height) {
+@function loading-icon-inset-top($height) {
   @return math.div($height, 2);
 }
-@function searchBtnInsetTop($height) {
-  @return math.div($height, 3);
+@function search-icons-inset-top($height) {
+  @return math.div($height, 1.8);
 }
 
-@mixin load-search-container {
+@mixin ml-icons-position-right {
   position: absolute;
   right: 20px;
 }
@@ -183,7 +194,7 @@ $searchbar-height: 4rem;
 input {
   width: 20rem;
   height: $searchbar-height;
-  padding: 1rem 4rem 1rem 1rem;
+  padding: 1rem 1rem 1rem 3rem;
   border: none;
   outline: none;
   border-radius: 10px;
@@ -199,28 +210,44 @@ input {
 }
 
 .loading-container {
-  @include load-search-container;
-  top: loadingIconInsetTop($search-height);
+  @include ml-icons-position-right;
+  top: loading-icon-inset-top($search-height);
 
   #{&}-svg {
     scale: 200%;
   }
 }
 
-.search-container {
-  @include load-search-container;
-  @include m-flex-center;
-  top: searchBtnInsetTop($search-height);
+.search-icon-left {
+  top: search-icons-inset-top($search-height);
+  position: absolute;
+  left: 20px;
 
-  background-color: $color-primary;
-  height: 2rem;
-  width: 2rem;
-  border-radius: 5px;
+  @include m-flex-center;
 
   #{&}-svg {
-    padding-top: 3px;
-    color: white;
-    scale: 175%;
+    color: $color-search-icon;
+    scale: 150%;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.delete-icon-right {
+  @include ml-icons-position-right;
+  @include m-flex-center;
+  top: search-icons-inset-top($search-height);
+
+  /* background-color: $color-primary;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 5px; */
+
+  #{&}-svg {
+    color: $color-search-icon;
+    scale: 250%;
   }
 
   &:hover {
