@@ -38,7 +38,6 @@ function addToRecentRecipe(recipe: Recipe) {
           />
         </router-link>
       </div>
-      <p v-if="!props.results.length" class="no-result-text">No Results</p>
     </div>
   </div>
 </template>
@@ -56,11 +55,5 @@ function addToRecentRecipe(recipe: Recipe) {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-.no-result-text {
-  @include m-flex-center;
-  font-size: 2rem;
-  padding-top: 9rem;
 }
 </style>
