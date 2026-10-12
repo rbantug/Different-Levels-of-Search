@@ -29,12 +29,10 @@ export default function useRecipeSearch() {
         res = await keywordSearch(searchText.value)
 
         mainStore.updateKeywordRecipes(res.data)
-        mainStore.updateCurrentOption('keyword')
       } else {
         res = await hybridSearch(searchText.value)
 
         mainStore.updateHybridRecipes(res.data)
-        mainStore.updateCurrentOption('hybrid')
       }
 
       recipeResult.value = res.data
@@ -50,6 +48,6 @@ export default function useRecipeSearch() {
     searchOption,
     recipeResult,
     loading,
-    runSearch
+    runSearch,
   }
 }

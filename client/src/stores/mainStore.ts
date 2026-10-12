@@ -16,11 +16,6 @@ export const useMainStore = defineStore('main', () => {
     hybridRecipes.value = val
   }
 
-  const currentOption = ref<'keyword' | 'hybrid' | null>('keyword')
-  function updateCurrentOption(val: 'keyword' | 'hybrid') {
-    currentOption.value = val
-  }
-
   // overlay for drop down list
   const ddOpenId = ref<string | null>(null)
 
@@ -66,8 +61,6 @@ export const useMainStore = defineStore('main', () => {
     hybridRecipes,
     updateKeywordRecipes,
     updateHybridRecipes,
-    currentOption,
-    updateCurrentOption,
     toggleDD,
     closeDD,
     ddOpenId,
