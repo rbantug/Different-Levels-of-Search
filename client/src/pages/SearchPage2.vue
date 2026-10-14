@@ -98,7 +98,6 @@ watch([currentCategory, currentArea], resetPage)
       </section>
     </Transition>
 
-    <div class="searchbar-filter-sticky">
       <!-- Search Bar -->
       <section class="search-section">
         <SearchBar
@@ -170,7 +169,6 @@ watch([currentCategory, currentArea], resetPage)
           v-model="currentArea"
         />
       </section>
-    </div>
 
     <!-- recipe count and other filters that you might want to add in the future -->
     <section v-if="recipeCount > 0">
@@ -218,7 +216,6 @@ watch([currentCategory, currentArea], resetPage)
         </svg>
       </div>
       <div v-else class="result-grid">
-        <div ref="resultText" class="resultText"></div>
         <ResultGrid :results="visibleItems" />
       </div>
     </section>
@@ -282,15 +279,6 @@ watch([currentCategory, currentArea], resetPage)
     font-size: 14px;
     line-height: 1.7;
   }
-}
-
-.searchbar-filter-sticky {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  flex-shrink: 0;
-  background-color: $background-color;
-  min-height: 13rem;
 }
 
 .search-section {
@@ -377,7 +365,7 @@ watch([currentCategory, currentArea], resetPage)
   z-index: 1;
   color: $color-text-secondary;
   font-weight: 600;
-  //padding-top: 1rem;
+  padding-top: 1rem;
 }
 
 .loading-container {
@@ -398,12 +386,7 @@ watch([currentCategory, currentArea], resetPage)
   height: 100%;
 }
 
-.resultText {
-  scroll-margin-top: 358px;
-}
-
 .pagination {
-  position: sticky;
   bottom: 0;
   width: 100%;
 }
