@@ -203,7 +203,6 @@ function cutRecipeName(recipeName: string) {
   width: 100%;
   background-color: white;
   margin-top: 3.5rem;
-  padding-left: 0.5rem;
   overflow-y: auto;
   border-radius: 20px;
   z-index: 2;
@@ -219,8 +218,10 @@ function cutRecipeName(recipeName: string) {
 
 ul {
   margin: 0;
-  padding: 0;
+  padding: 0.5rem;
   list-style: none;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 li {
@@ -256,7 +257,7 @@ li.no-results {
 // recent recipe
 
 .recent-recipe-container {
-  margin: 1rem;
+  margin: 1rem 0.5rem 0 0.5rem;
 }
 
 .no-recent-recipe-text {
