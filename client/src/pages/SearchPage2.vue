@@ -28,7 +28,7 @@ const { categoryList, areaList, filteredRecipes, recipeCount } = useRecipeFilter
   currentArea,
 )
 
-const resultPerPage = 5
+const resultPerPage = 3
 
 const { currentPage, totalPages, visibleItems, goToPage, resetPage } = usePagination(
   filteredRecipes,
@@ -63,6 +63,7 @@ function clearSearchText() {
 // search option related code
 function updateSearchOption(option: 'keyword' | 'hybrid') {
   searchOption.value = option
+  resetPage()
 }
 
 const resultText = ref<HTMLElement | null>(null)
