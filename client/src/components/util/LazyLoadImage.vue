@@ -1,132 +1,152 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+} from 'vue'
 
-const props = defineProps({
-  imgPath: {
-    type: String,
-    default: '',
-  },
-  blurryImgPath: {
-    type: String,
-    required: false,
-    default: ''
-  },
-  altName: {
-    type: String,
-    required: false,
-    default: ''
-  },
-  notLazy: {
-    type: Boolean,
-    required: false,
-    default: false,
-    
-  },
-  class: {
-    type: String,
-    required: false,
-    default: ''
+interface Props {
+  src: string
+  placeholder: string
+  alt?: string
+  width?: number | string
+  height?: number | string
+  aspectRatio?: string
+  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down'
+  eager?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  alt: '',
+  aspectRatio: '16 / 9',
+  objectFit: 'cover',
+  eager: false,
+})
+
+const emit = defineEmits<{
+  load: [event: Event]
+  error: [event: Event]
+}>()
+
+const container = ref<HTMLDivElement | null>(null)
+const isInView = ref(props.eager)
+const isLoaded = ref(false)
+
+let observer: IntersectionObserver | undefined
+
+const containerStyle = computed(() => ({
+  aspectRatio: props.aspectRatio,
+  '--object-fit': props.objectFit,
+}))
+
+function onLoad(event: Event) {
+  isLoaded.value = true
+  emit('load', event)
+}
+
+function onError(event: Event) {
+  emit('error', event)
+}
+
+onMounted(() => {
+  if (props.eager) return
+
+  observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry && entry.isIntersecting) {
+        isInView.value = true
+        observer?.disconnect()
+      }
+    },
+    {
+      rootMargin: '200px',
+      threshold: 0,
+    },
+  )
+
+  if (container.value) {
+    observer.observe(container.value)
   }
 })
 
-const loaded = ref(false)
-const error = ref(false)
-
-onMounted(() => {
-  const img = new Image()
-  img.src = props.imgPath
-
-  img.onload = () => {
-    loaded.value = true
-  }
-
-  img.onerror = () => {
-    error.value = true
-  }
+onUnmounted(() => {
+  observer?.disconnect()
 })
 </script>
 
 <template>
-  <div class="lazyloadimg-container" :class="props.class">
-    <!-- Skeleton -->
-    <div v-if="!loaded && !error" class="skeleton"></div>
-
-    <!-- Placeholder (blurred) -->
+  <div
+    ref="container"
+    class="lazy-image"
+    :style="containerStyle"
+  >
+    <!-- Blurred placeholder -->
     <img
-      v-if="props.blurryImgPath && !loaded"
-      :src="props.blurryImgPath"
-      :alt="props.altName"
-      class="placeholder"
-      :loading="props.notLazy ? 'eager' : 'lazy'"
+      :src="placeholder"
+      alt=""
+      aria-hidden="true"
+      class="lazy-image__placeholder"
+      :class="{ 'is-hidden': isLoaded }"
     />
 
-    <!-- Main Image -->
+    <!-- Full-resolution image -->
     <img
-      v-if="!error"
-      :src="props.imgPath"
-      :alt="props.altName"
-      :class="['main-img', loaded ? 'main-img__loaded' : 'main-img__not-loaded']"
-      :loading="props.notLazy ? 'eager' : 'lazy'"
+      v-if="isInView"
+      :src="src"
+      :alt="alt"
+      :width="width"
+      :height="height"
+      :loading="eager ? 'eager' : 'lazy'"
+      :fetchpriority="eager ? 'high' : 'auto'"
+      class="lazy-image__original"
+      :class="{ 'is-loaded': isLoaded }"
+      @load="onLoad"
+      @error="onError"
     />
-
-    <!-- Error Fallback -->
-    <div v-if="error" class="error">Image failed to load</div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.lazyloadimg-container {
+.lazy-image {
   position: relative;
+  width: 100%;
   overflow: hidden;
+  background: $background-color;
 }
 
-.skeleton {
-  position: absolute;
-  inset: 0;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  background-color: rgba(209, 213, 219, 0.2); // gray-300 at 20% opacity
-}
-
-@keyframes pulse {
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.placeholder {
+.lazy-image__placeholder,
+.lazy-image__original {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: blur(12px);
-  scale: 105% 105%;
 }
 
-.main-img {
-  object-fit: cover;
-  transition: all 700ms ease-in;
-
-  #{&}__loaded {
-    opacity: 1;
-    filter: blur(0);
-    scale: 100% 100%;
-  }
-
-  #{&}__not-loaded {
-    opacity: 0;
-    filter: blur(12px);
-    scale: 105% 105%;
-  }
+.lazy-image__placeholder {
+  filter: blur(20px);
+  transform: scale(1.05);
+  transition: opacity 400ms ease;
 }
 
-.error {
-  @include m-flex-center;
-  width: 100%;
-  height: 100%;
-  background-color: $color-search-icon;
-  color: $color-text-secondary;
-  font-size: 0.875rem;
-  line-height: calc(1.25 / 0.875);
+.lazy-image__placeholder.is-hidden {
+  opacity: 0;
+}
+
+.lazy-image__original {
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.lazy-image__original.is-loaded {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lazy-image__placeholder,
+  .lazy-image__original {
+    transition: none;
+  }
 }
 </style>
