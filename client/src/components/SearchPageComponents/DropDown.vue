@@ -83,17 +83,17 @@ watch(
 }
 
 button {
-  @include m-reset;
-
   display: flex;
   align-items: center;
   position: relative;
   width: 9rem;
   height: 2.5rem;
-  outline: 1px solid $color-search-icon;
   border-radius: 20px;
   margin-top: 0.5rem;
   background-color: $color-surface;
+
+  @include m-reset;
+  @include m-soft-outline-shadow;
 
   &:hover {
     cursor: pointer;
