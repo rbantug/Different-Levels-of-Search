@@ -29,7 +29,7 @@ function addToRecentRecipe(recipe: Recipe) {
   <div class="grid-container">
     <div class="grid">
       <div v-for="recipe in props.results" :key="recipe.id" @click="addToRecentRecipe(recipe)">
-        <router-link :to="`/${recipe.slug}`">
+        <router-link :to="`/${recipe.slug}`" class="recipe-link">
           <RecipeCard
             :recipe-name="recipe.recipeName"
             :recipe-thumbnail="recipe.recipeThumbnail"
@@ -55,5 +55,9 @@ function addToRecentRecipe(recipe: Recipe) {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.recipe-link {
+  text-decoration: none;
 }
 </style>
