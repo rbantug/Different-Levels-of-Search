@@ -143,69 +143,70 @@ function cutRecipeName(recipeName: string) {
 
 <template>
   <div class="listContainer" :class="{ visible: props.open, hidden: !props.open }">
-    <Transition
-      name="dropdown"
-      @before-enter="beforeEnter"
-      @enter="enter"
-      @after-enter="afterEnter"
-      @before-leave="beforeLeave"
-      @leave="leave"
-    >
-      <ul v-show="props.open">
-        <li v-if="!props.option" @click="updateSelectedOption(props.allOption)">
-          {{ props.allOption }}
-        </li>
-        <li v-if="props.noResultsOption" class="no-results" @click.prevent>No Results</li>
-        <li v-for="data in props.dataList" :key="data" @click="updateSelectedOption(data)">
-          {{ data }}
-        </li>
+    <div class="listScroll">
+      <Transition
+        name="dropdown"
+        @before-enter="beforeEnter"
+        @enter="enter"
+        @after-enter="afterEnter"
+        @before-leave="beforeLeave"
+        @leave="leave"
+      >
+        <ul v-show="props.open">
+          <li v-if="!props.option" @click="updateSelectedOption(props.allOption)">
+            {{ props.allOption }}
+          </li>
+          <li v-if="props.noResultsOption" class="no-results" @click.prevent>No Results</li>
+          <li v-for="data in props.dataList" :key="data" @click="updateSelectedOption(data)">
+            {{ data }}
+          </li>
 
-        <!-- recent recipe list -->
-        <div v-if="showRecentRecipes">
-          <div class="recent-recipe-container">
-            <div v-if="!mainStore.recentRecipeQueue.length" class="no-recent-recipe-text">
-              No recent recipes
-            </div>
-            <div v-else>
-              <h1 class="recent-recipe-header">Recently Viewed Recipes:</h1>
-              <ul>
-                <li
-                  v-for="recentRecipe in mainStore.recentRecipeQueue"
-                  :key="recentRecipe.recipeId"
-                  @click="recentRecipeToRecipePage(recentRecipe)"
-                  class="recent-recipe"
-                >
-                  <div class="img-container">
-                    <img :src="recentRecipe.recipeThumbnail" :alt="recentRecipe.recipeName" />
-                  </div>
-                  <div class="recent-recipe-details">
-                    <span>{{ cutRecipeName(recentRecipe.recipeName) }}</span>
-                    <span>Opened {{ formatRelativeDate(new Date(recentRecipe.createdAt)) }}</span>
-                  </div>
-                </li>
-              </ul>
+          <!-- recent recipe list -->
+          <div v-if="showRecentRecipes">
+            <div class="recent-recipe-container">
+              <div v-if="!mainStore.recentRecipeQueue.length" class="no-recent-recipe-text">
+                No recent recipes
+              </div>
+              <div v-else>
+                <h1 class="recent-recipe-header">Recently Viewed Recipes:</h1>
+                <ul>
+                  <li
+                    v-for="recentRecipe in mainStore.recentRecipeQueue"
+                    :key="recentRecipe.recipeId"
+                    @click="recentRecipeToRecipePage(recentRecipe)"
+                    class="recent-recipe"
+                  >
+                    <div class="img-container">
+                      <img :src="recentRecipe.recipeThumbnail" :alt="recentRecipe.recipeName" />
+                    </div>
+                    <div class="recent-recipe-details">
+                      <span>{{ cutRecipeName(recentRecipe.recipeName) }}</span>
+                      <span>Opened {{ formatRelativeDate(new Date(recentRecipe.createdAt)) }}</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
-      </ul>
-    </Transition>
+        </ul>
+      </Transition>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .listContainer {
-  @include custom-scrollbar(size, thumb, track);
-
   position: absolute;
   top: 0;
   left: 0;
-  max-height: 20rem;
   width: 100%;
-  background-color: white;
+  max-height: 20rem;
   margin-top: 3.5rem;
-  overflow-y: auto;
+  background-color: white;
   border-radius: 20px;
   z-index: 2;
+  box-sizing: border-box;
+  overflow: hidden;
 
   &.visible {
     border: 1px gray solid;
@@ -216,12 +217,20 @@ function cutRecipeName(recipeName: string) {
   }
 }
 
+.listScroll {
+  @include custom-scrollbar();
+
+  max-height: 20rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding-left: 0.5rem;
+}
+
 ul {
   margin: 0;
   padding: 0.5rem;
   list-style: none;
-  min-width: 0;
-  box-sizing: border-box;
 }
 
 li {
