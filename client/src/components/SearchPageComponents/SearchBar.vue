@@ -20,6 +20,8 @@ const isLoading = ref(false)
 const noResult = ref(true)
 const justFetched = ref(false)
 
+const searchBarRoot = ref<HTMLElement | null>(null)
+
 /////////////////////////////
 // fetch keyword suggestions
 /////////////////////////////
@@ -97,80 +99,103 @@ watch(
   },
   { immediate: true },
 )
+
+watch(
+  () => mainStore.ddOpenId === 'searchbar',
+  (isOpen, _previousValue, onCleanup) => {
+    if (!isOpen) return
+
+    function handleOutsidePointerDown(event: PointerEvent) {
+      const target = event.target
+
+      if (target instanceof Node && searchBarRoot.value && !searchBarRoot.value.contains(target)) {
+        mainStore.closeDD()
+      }
+    }
+
+    document.addEventListener('pointerdown', handleOutsidePointerDown)
+
+    onCleanup(() => {
+      document.removeEventListener('pointerdown', handleOutsidePointerDown)
+    })
+  },
+)
 </script>
 
 <template>
-  <div>
-    <div class="searchbar-container">
-      <input
-        type="text"
-        v-model="searchText"
-        placeholder="Search recipes..."
-        @click="openDropdown"
-        @keypress="startFetch"
-      />
-      <!-- loading icon -->
-      <div class="loading-container">
-        <div v-show="isLoading" class="loading-container-svg">
-          <!-- line-md:loading-loop -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path
-              fill="none"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 3c4.97 0 9 4.03 9 9"
-            >
-              <animateTransform
-                attributeName="transform"
-                dur="1.5s"
-                repeatCount="indefinite"
-                type="rotate"
-                values="0 12 12;360 12 12"
-              />
-            </path>
-          </svg>
-        </div>
-      </div>
-      <div class="search-icon-left">
-        <!-- material-symbols:search -->
-        <div class="search-icon-left-svg">
-          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path
-              fill="currentColor"
-              d="m19.6 21l-6.3-6.3q-.75.6-1.725.95T9.5 16q-2.725 0-4.612-1.888T3 9.5t1.888-4.612T9.5 3t4.613 1.888T16 9.5q0 1.1-.35 2.075T14.7 13.3l6.3 6.3zM9.5 14q1.875 0 3.188-1.312T14 9.5t-1.312-3.187T9.5 5T6.313 6.313T5 9.5t1.313 3.188T9.5 14"
+  <div ref="searchBarRoot" class="searchbar-container">
+    <input
+      type="text"
+      v-model="searchText"
+      placeholder="Search recipes..."
+      @click="openDropdown"
+      @keypress="startFetch"
+    />
+    <!-- loading icon -->
+    <div class="loading-container">
+      <div v-show="isLoading" class="loading-container-svg">
+        <!-- line-md:loading-loop -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 3c4.97 0 9 4.03 9 9"
+          >
+            <animateTransform
+              attributeName="transform"
+              dur="1.5s"
+              repeatCount="indefinite"
+              type="rotate"
+              values="0 12 12;360 12 12"
             />
-          </svg>
-        </div>
+          </path>
+        </svg>
       </div>
+    </div>
+    <div class="search-icon-left">
+      <!-- material-symbols:search -->
+      <div class="search-icon-left-svg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path
+            fill="currentColor"
+            d="m19.6 21l-6.3-6.3q-.75.6-1.725.95T9.5 16q-2.725 0-4.612-1.888T3 9.5t1.888-4.612T9.5 3t4.613 1.888T16 9.5q0 1.1-.35 2.075T14.7 13.3l6.3 6.3zM9.5 14q1.875 0 3.188-1.312T14 9.5t-1.312-3.187T9.5 5T6.313 6.313T5 9.5t1.313 3.188T9.5 14"
+          />
+        </svg>
+      </div>
+    </div>
 
-      <!-- delete input field text -->
-      <div v-if="!isLoading && searchText.length > 0" class="delete-icon-right" @click="deleteKeyword">
-        <!-- basil:cross-solid -->
-        <div class="delete-icon-right-svg">
-           <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-             <path d="M0 0h24v24H0z" fill="none" />
-             <path
-               fill="currentColor"
-               d="M16.066 8.995a.75.75 0 1 0-1.06-1.061L12 10.939L8.995 7.934a.75.75 0 1 0-1.06 1.06L10.938 12l-3.005 3.005a.75.75 0 0 0 1.06 1.06L12 13.06l3.005 3.006a.75.75 0 0 0 1.06-1.06L13.062 12z"
-             />
-           </svg>
-         </div>
+    <!-- delete input field text -->
+    <div
+      v-if="!isLoading && searchText.length > 0"
+      class="delete-icon-right"
+      @click="deleteKeyword"
+    >
+      <!-- basil:cross-solid -->
+      <div class="delete-icon-right-svg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path
+            fill="currentColor"
+            d="M16.066 8.995a.75.75 0 1 0-1.06-1.061L12 10.939L8.995 7.934a.75.75 0 1 0-1.06 1.06L10.938 12l-3.005 3.005a.75.75 0 0 0 1.06 1.06L12 13.06l3.005 3.006a.75.75 0 0 0 1.06-1.06L13.062 12z"
+          />
+        </svg>
       </div>
-      <div class="dropdown-container">
-        <DropDownList
-          :data-list="suggestions"
-          :option="true"
-          id="searchbar"
-          :open="mainStore.ddOpenId === 'searchbar'"
-          :no-results-option="noResult"
-          :show-recent-recipes="true"
-          @close-list="emitKeyword"
-        />
-      </div>
+    </div>
+    <div class="dropdown-container">
+      <DropDownList
+        :data-list="suggestions"
+        :option="true"
+        id="searchbar"
+        :open="mainStore.ddOpenId === 'searchbar'"
+        :no-results-option="noResult"
+        :show-recent-recipes="true"
+        @close-list="emitKeyword"
+      />
     </div>
   </div>
 </template>

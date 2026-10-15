@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { type PropType, watch } from 'vue'
+import { type PropType, watch, ref } from 'vue'
 import DropDownList from '../util/DropDownList.vue'
+import { useMainStore } from '@/stores/mainStore.ts'
 
 const props = defineProps({
   dataList: {
@@ -27,6 +28,9 @@ const props = defineProps({
 
 const emits = defineEmits(['goToggle'])
 
+const mainStore = useMainStore()
+const dropdownRoot = ref<HTMLElement | null>(null)
+
 const selectedOption = defineModel<string>()
 
 function toggleListVisbility() {
@@ -37,6 +41,27 @@ function updateSelectedOption(val: string) {
   selectedOption.value = val
   emits('goToggle')
 }
+
+watch(
+  () => props.open,
+  (isOpen, _oldVal, onCleanup) => {
+    if (!isOpen) return
+
+    function handleOutsidePointerDown(event: PointerEvent) {
+      const target = event.target
+
+      if (target instanceof Node && dropdownRoot.value && !dropdownRoot.value.contains(target)) {
+        mainStore.closeDD()
+      }
+    }
+
+    document.addEventListener('pointerdown', handleOutsidePointerDown)
+
+    onCleanup(() => {
+      document.removeEventListener('pointerdown', handleOutsidePointerDown)
+    })
+  },
+)
 
 watch(
   () => props.dataList,
@@ -51,12 +76,18 @@ watch(
 </script>
 
 <template>
-  <div class="dropdown-container">
+  <div ref="dropdownRoot" class="dropdown-container">
     <div>
       <button @click="toggleListVisbility">
         <span>{{ selectedOption }}</span>
-        <span class="arrow" 
-          ><svg :class="{ active: props.open }" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+        <span class="arrow"
+          ><svg
+            :class="{ active: props.open }"
+            xmlns="http://www.w3.org/2000/svg"
+            width="1em"
+            height="1em"
+            viewBox="0 0 24 24"
+          >
             <path d="M0 0h24v24H0z" fill="none" />
             <path fill="currentColor" fill-rule="evenodd" d="m4 15l8-8l8 8l-2 2l-6-6l-6 6z" />
           </svg>
