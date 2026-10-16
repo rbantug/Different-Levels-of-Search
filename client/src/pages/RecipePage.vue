@@ -15,6 +15,7 @@ const mainStore = useMainStore()
 const { recipe, loading, loadRecipe } = useRecipeLoader(
   mainStore.keywordRecipes,
   mainStore.hybridRecipes,
+  mainStore.semanticRecipes
 )
 
 const badgeText = computed(() => {

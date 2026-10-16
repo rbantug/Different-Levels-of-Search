@@ -21,7 +21,6 @@ const currentArea = ref<string>('All')
 // Composables and Stores
 const { searchText, searchOption, recipeResult, loading, runSearch } = useRecipeSearch()
 
-
 const { categoryList, areaList, filteredRecipes, recipeCount } = useRecipeFilter(
   recipeResult,
   currentCategory,
@@ -61,7 +60,7 @@ function clearSearchText() {
 }
 
 // search option related code
-function updateSearchOption(option: 'keyword' | 'hybrid') {
+function updateSearchOption(option: 'keyword' | 'hybrid' | 'semantic') {
   searchOption.value = option
   resetPage()
 }
@@ -89,7 +88,11 @@ watch([currentCategory, currentArea], resetPage)
     <Transition name="welcome">
       <section v-show="showWelcome" class="welcome-section">
         <div class="welcome-section__illustration">
-          <LazyLoadImage src="https://dl.dropboxusercontent.com/scl/fi/f4uyr13htg9emjb8paeda/home-image.webp?rlkey=o1sl43cg1f0cymlehf55n37f1" placeholder="https://dl.dropboxusercontent.com/scl/fi/s0cmsig8ne7g7kbgi0d4t/home-image-blurry.webp?rlkey=ih9sg7ffwpx2isj90st415r1w" alt="welcome illustration" />
+          <LazyLoadImage
+            src="https://dl.dropboxusercontent.com/scl/fi/f4uyr13htg9emjb8paeda/home-image.webp?rlkey=o1sl43cg1f0cymlehf55n37f1"
+            placeholder="https://dl.dropboxusercontent.com/scl/fi/s0cmsig8ne7g7kbgi0d4t/home-image-blurry.webp?rlkey=ih9sg7ffwpx2isj90st415r1w"
+            alt="welcome illustration"
+          />
         </div>
 
         <h1>What shall we cook today?</h1>
@@ -98,77 +101,93 @@ watch([currentCategory, currentArea], resetPage)
       </section>
     </Transition>
 
-      <!-- Search Bar -->
-      <section class="search-section">
-        <SearchBar
-          v-model:search="searchText"
-          @input-clicked="handleSearchFocus"
-          @emit-keyword="handleKeywordSelected"
-          @clear-keyword="clearSearchText"
-        />
-      </section>
+    <!-- Search Bar -->
+    <section class="search-section">
+      <SearchBar
+        v-model:search="searchText"
+        @input-clicked="handleSearchFocus"
+        @emit-keyword="handleKeywordSelected"
+        @clear-keyword="clearSearchText"
+      />
+    </section>
 
-      <!-- Search Option -->
-      <section class="search-type-container">
-        <!-- Keyword Button -->
-        <button
-          :class="{ active: searchOption === 'keyword' }"
-          @click="updateSearchOption('keyword')"
+    <!-- Search Option -->
+    <section class="search-type-container">
+      <!-- Keyword Button -->
+      <button
+        :class="{ active: searchOption === 'keyword' }"
+        @click="updateSearchOption('keyword')"
+      >
+        <span class="search-type-icons" :class="{ active: searchOption === 'keyword' }"
+          ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path
+              fill="currentColor"
+              d="m19.6 21l-6.3-6.3q-.75.6-1.725.95T9.5 16q-2.725 0-4.612-1.888T3 9.5t1.888-4.612T9.5 3t4.613 1.888T16 9.5q0 1.1-.35 2.075T14.7 13.3l6.3 6.3zM9.5 14q1.875 0 3.188-1.312T14 9.5t-1.312-3.187T9.5 5T6.313 6.313T5 9.5t1.313 3.188T9.5 14"
+            /></svg
+        ></span>
+        <span class="search-type-text" :class="{ active: searchOption === 'keyword' }"
+          >Keyword</span
         >
-          <span class="search-type-icons" :class="{ active: searchOption === 'keyword' }"
-            ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-              <path d="M0 0h24v24H0z" fill="none" />
-              <path
-                fill="currentColor"
-                d="m19.6 21l-6.3-6.3q-.75.6-1.725.95T9.5 16q-2.725 0-4.612-1.888T3 9.5t1.888-4.612T9.5 3t4.613 1.888T16 9.5q0 1.1-.35 2.075T14.7 13.3l6.3 6.3zM9.5 14q1.875 0 3.188-1.312T14 9.5t-1.312-3.187T9.5 5T6.313 6.313T5 9.5t1.313 3.188T9.5 14"
-              /></svg
-          ></span>
-          <span class="search-type-text" :class="{ active: searchOption === 'keyword' }"
-            >Keyword</span
-          >
-        </button>
+      </button>
 
-        <!-- Hybrid Button -->
-        <button
-          :class="{ active: searchOption === 'hybrid' }"
-          @click="updateSearchOption('hybrid')"
-        >
-          <span class="search-type-icons" :class="{ active: searchOption === 'hybrid' }"
-            ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
-              <path d="M0 0h16v16H0z" fill="none" />
+      <!-- Hybrid Button -->
+      <button :class="{ active: searchOption === 'hybrid' }" @click="updateSearchOption('hybrid')">
+        <span class="search-type-icons" :class="{ active: searchOption === 'hybrid' }"
+          ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none" />
+            <g fill="currentColor" fill-rule="evenodd" clip-rule="evenodd">
               <path
-                fill="currentColor"
-                d="M5.465 9.83a.92.92 0 0 0 1.07 0a1 1 0 0 0 .341-.46l.347-1.067a1.7 1.7 0 0 1 1.078-1.078l1.086-.354a.923.923 0 0 0-.037-1.75l-1.069-.346a1.7 1.7 0 0 1-1.08-1.078l-.353-1.084a.92.92 0 0 0-.869-.61a.92.92 0 0 0-.875.624l-.356 1.09A1.71 1.71 0 0 1 3.7 4.775l-1.084.351a.923.923 0 0 0 .013 1.745l1.067.347a1.71 1.71 0 0 1 1.081 1.083l.352 1.08a.92.92 0 0 0 .337.449M4.007 6.264L3.152 6l.864-.28a2.7 2.7 0 0 0 1.045-.66a2.76 2.76 0 0 0 .644-1.056l.265-.859l.28.862a2.7 2.7 0 0 0 1.718 1.715l.88.27l-.86.28A2.7 2.7 0 0 0 6.27 7.986l-.265.857l-.279-.859a2.7 2.7 0 0 0-1.719-1.72m6.527 7.587A.8.8 0 0 0 11 14a.81.81 0 0 0 .759-.55l.248-.761a1.09 1.09 0 0 1 .68-.681l.772-.252a.8.8 0 0 0-.023-1.52l-.764-.25a1.08 1.08 0 0 1-.68-.678l-.252-.774a.8.8 0 0 0-1.518.011l-.247.762a1.07 1.07 0 0 1-.664.679l-.776.253a.8.8 0 0 0-.388 1.222c.099.14.239.244.4.3l.763.247a1.06 1.06 0 0 1 .68.683l.253.774a.8.8 0 0 0 .292.387m-.914-2.793L9.442 11l.184-.064a2.09 2.09 0 0 0 1.3-1.317l.058-.178l.06.181a2.08 2.08 0 0 0 1.316 1.316l.195.064l-.18.059a2.08 2.08 0 0 0-1.317 1.32l-.059.181l-.058-.18a2.07 2.07 0 0 0-1.32-1.322"
+                d="M8.504 15.7c-1.172 1.09-2.594 1.873-4.513 1.85a.75.75 0 0 1 .018-1.5c1.435.018 2.502-.545 3.473-1.449c.778-.724 1.451-1.62 2.187-2.6q.33-.442.684-.903c.994-1.288 2.139-2.62 3.69-3.514c1.577-.909 3.515-1.333 6.037-.924a.75.75 0 1 1-.24 1.48c-2.21-.357-3.794.021-5.049.744c-1.28.738-2.276 1.867-3.25 3.13q-.307.4-.62.818c-.75 1-1.531 2.043-2.417 2.867"
               />
-            </svg>
-          </span>
-          <span class="search-type-text" :class="{ active: searchOption === 'hybrid' }"
-            >Hybrid</span
-          >
-        </button>
-      </section>
+              <path
+                d="M16.04 3.469a.75.75 0 0 1 1.06.001l3.431 3.44a.75.75 0 0 1 0 1.06l-3.432 3.44a.75.75 0 0 1-1.062-1.06l2.904-2.91l-2.903-2.91a.75.75 0 0 1 .001-1.061m.016 9.185a.75.75 0 0 1 1.06.032l3.39 3.6a.75.75 0 0 1-.03 1.06l-3.391 3.2a.75.75 0 0 1-1.03-1.091l2.846-2.686l-2.877-3.055a.75.75 0 0 1 .032-1.06"
+              />
+              <path
+                d="M7.53 9.396C6.574 8.49 5.496 7.923 4.014 7.95a.75.75 0 0 1-.026-1.5c1.962-.035 3.403.748 4.575 1.856c.921.872 1.71 1.983 2.46 3.04q.255.36.506.709c.936 1.29 1.876 2.441 3.094 3.2c1.187.74 2.692 1.14 4.822.804a.75.75 0 0 1 .233 1.482c-2.459.387-4.333-.068-5.848-1.013c-1.485-.925-2.569-2.287-3.515-3.593q-.285-.393-.553-.773c-.745-1.048-1.426-2.006-2.23-2.766"
+              />
+            </g>
+          </svg>
+        </span>
+        <span class="search-type-text" :class="{ active: searchOption === 'hybrid' }">Hybrid</span>
+      </button>
 
-      <!-- Category and Area filters -->
-      <section v-if="searchText" class="filters-container">
-        <DropDown
-          :data-list="categoryList"
-          :set-to-all="false"
-          id="category"
-          @goToggle="mainStore.toggleDD('category')"
-          :open="mainStore.ddOpenId === 'category'"
-          default-option="All Categories"
-          v-model="currentCategory"
-        />
-        <DropDown
-          :data-list="areaList"
-          :set-to-all="false"
-          id="area"
-          @goToggle="mainStore.toggleDD('area')"
-          :open="mainStore.ddOpenId === 'area'"
-          default-option="All Areas"
-          v-model="currentArea"
-        />
-      </section>
+      <!-- Semantic Search -->
+      <button :class="{ active: searchOption === 'semantic' }" @click="updateSearchOption('semantic')">
+        <span class="search-type-icons" :class="{ active: searchOption === 'semantic' }"
+          ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
+            <path d="M0 0h16v16H0z" fill="none" />
+            <path
+              fill="currentColor"
+              d="M5.465 9.83a.92.92 0 0 0 1.07 0a1 1 0 0 0 .341-.46l.347-1.067a1.7 1.7 0 0 1 1.078-1.078l1.086-.354a.923.923 0 0 0-.037-1.75l-1.069-.346a1.7 1.7 0 0 1-1.08-1.078l-.353-1.084a.92.92 0 0 0-.869-.61a.92.92 0 0 0-.875.624l-.356 1.09A1.71 1.71 0 0 1 3.7 4.775l-1.084.351a.923.923 0 0 0 .013 1.745l1.067.347a1.71 1.71 0 0 1 1.081 1.083l.352 1.08a.92.92 0 0 0 .337.449M4.007 6.264L3.152 6l.864-.28a2.7 2.7 0 0 0 1.045-.66a2.76 2.76 0 0 0 .644-1.056l.265-.859l.28.862a2.7 2.7 0 0 0 1.718 1.715l.88.27l-.86.28A2.7 2.7 0 0 0 6.27 7.986l-.265.857l-.279-.859a2.7 2.7 0 0 0-1.719-1.72m6.527 7.587A.8.8 0 0 0 11 14a.81.81 0 0 0 .759-.55l.248-.761a1.09 1.09 0 0 1 .68-.681l.772-.252a.8.8 0 0 0-.023-1.52l-.764-.25a1.08 1.08 0 0 1-.68-.678l-.252-.774a.8.8 0 0 0-1.518.011l-.247.762a1.07 1.07 0 0 1-.664.679l-.776.253a.8.8 0 0 0-.388 1.222c.099.14.239.244.4.3l.763.247a1.06 1.06 0 0 1 .68.683l.253.774a.8.8 0 0 0 .292.387m-.914-2.793L9.442 11l.184-.064a2.09 2.09 0 0 0 1.3-1.317l.058-.178l.06.181a2.08 2.08 0 0 0 1.316 1.316l.195.064l-.18.059a2.08 2.08 0 0 0-1.317 1.32l-.059.181l-.058-.18a2.07 2.07 0 0 0-1.32-1.322"
+            />
+          </svg>
+        </span>
+        <span class="search-type-text" :class="{ active: searchOption === 'semantic' }">AI</span>
+      </button>
+    </section>
+
+    <!-- Category and Area filters -->
+    <section v-if="searchText" class="filters-container">
+      <DropDown
+        :data-list="categoryList"
+        :set-to-all="false"
+        id="category"
+        @goToggle="mainStore.toggleDD('category')"
+        :open="mainStore.ddOpenId === 'category'"
+        default-option="All Categories"
+        v-model="currentCategory"
+      />
+      <DropDown
+        :data-list="areaList"
+        :set-to-all="false"
+        id="area"
+        @goToggle="mainStore.toggleDD('area')"
+        :open="mainStore.ddOpenId === 'area'"
+        default-option="All Areas"
+        v-model="currentArea"
+      />
+    </section>
 
     <!-- recipe count and other filters that you might want to add in the future -->
     <section v-if="recipeCount > 0">

@@ -8,12 +8,17 @@ import type { RecentRecipe } from '@/types/recentRecipe'
 export const useMainStore = defineStore('main', () => {
   const keywordRecipes = ref<Recipe[]>([])
   const hybridRecipes = ref<Recipe[]>([])
+  const semanticRecipes = ref<Recipe[]>([])
 
   function updateKeywordRecipes(val: Recipe[]) {
     keywordRecipes.value = val
   }
   function updateHybridRecipes(val: Recipe[]) {
     hybridRecipes.value = val
+  }
+
+  function updateSemanticRecipes(val: Recipe[]) {
+    semanticRecipes.value = val
   }
 
   // overlay for drop down list
@@ -59,8 +64,10 @@ export const useMainStore = defineStore('main', () => {
   return {
     keywordRecipes,
     hybridRecipes,
+    semanticRecipes,
     updateKeywordRecipes,
     updateHybridRecipes,
+    updateSemanticRecipes,
     toggleDD,
     closeDD,
     ddOpenId,

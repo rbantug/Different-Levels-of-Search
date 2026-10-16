@@ -6,6 +6,7 @@ import type { Recipe } from '@/types/recipe'
 export default function useRecipeLoader(
   keywordRecipes: Recipe[],
   hybridRecipes: Recipe[],
+  semanticRecipes: Recipe[],
 ) {
   const recipe = ref<Recipe | null>(null)
   const loading = ref(false)
@@ -18,7 +19,8 @@ export default function useRecipeLoader(
       // 1. Look for the complete recipe in the existing search results.
       const localRecipe =
         keywordRecipes.find((item) => item.slug === slug) ??
-        hybridRecipes.find((item) => item.slug === slug)
+        hybridRecipes.find((item) => item.slug === slug) ??
+        semanticRecipes.find((item) => item.slug === slug)
 
       if (localRecipe) {
         recipe.value = localRecipe

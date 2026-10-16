@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-import { hybridSearch, keywordSearch } from '@/api/search'
+import { hybridSearch, keywordSearch, semanticSearch } from '@/api/search'
 import { useMainStore } from '@/stores/mainStore'
 
 import type { Recipe } from '@/types/recipe'
@@ -10,7 +10,7 @@ export default function useRecipeSearch() {
   const mainStore = useMainStore()
 
   const searchText = ref('')
-  const searchOption = ref<'keyword' | 'hybrid'>('keyword')
+  const searchOption = ref<'keyword' | 'hybrid' | 'semantic'>('keyword')
   const recipeResult = ref<Recipe[]>([])
   const loading = ref(false)
 
@@ -29,8 +29,12 @@ export default function useRecipeSearch() {
         res = await keywordSearch(searchText.value)
 
         mainStore.updateKeywordRecipes(res.data)
-      } else {
+      } else if (searchOption.value === 'hybrid') {
         res = await hybridSearch(searchText.value)
+
+        mainStore.updateHybridRecipes(res.data)
+      } else {
+        res = await semanticSearch(searchText.value)
 
         mainStore.updateHybridRecipes(res.data)
       }
