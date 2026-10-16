@@ -6,7 +6,7 @@ type TypeEnum = 'recipeMain' | 'recipeCard'
 const props = defineProps({
   type: {
     type: String as PropType<TypeEnum>,
-    default: 'recipe-main',
+    default: 'recipeMain',
     validator: (val: string) => ['recipeMain', 'recipeCard'].includes(val),
   },
 })
