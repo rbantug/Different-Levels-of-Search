@@ -106,7 +106,15 @@ export default function makeUpdateRecipe({
     }
 
     // generate embedding for updated recipe
-    const embeddingText = buildRecipeEmbeddingText({
+    const currentEmbeddingText = buildRecipeEmbeddingText({
+      recipeName: currentRecipe.recipeName,
+      area: currentRecipe.area,
+      category: currentRecipe.category,
+      ingredients: currentRecipe.ingredients,
+      instructions: currentRecipe.instructions,
+    });
+
+    const updatedEmbeddingText = buildRecipeEmbeddingText({
       recipeName: validatedRecipe.recipeName,
       area: validatedRecipe.area,
       category: validatedRecipe.category,
@@ -114,7 +122,10 @@ export default function makeUpdateRecipe({
       instructions: validatedRecipe.instructions,
     });
 
-    const embedding = await generateEmbedding(embeddingText);
+    const embedding =
+      currentEmbeddingText === updatedEmbeddingText
+        ? currentRecipe.embedding
+        : await generateEmbedding(updatedEmbeddingText);
 
     const finalRecipe: RecipeValidated = {
       ...validatedRecipe,

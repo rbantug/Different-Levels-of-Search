@@ -25,6 +25,13 @@ export default function makeRecipeIndex({ client }: { client: Meilisearch }) {
       "exactness",
     ]);
 
+    await index.updateEmbedders({
+      default: {
+        source: "userProvided",
+        dimensions: 768,
+      },
+    });
+
     console.log("Meilisearch configured");
   }
 
@@ -36,6 +43,9 @@ export default function makeRecipeIndex({ client }: { client: Meilisearch }) {
         category: recipe.category,
         area: recipe.area,
         ingredients: recipe.ingredients,
+        _vectors: {
+          default: recipe.embedding,
+        },
       },
     ]);
   }
@@ -44,9 +54,39 @@ export default function makeRecipeIndex({ client }: { client: Meilisearch }) {
     return index.deleteDocument(id);
   }
 
-  async function searchRecipe({ query, limit = 20 }: { query: string, limit?: number | undefined }) {
+  async function searchRecipe({
+    query,
+    limit = 20,
+  }: {
+    query: string;
+    limit?: number | undefined;
+  }) {
     return index.search(query, { limit, showRankingScore: true });
   }
 
-  return { setupRecipeIndex, addRecipe, deleteRecipe, searchRecipe };
+  async function searchRecipeSemantic({
+    embedding,
+    limit = 20,
+  }: {
+    embedding: number[];
+    limit?: number;
+  }) {
+    return index.search("", {
+      vector: embedding,
+      limit,
+      showRankingScore: true,
+      hybrid: {
+        embedder: "default",
+        semanticRatio: 1
+      }
+    });
+  }
+
+  return {
+    setupRecipeIndex,
+    addRecipe,
+    deleteRecipe,
+    searchRecipe,
+    searchRecipeSemantic,
+  };
 }

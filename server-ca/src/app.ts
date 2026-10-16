@@ -12,6 +12,7 @@ import type makeUpdateSingleRecipe from "./controllers/updateSingleRecipe.js";
 import type makeGetHybridRecipe from "./controllers/getHybridRecipes.js";
 import type makeGetKeywordSuggestions from "./controllers/getKeywordSuggestions.js";
 import type makeGetSearchRecipe from "./controllers/getSearchRecipes.js";
+import type makeGetSemanticRecipes from "./controllers/getSemanticRecipes.js";
 import type makeGetHealth from './controllers/getHealth.js'
 
 import errorHandler from "./middleware/errorHandler.js";
@@ -27,6 +28,7 @@ interface Dependencies {
   getSearchRecipes: ReturnType<typeof makeGetSearchRecipe>;
   getHybridRecipe: ReturnType<typeof makeGetHybridRecipe>;
   getKeywordSuggestions: ReturnType<typeof makeGetKeywordSuggestions>;
+  getSemanticRecipe: ReturnType<typeof makeGetSemanticRecipes>;
   getHealth: ReturnType<typeof makeGetHealth>;
 }
 
@@ -39,6 +41,7 @@ export default function createApp({
   getSearchRecipes,
   getHybridRecipe,
   getKeywordSuggestions,
+  getSemanticRecipe,
   getHealth
 }: Dependencies) {
   const app = express();
@@ -60,6 +63,7 @@ export default function createApp({
     getHybridRecipe,
     getKeywordSuggestions,
     getSearchRecipes,
+    getSemanticRecipe
   });
 
   // health check

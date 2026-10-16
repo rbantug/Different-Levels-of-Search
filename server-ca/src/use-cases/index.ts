@@ -4,13 +4,13 @@ import {
 } from "../entities/index.js";
 
 import makeAddRecipe from "./addRecipe.js";
-import makeFindRecipeById from "./findRecipeById.js";
 import makeListRecipes from "./listRecipes.js";
 import makeRemoveRecipe from "./removeRecipe.js";
 import makeSearchRecipesByKeyword from "./searchRecipesByKeyword.js";
 import makeSearchRecipeHybrid from "./searchRecipesHybrid.js";
 import makeUpdateRecipe from "./updateRecipe.js";
 import makeFindKeywords from "./findKeywords.js";
+import makeSearchRecipeSemantic from "./searchRecipeSemantic.js";
 
 import { recipeDB } from "../database/index.js";
 import { generateEmbedding } from "../services/embeddings/index.js";
@@ -69,6 +69,8 @@ const findKeywords = makeFindKeywords({
   keywordIndex: meiliKeywordIndex,
 });
 
+const searchRecipeSemantic = makeSearchRecipeSemantic({ generateEmbedding, recipeDB, recipeIndex: meiliRecipeIndex })
+
 export {
   addRecipe,
   findRecipeBySlug,
@@ -76,6 +78,7 @@ export {
   removeRecipe,
   searchRecipesByKeyword,
   searchRecipesHybrid,
+  searchRecipeSemantic,
   updateRecipe,
   findKeywords,
 };

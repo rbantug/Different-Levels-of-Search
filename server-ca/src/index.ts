@@ -20,6 +20,7 @@ import {
   getHybridRecipe,
   getKeywordSuggestions,
   getSearchRecipes,
+  getSemanticRecipe,
   getHealth,
 } from "./controllers/index.js";
 
@@ -46,6 +47,7 @@ async function start() {
     getHybridRecipe,
     getKeywordSuggestions,
     getSearchRecipes,
+    getSemanticRecipe,
     getHealth,
   });
 
