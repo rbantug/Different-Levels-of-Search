@@ -6,6 +6,8 @@ import axios from 'axios'
 import { useMainStore } from '@/stores/mainStore'
 
 import BaseBadge from '@/components/util/BaseBadge.vue'
+import ScrollToTopBtn from '@/components/RecipePageComponent/ScrollToTopBtn.vue'
+
 import useRecipeLoader from '@/composables/useRecipeLoader'
 
 const route = useRoute()
@@ -90,6 +92,7 @@ watch(
 
 <template>
   <div class="recipepage-container">
+    <ScrollToTopBtn selector=".main"/>
     <header>
       <div class="back-btn" @click="goBackToSearchPage">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
@@ -162,7 +165,7 @@ watch(
 
 <style lang="scss" scoped>
 .recipepage-container {
-  background-color: $background-color;
+  position: relative;
 }
 
 header {
@@ -218,7 +221,6 @@ header {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  //max-width: 10rem;
   margin: 0 auto;
 }
 
