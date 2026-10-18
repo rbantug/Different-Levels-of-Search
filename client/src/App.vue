@@ -41,6 +41,7 @@ onMounted(async () => {
   overflow-x: hidden;
   border: 1px solid black;
   position: relative;
+  background-color: $background-color;
 
   @include m-permanent-mobile-view;
 }
