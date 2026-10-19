@@ -37,8 +37,17 @@ export default function makeSearchRecipeSemantic({
       return [];
     }
 
+    const mapResultScores = new Map(
+      searchResults.hits.map((hit) => [hit.id, hit._rankingScore ?? 0]),
+    );
+
     const recipes = recipeDB.findRecipesById(recipeIds);
-    const recipesById = new Map(recipes.map((recipe) => [recipe.id, recipe]));
+    const recipesById = new Map(recipes.map((recipe) => {
+      const rankingScore = mapResultScores.get(recipe.id) ?? 0
+      const modifiedRecipe = { ...recipe, rankingScore };
+
+      return [recipe.id, modifiedRecipe];
+    }));
 
     // Preserve Meilisearch's semantic ranking order.
     return recipeIds.flatMap((id) => {
