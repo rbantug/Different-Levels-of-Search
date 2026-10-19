@@ -78,7 +78,8 @@ export default function makeRecipeIndex({ client }: { client: Meilisearch }) {
       hybrid: {
         embedder: "default",
         semanticRatio: 1
-      }
+      },
+      rankingScoreThreshold: 0.75
     });
   }
 
