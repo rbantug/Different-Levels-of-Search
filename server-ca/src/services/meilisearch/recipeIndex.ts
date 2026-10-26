@@ -47,11 +47,11 @@ export default function makeRecipeIndex({ client }: { client: Meilisearch }) {
           default: recipe.embedding,
         },
       },
-    ]);
+    ]).waitTask();
   }
 
   async function deleteRecipe(id: string) {
-    return index.deleteDocument(id);
+    return index.deleteDocument(id).waitTask();
   }
 
   async function searchRecipe({

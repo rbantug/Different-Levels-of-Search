@@ -21,7 +21,7 @@ export default function makeKeywordIndex({ client }: { client: Meilisearch }) {
       keyword,
     }));
 
-    return index.addDocuments(documents);
+    return index.addDocuments(documents).waitTask();
   }
 
   async function deleteKeywords(keywords: string[]) {
@@ -29,7 +29,7 @@ export default function makeKeywordIndex({ client }: { client: Meilisearch }) {
 
     const ids = keywords.map((keyword) => slugify(keyword, { lower: true }));
 
-    return index.deleteDocuments(ids);
+    return index.deleteDocuments(ids).waitTask();
   }
 
   async function searchKeywords(keyword: string) {
