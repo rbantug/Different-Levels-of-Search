@@ -13,6 +13,8 @@ import usePagination from '@/composables/usePagination'
 
 import { useMainStore } from '@/stores/mainStore'
 
+import homeImage from "@/assets/images/home-image.webp"
+
 // state
 
 const currentCategory = ref<string>('All')
@@ -89,8 +91,8 @@ watch([currentCategory, currentArea], resetPage)
       <section v-show="showWelcome" class="welcome-section">
         <div class="welcome-section__illustration">
           <LazyLoadImage
-            src="https://dl.dropboxusercontent.com/scl/fi/f4uyr13htg9emjb8paeda/home-image.webp?rlkey=o1sl43cg1f0cymlehf55n37f1"
-            placeholder="https://dl.dropboxusercontent.com/scl/fi/s0cmsig8ne7g7kbgi0d4t/home-image-blurry.webp?rlkey=ih9sg7ffwpx2isj90st415r1w"
+            :src="homeImage"
+            placeholder="https://dl.dropboxusercontent.com/scl/fi/s0cmsig8ne7g7kbgi0dc4t/home-image-blurry.webp?rlkey=ih9sg7ffwpx2isj90st415r1w"
             alt="welcome illustration"
           />
         </div>

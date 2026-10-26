@@ -2,6 +2,10 @@
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 
+import LazyLoadImage from '@/components/util/LazyLoadImage.vue'
+
+import errorImage from "@/assets/images/error-page-img.avif"
+
 const route = useRoute()
 
 const errorCode = computed(() => {
@@ -23,15 +27,12 @@ const errorDescription = computed(() => {
 
   return 'Please contact the developer to run the backend in his machine'
 })
-
-const imgPath = computed(() => 'https://dl.dropboxusercontent.com/scl/fi/fnmbailtpmnmaf1udrgz1/error-page-img.avif?rlkey=x606cbgq9sjyizhwx8ofk8uhq')
-  
 </script>
 
 <template>
   <main class="error-page">
     <section class="error-illustration">
-      <img :src="imgPath" alt="" />
+      <LazyLoadImage :src="errorImage" placeholder="https://dl.dropboxusercontent.com/scl/fi/s0cmsig8ne7g7kbgi0d4t/home-image-blurry.webp?rlkey=ih9sg7ffwpx2isj90st415r1w" />
     </section>
 
     <section class="error-message">
