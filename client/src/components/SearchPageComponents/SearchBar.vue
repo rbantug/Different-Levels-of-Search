@@ -10,7 +10,6 @@ const mainStore = useMainStore()
 
 const emits = defineEmits(['emitKeyword', 'clearKeyword'])
 
-//const searchText = ref('')
 const searchText = defineModel<string>('search', {
   default: '',
 })
@@ -34,11 +33,11 @@ const searchBarRoot = ref<HTMLElement | null>(null)
  * - tell the DropDownList.vue to show the drop down list
  * - hide the loading icon
  */
-async function runSuggestion() {
+async function runSuggestion(keyword:string) {
   isLoading.value = true
 
   try {
-    const { data } = await suggestion(debouncedQuery.value)
+    const { data } = await suggestion(keyword)
 
     suggestions.value = data.map((s) => s.keyword)
     noResult.value = data.length === 0
@@ -82,11 +81,18 @@ function openDropdown() {
   }
 }
 
+function sanitizeSearchInput(val: string) {
+  return val.normalize('NFC').trim().replace(/\s+/g, ' ')
+}
+
 watch(
   debouncedQuery,
   (newVal) => {
+    // sanitize user input
+    const query = sanitizeSearchInput(newVal)
+
     // the code below will force the parent component (SearchPage.vue) to discard all the fetched recipes if the search bar has no text.
-    if (newVal === '') {
+    if (query === '') {
       suggestions.value = []
       emitKeyword('')
       return
@@ -94,7 +100,7 @@ watch(
 
     // this will prevent another search after selecting an option in the drop down list
     if (!justFetched.value) {
-      runSuggestion()
+      runSuggestion(query)
     }
   },
   { immediate: true },
