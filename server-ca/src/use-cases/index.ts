@@ -28,9 +28,7 @@ const addRecipe = makeAddRecipe({
   recipeDB,
   buildKeywords,
   generateEmbedding,
-  buildRecipeEmbeddingText,
-  recipeIndex: meiliRecipeIndex,
-  keywordsIndex: meiliKeywordIndex,
+  buildRecipeEmbeddingText
 });
 
 const findRecipeBySlug = makeFindRecipeBySlug({ recipeDB })
@@ -60,8 +58,6 @@ const updateRecipe = makeUpdateRecipe({
   buildKeywords,
   buildRecipeEmbeddingText,
   generateEmbedding,
-  keywordIndex: meiliKeywordIndex,
-  recipeIndex: meiliRecipeIndex,
   updateRecipeEntity,
 });
 

@@ -3,8 +3,6 @@ import type buildKeywords from "../utils/recipe/buildKeywords.js";
 import type buildRecipeEmbeddingText from "../utils/recipe/buildRecipeEmbeddingText.js";
 import type makeRecipeDB from "../database/recipeDB.js";
 import type makeGenerateEmbedding from "../services/embeddings/generateEmbedding.js";
-import type makeRecipeIndex from "../services/meilisearch/recipeIndex.js";
-import type makeKeywordIndex from "../services/meilisearch/keywordIndex.js";
 import type { CreateRecipe } from "../entities/types.js";
 
 type RecipeDB = ReturnType<typeof makeRecipeDB>;
@@ -22,14 +20,6 @@ interface AddRecipeDependencies {
   buildKeywords: typeof buildKeywords;
 
   buildRecipeEmbeddingText: typeof buildRecipeEmbeddingText;
-
-  recipeIndex: {
-    addRecipe: ReturnType<typeof makeRecipeIndex>["addRecipe"];
-  };
-
-  keywordsIndex: {
-    addKeywords: ReturnType<typeof makeKeywordIndex>["addKeywords"];
-  };
 }
 
 type AddRecipeParam = Omit<CreateRecipe, "keywords"> & {
@@ -42,8 +32,6 @@ export default function makeAddRecipe({
   buildKeywords,
   generateEmbedding,
   buildRecipeEmbeddingText,
-  recipeIndex,
-  keywordsIndex,
 }: AddRecipeDependencies) {
   return async function addRecipe(recipeInfo: AddRecipeParam) {
     // build keywords and add it to the recipe that will be validated
@@ -53,7 +41,7 @@ export default function makeAddRecipe({
       ingredients: recipeInfo.ingredientNames,
     });
 
-    const recipe = makeRecipe({ data: {...recipeInfo, keywords} });
+    const recipe = makeRecipe({ data: { ...recipeInfo, keywords } });
 
     // create the embedding and add it to the validated recipe
     const embeddingText = buildRecipeEmbeddingText({
@@ -76,10 +64,6 @@ export default function makeAddRecipe({
       recipe: finalRecipe,
       keywords: recipe.keywords,
     });
-
-    // insert recipe and keywords to meilisearch
-    await recipeIndex.addRecipe(savedRecipe);
-    await keywordsIndex.addKeywords(recipe.keywords);
 
     return savedRecipe;
   };
