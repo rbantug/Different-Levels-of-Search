@@ -105,7 +105,6 @@ watch(
 
   &:hover {
     background-color: $color-background-hover;
-    outline: 1px solid $color-background-hover;
   }
 }
 

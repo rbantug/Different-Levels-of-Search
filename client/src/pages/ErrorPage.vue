@@ -80,10 +80,8 @@ const errorDescription = computed(() => {
 }
 
 .error-illustration {
-  img {
-    height: 15rem;
+    height: 12rem;
     width: 100%;
-  }
 }
 
 .error-message {

@@ -317,7 +317,7 @@ watch([currentCategory, currentArea], resetPage)
 
 .search-type-container {
   width: 100%;
-  column-gap: 1rem;
+  column-gap: 0.5rem;
   margin-top: 1rem;
 
   @include m-flex-center;
