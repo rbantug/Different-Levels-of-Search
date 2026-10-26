@@ -1,104 +1,88 @@
 <script setup lang="ts">
-import { ref, watch, type Ref } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
 import { useMainStore } from '@/stores/mainStore'
 
-import type { Recipe } from '@/types/recipe'
-import type { RecentRecipe } from '@/types/recentRecipe'
 import BaseBadge from '@/components/util/BaseBadge.vue'
-import { getSingleRecipe } from '@/api/recipe'
-import { useStorage } from '@vueuse/core'
+import ScrollToTopBtn from '@/components/RecipePageComponent/ScrollToTopBtn.vue'
+
+import useRecipeLoader from '@/composables/useRecipeLoader'
 
 const route = useRoute()
 const router = useRouter()
 const mainStore = useMainStore()
-const recentRecipeQueue: Ref<RecentRecipe[]> = useStorage('recent-recipes', [])
 
-const recipe = ref<Recipe | null>()
-const badgeText = ref<string[]>([])
+const { recipe, loading, loadRecipe } = useRecipeLoader(
+  mainStore.keywordRecipes,
+  mainStore.hybridRecipes,
+  mainStore.semanticRecipes
+)
 
-/**
- * This will search for the recipe details that will be used in this component. Regarding the 2 arguments, you can only provide a slug or a recipeId. Not both.
- * @param slug
- * @param recipeId
- */
-async function loadRecipe(slug: string | string[] | undefined) {
-  const option = mainStore.getCurrentOption
-
-  if (option.value === 'keyword') {
-    recipe.value = mainStore.getKeywordRecipes.value.find((r: Recipe) => r.slug === slug)
-  } else if (option.value === 'hybrid') {
-    recipe.value = mainStore.getHybridRecipes.value.find((r: Recipe) => r.slug === slug)
+const badgeText = computed(() => {
+  if (!recipe.value) {
+    return []
   }
 
-  if (!recipe.value) {
-    // we need to check if the provided slug is in the recipes found in the local storage
-    const checkRecipeInQueue = recentRecipeQueue.value.findIndex(
-      (recipe: RecentRecipe) => recipe.slug === slug,
-    )
+  return [recipe.value.area, recipe.value.category]
+})
 
-    // if it does not exist in the local storage, we will route to the error page
-    if (checkRecipeInQueue === -1) {
-      router.push({
-        name: 'error',
-        params: {
-          anything: '404',
-        },
-      })
+function goToNotFound() {
+  router.push({
+    name: 'error',
+    params: {
+      errorCode: '404',
+    },
+  })
+}
+
+function goToServerError() {
+  router.push({
+    name: 'error',
+    params: {
+      errorCode: '500',
+    },
+  })
+}
+
+/**
+ * Everything starts from this function. It goes through this sequence:
+ * - find recipe in existing recipe list in pinia
+ * - if not found, fetch recipe from backend
+ * - 404 or 500 errors will be thrown depending on where the error happened
+ * @param slug
+ */
+async function loadRecipePage(slug: string) {
+  try {
+    const loadedRecipe = await loadRecipe(slug)
+
+    if (!loadedRecipe) {
+      goToNotFound()
+      return
+    }
+  } catch(error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      goToNotFound()
       return
     }
 
-    // recipe date will be fetched from the backend using the recipeId
-    const recipeId = recentRecipeQueue.value[checkRecipeInQueue]?.recipeId
-
-    try {
-      const { data } = await getSingleRecipe(recipeId!)
-      recipe.value = data
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.status === 404) {
-          router.push({
-            name: 'error',
-            params: {
-              anything: '404',
-            },
-          })
-        }
-        return
-      } else {
-        router.push({
-          name: 'error',
-          params: {
-            anything: '500',
-          },
-        })
-      }
-    }
+    goToServerError()
   }
-
-  if (!recipe.value) {
-    throw new Error('Something went wrong with fetching the recipe')
-  }
-
-  // merge category and area into an array
-  badgeText.value.push(recipe.value.area, recipe.value.category)
 }
 
 function goBackToSearchPage() {
-  recipe.value = null
-  badgeText.value = []
-  mainStore.updateCurrentRecipeId(null)
   router.go(-1)
 }
 
 watch(
   () => route.params.slug,
-  async (newVal) => {
-    if (!newVal) return
+  async (slug) => {
+    if (typeof slug !== 'string') {
+      return
+    }
 
-    await loadRecipe(route.params.slug)
+    await loadRecipePage(slug)
   },
   {
     immediate: true,
@@ -107,7 +91,8 @@ watch(
 </script>
 
 <template>
-  <div>
+  <div class="recipepage-container">
+    <ScrollToTopBtn selector=".main"/>
     <header>
       <div class="back-btn" @click="goBackToSearchPage">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
@@ -118,7 +103,7 @@ watch(
       </div>
     </header>
     <!-- loading state -->
-    <div v-if="!recipe">
+    <div v-if="loading">
       <div class="recipe-is-loading">
         <!-- line-md:loading-loop -->
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
@@ -179,6 +164,10 @@ watch(
 </template>
 
 <style lang="scss" scoped>
+.recipepage-container {
+  position: relative;
+}
+
 header {
   height: 3rem;
   background-color: white;
@@ -224,7 +213,6 @@ header {
   width: 80%;
   @include m-flex-center;
   column-gap: 1rem;
-  max-width: 10rem;
   margin: 0 auto;
 }
 
@@ -233,7 +221,6 @@ header {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  //max-width: 10rem;
   margin: 0 auto;
 }
 

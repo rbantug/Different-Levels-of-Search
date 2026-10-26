@@ -14,8 +14,8 @@ const api = axios.create({
   timeout: 10000,
 })
 
-export async function getSingleRecipe(recipeId: string): Promise<AxiosResponse<Recipe>> {
-  const { data } = await api.get(`/${recipeId}`)
+export async function getSingleRecipe(slug: string): Promise<AxiosResponse<Recipe>> {
+  const { data } = await api.get(`/${slug}`)
 
   return data
 }

@@ -21,4 +21,18 @@ CREATE TABLE `recipe_keywords` (
 	FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE INDEX `recipe_keywords_keyword_idx` ON `recipe_keywords` (`keyword`);
+CREATE INDEX `recipe_keywords_keyword_idx` ON `recipe_keywords` (`keyword`);--> statement-breakpoint
+CREATE TABLE `search_outbox` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`recipe_id` text NOT NULL,
+	`operation` text NOT NULL,
+	`keywords_to_add` text DEFAULT '[]' NOT NULL,
+	`keywords_to_remove` text DEFAULT '[]' NOT NULL,
+	`status` text DEFAULT 'pending' NOT NULL,
+	`attempts` integer DEFAULT 0 NOT NULL,
+	`last_error` text,
+	`created_at` integer NOT NULL,
+	`processed_at` integer
+);
+--> statement-breakpoint
+CREATE INDEX `search_outbox_status_id_idx` ON `search_outbox` (`status`,`id`);

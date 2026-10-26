@@ -6,6 +6,28 @@
   align-items: center;
 }
 
+@mixin m-reset {
+  margin: 0;
+  padding: 0.5rem;
+  border: none;
+  outline: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+}
+
+@mixin m-permanent-mobile-view {
+  max-width: 360px;
+  height: 800px;
+  margin: 0 auto;
+}
+
+@mixin m-soft-outline-shadow {
+  border: 1px solid rgba(20, 30, 50, 0.06);
+  box-shadow:
+    0 2px 12px rgba(20, 30, 50, 0.1);
+}
+
 @mixin custom-scrollbar(
   $size: 8px,
   $thumb: #888,

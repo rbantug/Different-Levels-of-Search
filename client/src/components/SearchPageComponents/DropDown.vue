@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { type PropType, watch } from 'vue'
+import { type PropType, watch, ref } from 'vue'
 import DropDownList from '../util/DropDownList.vue'
+import { useMainStore } from '@/stores/mainStore.ts'
 
 const props = defineProps({
   dataList: {
     required: true,
     type: Array as PropType<string[]>,
   },
-  option: {
+  /**
+   * If set to false, "All" should be included in the list options.
+   */
+  setToAll: {
     required: true,
     type: Boolean,
     default: false,
@@ -16,30 +20,54 @@ const props = defineProps({
     required: true,
     type: Boolean,
   },
-  id: {
+  defaultOption: {
     required: true,
     type: String,
   },
 })
 
-const emits = defineEmits(['goToggle', 'selectedOption'])
+const emits = defineEmits(['goToggle'])
 
-const selectedOption = defineModel()
+const mainStore = useMainStore()
+const dropdownRoot = ref<HTMLElement | null>(null)
+
+const selectedOption = defineModel<string>()
 
 function toggleListVisbility() {
   emits('goToggle')
 }
 
-function updateSelectedOption(val:string) {
+function updateSelectedOption(val: string) {
   selectedOption.value = val
   emits('goToggle')
 }
 
 watch(
+  () => props.open,
+  (isOpen, _oldVal, onCleanup) => {
+    if (!isOpen) return
+
+    function handleOutsidePointerDown(event: PointerEvent) {
+      const target = event.target
+
+      if (target instanceof Node && dropdownRoot.value && !dropdownRoot.value.contains(target)) {
+        mainStore.closeDD()
+      }
+    }
+
+    document.addEventListener('pointerdown', handleOutsidePointerDown)
+
+    onCleanup(() => {
+      document.removeEventListener('pointerdown', handleOutsidePointerDown)
+    })
+  },
+)
+
+watch(
   () => props.dataList,
   () => {
-    if (!props.option) {
-      selectedOption.value = 'All'
+    if (!props.setToAll) {
+      selectedOption.value = props.defaultOption
     }
     return
   },
@@ -48,12 +76,18 @@ watch(
 </script>
 
 <template>
-  <div class="dropdown-container">
+  <div ref="dropdownRoot" class="dropdown-container">
     <div>
       <button @click="toggleListVisbility">
         <span>{{ selectedOption }}</span>
         <span class="arrow"
-          ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+          ><svg
+            :class="{ active: props.open }"
+            xmlns="http://www.w3.org/2000/svg"
+            width="1em"
+            height="1em"
+            viewBox="0 0 24 24"
+          >
             <path d="M0 0h24v24H0z" fill="none" />
             <path fill="currentColor" fill-rule="evenodd" d="m4 15l8-8l8 8l-2 2l-6-6l-6 6z" />
           </svg>
@@ -62,24 +96,15 @@ watch(
     </div>
     <DropDownList
       :data-list="props.dataList"
-      :option="props.option"
+      :option="props.setToAll"
       :open="props.open"
+      :all-option="props.defaultOption"
       @close-list="updateSelectedOption"
     />
   </div>
 </template>
 
 <style lang="scss" scoped>
-@mixin reset {
-  margin: 0;
-  padding: 0.5rem;
-  border: none;
-  border-radius: 5px;
-  background: none;
-  font: inherit;
-  color: inherit;
-}
-
 .dropdown-container {
   position: relative;
 }
@@ -89,17 +114,24 @@ watch(
 }
 
 button {
-  @include reset;
-  @include m-flex-center;
+  display: flex;
+  align-items: center;
   position: relative;
-  width: 7rem;
+  width: 9rem;
   height: 2.5rem;
-  border: 1px solid black;
+  border-radius: 20px;
   margin-top: 0.5rem;
-  padding-right: 1.5rem;
+  background-color: $color-surface;
+
+  @include m-reset;
+  @include m-soft-outline-shadow;
 
   &:hover {
     cursor: pointer;
+  }
+
+  :first-child {
+    padding-left: 0.1rem;
   }
 }
 
@@ -108,5 +140,15 @@ button {
   position: absolute;
   right: 0;
   padding-right: 0.5rem;
+
+  svg {
+    transform-origin: center;
+    transform-box: fill-box;
+    transition: all 0.3s ease;
+
+    &.active {
+      transform: rotate(180deg);
+    }
+  }
 }
 </style>

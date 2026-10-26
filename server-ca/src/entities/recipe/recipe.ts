@@ -3,7 +3,7 @@ import type {
   RecipeValidated,
   RecipeDependencies,
   UpdateRecipe,
-} from "./types.js";
+} from "../types.js";
 
 import buildRecipeValidation from "./validation.js";
 
@@ -20,7 +20,7 @@ export default function buildMakeRecipe({
     const validatedData = validateCreateRecipe(data);
 
     const now = new Date();
-    now.setSeconds(0,0)
+    now.setSeconds(0, 0);
 
     return Object.freeze({
       id: uuid.makeId(),
@@ -51,8 +51,8 @@ export default function buildMakeRecipe({
       validateChanges.recipeName &&
       validateChanges.recipeName !== oldRecipe.recipeName;
 
-    const now = new Date()
-    now.setSeconds(0,0)
+    const now = new Date();
+    now.setSeconds(0, 0);
 
     const updatedRecipe = {
       ...oldRecipe,

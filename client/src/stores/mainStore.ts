@@ -1,4 +1,4 @@
-import { type Ref, ref, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useStorage } from '@vueuse/core'
 
@@ -8,9 +8,7 @@ import type { RecentRecipe } from '@/types/recentRecipe'
 export const useMainStore = defineStore('main', () => {
   const keywordRecipes = ref<Recipe[]>([])
   const hybridRecipes = ref<Recipe[]>([])
-
-  const getKeywordRecipes = computed(() => keywordRecipes)
-  const getHybridRecipes = computed(() => hybridRecipes)
+  const semanticRecipes = ref<Recipe[]>([])
 
   function updateKeywordRecipes(val: Recipe[]) {
     keywordRecipes.value = val
@@ -19,10 +17,8 @@ export const useMainStore = defineStore('main', () => {
     hybridRecipes.value = val
   }
 
-  const currentOption = ref<'keyword' | 'hybrid' | null>(null)
-  const getCurrentOption = computed(() => currentOption)
-  function updateCurrentOption(val: 'keyword' | 'hybrid') {
-    currentOption.value = val
+  function updateSemanticRecipes(val: Recipe[]) {
+    semanticRecipes.value = val
   }
 
   // overlay for drop down list
@@ -36,12 +32,9 @@ export const useMainStore = defineStore('main', () => {
     ddOpenId.value = null
   }
 
-  const getDDOpenId = computed(() => ddOpenId.value)
-
   // recent recipe queue in local storage
 
-  const recentRecipeQueue: Ref<RecentRecipe[]> = useStorage('recent-recipes', [])
-  const currentRecipeId = ref<string|null>(null)
+  const recentRecipeQueue = useStorage<RecentRecipe[]>('recent-recipes', [])
 
   /**
    * This update the recent recipe queue in the localStorage
@@ -49,7 +42,6 @@ export const useMainStore = defineStore('main', () => {
    */
   function addToRecentRecipes({ recipeId, recipeName, recipeThumbnail, slug, createdAt }: RecentRecipe
   ) {
-    currentRecipeId.value = recipeId
     const findIndex = recentRecipeQueue.value.findIndex((x) => x.recipeId === recipeId)
 
     if (findIndex !== -1) {
@@ -68,25 +60,18 @@ export const useMainStore = defineStore('main', () => {
       recentRecipeQueue.value.pop()
     }
   }
-
-  function updateCurrentRecipeId(recipeId: string|null) {
-    currentRecipeId.value = recipeId
-  }
-
-  const getCurrentRecipeId = computed(() => currentRecipeId)
   
   return {
-    getKeywordRecipes,
-    getHybridRecipes,
+    keywordRecipes,
+    hybridRecipes,
+    semanticRecipes,
     updateKeywordRecipes,
     updateHybridRecipes,
-    getCurrentOption,
-    updateCurrentOption,
+    updateSemanticRecipes,
     toggleDD,
     closeDD,
-    getDDOpenId,
+    ddOpenId,
     addToRecentRecipes,
-    getCurrentRecipeId,
-    updateCurrentRecipeId
+    recentRecipeQueue,
   }
 })

@@ -2,7 +2,7 @@ import type {
   CreateRecipe,
   UpdateRecipe,
   ValidationDependencies,
-} from "./types.js";
+} from "../types.js";
 
 export default function buildRecipeValidation({ joi }: ValidationDependencies) {
   const createRecipeSchema = joi.object({
@@ -29,7 +29,7 @@ export default function buildRecipeValidation({ joi }: ValidationDependencies) {
   function validateCreateRecipe(data: CreateRecipe): CreateRecipe {
     const { error, value } = createRecipeSchema.validate(data, {
       convert: false,
-      abortEarly: false
+      abortEarly: false,
     });
 
     if (error) {
@@ -42,7 +42,7 @@ export default function buildRecipeValidation({ joi }: ValidationDependencies) {
   function validateUpdateRecipe(data: UpdateRecipe): UpdateRecipe {
     const { error, value } = updateRecipeSchema.validate(data, {
       convert: false,
-      abortEarly: false
+      abortEarly: false,
     });
 
     if (error) {

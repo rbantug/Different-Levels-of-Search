@@ -6,11 +6,15 @@ interface Dependencies {
 }
 
 export type PostSingleRecipeParam = CreateRecipe & {
-  ingredientNames: string[]
-}
+  ingredientNames: string[];
+};
 
 export default function makePostSingleRecipe({ addRecipe }: Dependencies) {
-  return async function postSingleRecipe({ body }: { body: PostSingleRecipeParam }) {
+  return async function postSingleRecipe({
+    body,
+  }: {
+    body: PostSingleRecipeParam;
+  }) {
     const recipe = await addRecipe(body);
 
     return {

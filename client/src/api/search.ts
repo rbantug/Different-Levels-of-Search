@@ -37,6 +37,17 @@ export async function hybridSearch(query: string): Promise<AxiosResponse<Recipe>
   return data
 }
 
+export async function semanticSearch(query: string): Promise<AxiosResponse<Recipe>> {
+  const { data } = await api.get('/semantic', {
+    params: {
+      q: query,
+      limit: 20,
+    },
+  })
+
+  return data
+}
+
 export async function suggestion(query: string): Promise<AxiosResponse<Suggestion>> {
   const { data } = await api.get('/suggestion', {
     params: {

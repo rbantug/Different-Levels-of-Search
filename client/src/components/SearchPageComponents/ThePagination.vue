@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import 'iconify-icon'
 
 const props = defineProps({
   currentPage: {
@@ -13,7 +12,9 @@ const props = defineProps({
   },
 })
 
-const emits = defineEmits(['update:currentPage'])
+const emits = defineEmits<{
+  (event: 'update:currentPage', page: number): void
+}>()
 
 const visiblePages = computed(() => {
   const pages = []
@@ -42,9 +43,9 @@ function goToPage(page: number) {
     <nav class="pagination">
       <button
         class="pagination-left-arrow"
-        :class="{ disabled: currentPage === 1 }"
-        @click="goToPage(currentPage - 1)"
-        :disabled="currentPage === 1"
+        :class="{ disabled: props.currentPage === 1 }"
+        @click="goToPage(props.currentPage - 1)"
+        :disabled="props.currentPage === 1"
       >
         <!-- fe:arrow-left -->
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
@@ -56,19 +57,20 @@ function goToPage(page: number) {
       <div class="pagination-page-number">
         <button
           class="pagination-page-number__button"
-          :class="{ active: n === currentPage }"
+          :class="{ active: n === props.currentPage }"
           v-for="n in visiblePages"
           :key="n"
+          @click="goToPage(n)"
         >
           {{ n }}
         </button>
       </div>
-      <div v-if="currentPage + 1 < totalPages" class="pagination-text">... {{ totalPages }}</div>
+      <div v-if="props.currentPage + 1 < props.totalPages" class="pagination-text" @click="goToPage(props.totalPages)">... {{ props.totalPages }}</div>
       <button
         class="pagination-right-arrow"
-        :class="{ disabled: currentPage === totalPages }"
+        :class="{ disabled: props.currentPage === props.totalPages }"
         @click="goToPage(currentPage + 1)"
-        :disabled="currentPage === totalPages"
+        :disabled="props.currentPage === props.totalPages"
       >
         <!-- fe:arrow-right -->
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
@@ -82,7 +84,6 @@ function goToPage(page: number) {
 
 <style lang="scss" scoped>
 .pagination-container {
-  width: fit;
   height: 6rem;
 
   @include m-flex-center;
@@ -95,7 +96,6 @@ function goToPage(page: number) {
   padding: 0 0.5rem;
   height: 4rem;
   border-radius: 5px;
-  box-shadow: $shadow-card;
 
   @include m-flex-center;
 }

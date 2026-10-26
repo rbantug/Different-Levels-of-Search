@@ -173,6 +173,32 @@ describe("recipeDB", () => {
     });
   });
 
+  describe("findRecipeBySlug", () => {
+    it("should return the correct recipe", () => {
+      const { recipeDB } = createDependencies();
+
+      recipeDB.insertRecipe({
+        recipe: testRecipe,
+        keywords: testRecipe.keywords,
+      });
+
+      recipeDB.insertRecipe({
+        recipe: testRecipe2,
+        keywords: testRecipe2.keywords,
+      });
+
+      const res = recipeDB.findRecipeBySlug(testRecipe2.slug);
+
+      expect(res).toEqual(testRecipe2);
+      expect(res?.slug).not.toBe(testRecipe.slug);
+    });
+    it("should return undefined when the recipe does not exist", () => {
+      const { recipeDB } = createDependencies();
+
+      expect(recipeDB.findRecipeBySlug("foo")).toBeUndefined;
+    });
+  });
+
   describe("findRecipesById", () => {
     it("should return the correct recipes", () => {
       const { recipeDB } = createDependencies();

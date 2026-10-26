@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { type PropType, type Ref } from 'vue'
-import { useStorage } from '@vueuse/core'
+import { type PropType } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { RecentRecipe } from '@/types/recentRecipe'
@@ -38,11 +37,18 @@ const props = defineProps({
     type: Boolean,
   },
   /**
-   * Setting this to "true" will add recent recipes accessed by the user at the bottom of the drop down list
+   * Another prop made for the Searchbar. Setting this to "true" will add recent recipes accessed by the user at the bottom of the drop down list
    */
   showRecentRecipes: {
     required: false,
     type: Boolean,
+  },
+  /**
+   * It is either "All Categories" or "All Areas"
+   */
+  allOption: {
+    required: false,
+    type: String,
   },
 })
 
@@ -50,7 +56,8 @@ const emits = defineEmits<{
   (e: 'closeList', val: string): void
 }>()
 
-function updateSelectedOption(val: string) {
+function updateSelectedOption(val: string | undefined) {
+  if (!val) return
   emits('closeList', val)
 }
 
@@ -107,15 +114,13 @@ const leave = (el: Element) => {
 
 // recent recipe related code
 
-const recentRecipeQueue: Ref<RecentRecipe[]> = useStorage('recent-recipes', [])
-
 function recentRecipeToRecipePage(recentRecipe: RecentRecipe) {
   mainStore.addToRecentRecipes({
     recipeId: recentRecipe.recipeId,
     recipeName: recentRecipe.recipeName,
     recipeThumbnail: recentRecipe.recipeThumbnail,
     slug: recentRecipe.slug,
-    createdAt: recentRecipe.createdAt,
+    createdAt: new Date(),
   })
   emits('closeList', '')
 
@@ -138,68 +143,70 @@ function cutRecipeName(recipeName: string) {
 
 <template>
   <div class="listContainer" :class="{ visible: props.open, hidden: !props.open }">
-    <Transition
-      name="dropdown"
-      @before-enter="beforeEnter"
-      @enter="enter"
-      @after-enter="afterEnter"
-      @before-leave="beforeLeave"
-      @leave="leave"
-    >
-      <ul v-show="props.open">
-        <li v-if="!props.option" @click="updateSelectedOption('All')">All</li>
-        <li v-if="props.noResultsOption" class="no-results" @click.prevent>No Results</li>
-        <li v-for="data in props.dataList" :key="data" @click="updateSelectedOption(data)">
-          {{ data }}
-        </li>
+    <div class="listScroll">
+      <Transition
+        name="dropdown"
+        @before-enter="beforeEnter"
+        @enter="enter"
+        @after-enter="afterEnter"
+        @before-leave="beforeLeave"
+        @leave="leave"
+      >
+        <ul v-show="props.open">
+          <li v-if="!props.option" @click="updateSelectedOption(props.allOption)">
+            {{ props.allOption }}
+          </li>
+          <li v-if="props.noResultsOption" class="no-results" @click.prevent>No Results</li>
+          <li v-for="data in props.dataList" :key="data" @click="updateSelectedOption(data)">
+            {{ data }}
+          </li>
 
-        <!-- recent recipe list -->
-        <div v-if="showRecentRecipes">
-          <hr />
-          <div class="recent-recipe-container">
-            <div v-if="!recentRecipeQueue.length" class="no-recent-recipe-text">
-              No recent recipes
-            </div>
-            <div v-else>
-              <h1 class="recent-recipe-header">Recently Viewed Recipes:</h1>
-              <ul>
-                <li
-                  v-for="recentRecipe in recentRecipeQueue"
-                  :key="recentRecipe.recipeId"
-                  @click="recentRecipeToRecipePage(recentRecipe)"
-                  class="recent-recipe"
-                >
-                  <div class="img-container">
-                    <img :src="recentRecipe.recipeThumbnail" :alt="recentRecipe.recipeName" />
-                  </div>
-                  <div class="recent-recipe-details">
-                    <span>{{ cutRecipeName(recentRecipe.recipeName) }}</span>
-                    <span>Opened {{ formatRelativeDate(new Date(recentRecipe.createdAt)) }}</span>
-                  </div>
-                </li>
-              </ul>
+          <!-- recent recipe list -->
+          <div v-if="showRecentRecipes">
+            <div class="recent-recipe-container">
+              <div v-if="!mainStore.recentRecipeQueue.length" class="no-recent-recipe-text">
+                No recent recipes
+              </div>
+              <div v-else>
+                <h1 class="recent-recipe-header">Recently Viewed Recipes:</h1>
+                <ul>
+                  <li
+                    v-for="recentRecipe in mainStore.recentRecipeQueue"
+                    :key="recentRecipe.recipeId"
+                    @click="recentRecipeToRecipePage(recentRecipe)"
+                    class="recent-recipe"
+                  >
+                    <div class="img-container">
+                      <img :src="recentRecipe.recipeThumbnail" :alt="recentRecipe.recipeName" />
+                    </div>
+                    <div class="recent-recipe-details">
+                      <span>{{ cutRecipeName(recentRecipe.recipeName) }}</span>
+                      <span>Opened {{ formatRelativeDate(new Date(recentRecipe.createdAt)) }}</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
-      </ul>
-    </Transition>
+        </ul>
+      </Transition>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .listContainer {
-  @include custom-scrollbar(size, thumb, track);
-
   position: absolute;
   top: 0;
   left: 0;
-  background-color: white;
-  max-height: 20rem;
   width: 100%;
+  max-height: 20rem;
   margin-top: 3.5rem;
-  overflow-y: auto;
-  border-radius: 5px;
+  background-color: white;
+  border-radius: 20px;
   z-index: 2;
+  box-sizing: border-box;
+  overflow: hidden;
 
   &.visible {
     border: 1px gray solid;
@@ -210,9 +217,19 @@ function cutRecipeName(recipeName: string) {
   }
 }
 
+.listScroll {
+  @include custom-scrollbar();
+
+  max-height: 20rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding-left: 0.5rem;
+}
+
 ul {
   margin: 0;
-  padding: 0;
+  padding: 0.5rem;
   list-style: none;
 }
 
@@ -249,7 +266,7 @@ li.no-results {
 // recent recipe
 
 .recent-recipe-container {
-  margin: 1rem;
+  margin: 1rem 0.5rem 0 0.5rem;
 }
 
 .no-recent-recipe-text {
@@ -270,7 +287,7 @@ li.no-results {
   align-items: center;
   gap: 1rem;
   padding: 0.5rem 1rem;
-  border-top: 1px solid $card-url-color;
+  border-top: 1px solid $color-primary;
 
   &:hover {
     background-color: transparent;

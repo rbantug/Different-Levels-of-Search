@@ -1,4 +1,5 @@
 import type makeRecipeDB from "../database/recipeDB.js";
+import AppError from "../errors/AppError.js";
 
 interface Dependencies {
   recipeDB: {
@@ -11,7 +12,7 @@ export default function makeFindRecipeById({ recipeDB }: Dependencies) {
     const res = recipeDB.findRecipeById(recipeId);
 
     if (!res) {
-      throw new Error("The recipe does not exist");
+      throw new AppError("The recipe does not exist", 404);
     }
 
     return res;

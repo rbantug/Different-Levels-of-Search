@@ -9,7 +9,6 @@ const props = defineProps({
   results: {
     type: Array as PropType<Array<Recipe>>,
     required: true,
-    default: () => [],
   },
 })
 
@@ -30,7 +29,7 @@ function addToRecentRecipe(recipe: Recipe) {
   <div class="grid-container">
     <div class="grid">
       <div v-for="recipe in props.results" :key="recipe.id" @click="addToRecentRecipe(recipe)">
-        <router-link :to="`/${recipe.slug}`">
+        <router-link :to="`/${recipe.slug}`" class="recipe-link">
           <RecipeCard
             :recipe-name="recipe.recipeName"
             :recipe-thumbnail="recipe.recipeThumbnail"
@@ -39,7 +38,6 @@ function addToRecentRecipe(recipe: Recipe) {
           />
         </router-link>
       </div>
-      <p v-if="!props.results.length" class="no-result-text">No Results</p>
     </div>
   </div>
 </template>
@@ -59,9 +57,7 @@ function addToRecentRecipe(recipe: Recipe) {
   gap: 1rem;
 }
 
-.no-result-text {
-  @include m-flex-center;
-  font-size: 2rem;
-  padding-top: 9rem;
+.recipe-link {
+  text-decoration: none;
 }
 </style>

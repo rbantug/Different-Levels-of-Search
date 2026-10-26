@@ -1,7 +1,9 @@
+import type { validateKeyword } from "../entities/index.js";
 import type makeRecipeIndex from "../services/meilisearch/recipeIndex.js";
 import type makeRecipeDB from "../database/recipeDB.js";
 
 interface Dependencies {
+  validateKeyword: typeof validateKeyword;
   recipeIndex: {
     searchRecipe: ReturnType<typeof makeRecipeIndex>["searchRecipe"];
   };
@@ -10,24 +12,36 @@ interface Dependencies {
   };
 }
 
-export default function makeSearchRecipesByKeyword({ recipeIndex, recipeDB }: Dependencies) {
-  return async function searchRecipesByKeyword({ query, limit }: { query: string, limit?: number | undefined }) {
-    const result = await recipeIndex.searchRecipe({ query, limit });
+export default function makeSearchRecipesByKeyword({
+  validateKeyword,
+  recipeIndex,
+  recipeDB,
+}: Dependencies) {
+  return async function searchRecipesByKeyword({
+    query,
+    limit,
+  }: {
+    query: string;
+    limit?: number | undefined;
+  }) {
+    const validatedQuery = validateKeyword(query)
+
+    const result = await recipeIndex.searchRecipe({ query: validatedQuery, limit });
 
     if (result.hits.length === 0) {
-      return []
+      return [];
     }
 
     // fetch full recipe from DB using search result
-    const ids = result.hits.map(hit => hit.id)
+    const ids = result.hits.map((hit) => hit.id);
 
-    const rows = recipeDB.findRecipesById(ids)
+    const rows = recipeDB.findRecipesById(ids);
 
     // preserve the ranking from the keyword recipe search
     const rowMap = new Map(rows.map((r) => [r.id, r]));
 
     const finalResult = ids.map((id) => rowMap.get(id)).filter(Boolean);
 
-    return finalResult
+    return finalResult;
   };
 }

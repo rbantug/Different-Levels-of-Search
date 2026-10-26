@@ -3,14 +3,11 @@ import type buildKeywords from "../utils/recipe/buildKeywords.js";
 import type buildRecipeEmbeddingText from "../utils/recipe/buildRecipeEmbeddingText.js";
 import type makeRecipeDB from "../database/recipeDB.js";
 import type makeGenerateEmbedding from "../services/embeddings/generateEmbedding.js";
-import type makeRecipeIndex from "../services/meilisearch/recipeIndex.js";
-import type makeKeywordIndex from "../services/meilisearch/keywordIndex.js";
 
 import type { RecipeValidated } from "../entities/types.js";
+import AppError from "../errors/AppError.js";
 
 type RecipeDB = ReturnType<typeof makeRecipeDB>;
-type RecipeIndex = ReturnType<typeof makeRecipeIndex>;
-type KeywordIndex = ReturnType<typeof makeKeywordIndex>;
 
 interface UpdateRecipeDependencies {
   recipeDB: {
@@ -26,15 +23,6 @@ interface UpdateRecipeDependencies {
   buildRecipeEmbeddingText: typeof buildRecipeEmbeddingText;
 
   generateEmbedding: ReturnType<typeof makeGenerateEmbedding>;
-
-  recipeIndex: {
-    addRecipe: RecipeIndex["addRecipe"];
-  };
-
-  keywordIndex: {
-    addKeywords: KeywordIndex["addKeywords"];
-    deleteKeywords: KeywordIndex["deleteKeywords"];
-  };
 }
 
 export interface UpdateRecipeParam {
@@ -55,8 +43,6 @@ export default function makeUpdateRecipe({
   buildKeywords,
   buildRecipeEmbeddingText,
   generateEmbedding,
-  recipeIndex,
-  keywordIndex,
 }: UpdateRecipeDependencies) {
   return async function updateRecipe({
     id,
@@ -69,7 +55,7 @@ export default function makeUpdateRecipe({
     const currentRecipe = recipeDB.findRecipeById(id);
 
     if (!currentRecipe) {
-      throw new Error("Recipe not found");
+      throw new AppError("Recipe not found", 404);
     }
 
     // validate recipe
@@ -79,7 +65,10 @@ export default function makeUpdateRecipe({
     });
 
     // find keywords that will be added and/or removed
-    const shouldUpdateKeywords = changes.area !== undefined || changes.category !== undefined || changes.ingredientNames !== undefined
+    const shouldUpdateKeywords =
+      changes.area !== undefined ||
+      changes.category !== undefined ||
+      changes.ingredientNames !== undefined;
 
     let keywordsToAdd: string[] = [];
     let keywordsToRemove: string[] = [];
@@ -89,8 +78,8 @@ export default function makeUpdateRecipe({
 
       const newKeywords = new Set(
         buildKeywords({
-          area: changes.area ?? currentRecipe.area,
-          category: changes.category ?? currentRecipe.category,
+          area: validatedRecipe.area,
+          category: validatedRecipe.category,
           ingredients: changes.ingredientNames ?? [],
         }),
       );
@@ -105,7 +94,15 @@ export default function makeUpdateRecipe({
     }
 
     // generate embedding for updated recipe
-    const embeddingText = buildRecipeEmbeddingText({
+    const currentEmbeddingText = buildRecipeEmbeddingText({
+      recipeName: currentRecipe.recipeName,
+      area: currentRecipe.area,
+      category: currentRecipe.category,
+      ingredients: currentRecipe.ingredients,
+      instructions: currentRecipe.instructions,
+    });
+
+    const updatedEmbeddingText = buildRecipeEmbeddingText({
       recipeName: validatedRecipe.recipeName,
       area: validatedRecipe.area,
       category: validatedRecipe.category,
@@ -113,7 +110,10 @@ export default function makeUpdateRecipe({
       instructions: validatedRecipe.instructions,
     });
 
-    const embedding = await generateEmbedding(embeddingText);
+    const embedding =
+      currentEmbeddingText === updatedEmbeddingText
+        ? currentRecipe.embedding
+        : await generateEmbedding(updatedEmbeddingText);
 
     const finalRecipe: RecipeValidated = {
       ...validatedRecipe,
@@ -127,27 +127,6 @@ export default function makeUpdateRecipe({
       keywordsToAdd,
       keywordsToRemove,
     });
-
-    // update recipe in meilisearch
-    await recipeIndex.addRecipe(finalRecipe);
-
-    // add new keywords in meilisearch
-    if (keywordsToAdd.length > 0) {
-      await keywordIndex.addKeywords(keywordsToAdd);
-    }
-
-    // find unused keywords in keyword index in meilisearch
-    const keywordIdsToDelete: string[] = [];
-
-    for (const keyword of keywordsToRemove) {
-      const keywordIsStillUsed = recipeDB.isKeywordInUse(keyword);
-
-      if (!keywordIsStillUsed) keywordIdsToDelete.push(keyword);
-    }
-
-    if (keywordIdsToDelete.length > 0) {
-      await keywordIndex.deleteKeywords(keywordIdsToDelete);
-    }
 
     return savedRecipe;
   };

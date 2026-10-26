@@ -1,16 +1,17 @@
 import {
   makeRecipe,
   updateRecipe as updateRecipeEntity,
+  validateKeyword,
 } from "../entities/index.js";
 
 import makeAddRecipe from "./addRecipe.js";
-import makeFindRecipeById from "./findRecipeById.js";
 import makeListRecipes from "./listRecipes.js";
 import makeRemoveRecipe from "./removeRecipe.js";
 import makeSearchRecipesByKeyword from "./searchRecipesByKeyword.js";
 import makeSearchRecipeHybrid from "./searchRecipesHybrid.js";
 import makeUpdateRecipe from "./updateRecipe.js";
 import makeFindKeywords from "./findKeywords.js";
+import makeSearchRecipeSemantic from "./searchRecipeSemantic.js";
 
 import { recipeDB } from "../database/index.js";
 import { generateEmbedding } from "../services/embeddings/index.js";
@@ -21,33 +22,32 @@ import {
   meiliKeywordIndex,
 } from "../services/meilisearch/index.js";
 import cosineSimilarity from "../utils/vector/cosineSimilarity.js";
+import makeFindRecipeBySlug from "./findRecipeBySlug.js";
 
 const addRecipe = makeAddRecipe({
   makeRecipe,
   recipeDB,
   buildKeywords,
   generateEmbedding,
-  buildRecipeEmbeddingText,
-  recipeIndex: meiliRecipeIndex,
-  keywordsIndex: meiliKeywordIndex,
+  buildRecipeEmbeddingText
 });
 
-const findRecipeById = makeFindRecipeById({ recipeDB });
+const findRecipeBySlug = makeFindRecipeBySlug({ recipeDB });
 
 const listRecipes = makeListRecipes({ recipeDB });
 
 const removeRecipe = makeRemoveRecipe({
-  recipeDB,
-  recipeIndex: meiliRecipeIndex,
-  keywordIndex: meiliKeywordIndex,
-});
-
-const searchRecipesByKeyword = makeSearchRecipesByKeyword({
-  recipeIndex: meiliRecipeIndex,
   recipeDB
 });
 
+const searchRecipesByKeyword = makeSearchRecipesByKeyword({
+  validateKeyword,
+  recipeIndex: meiliRecipeIndex,
+  recipeDB,
+});
+
 const searchRecipesHybrid = makeSearchRecipeHybrid({
+  validateKeyword,
   recipeDB,
   generateEmbedding,
   cosineSimilarity,
@@ -59,22 +59,29 @@ const updateRecipe = makeUpdateRecipe({
   buildKeywords,
   buildRecipeEmbeddingText,
   generateEmbedding,
-  keywordIndex: meiliKeywordIndex,
-  recipeIndex: meiliRecipeIndex,
   updateRecipeEntity,
 });
 
 const findKeywords = makeFindKeywords({
+  validateKeyword,
   keywordIndex: meiliKeywordIndex,
+});
+
+const searchRecipeSemantic = makeSearchRecipeSemantic({
+  validateKeyword,
+  generateEmbedding,
+  recipeDB,
+  recipeIndex: meiliRecipeIndex,
 });
 
 export {
   addRecipe,
-  findRecipeById,
+  findRecipeBySlug,
   listRecipes,
   removeRecipe,
   searchRecipesByKeyword,
   searchRecipesHybrid,
+  searchRecipeSemantic,
   updateRecipe,
   findKeywords,
 };

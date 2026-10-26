@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue'
 
 import RecipeCardSkeleton from './RecipeCardSkeleton.vue'
+import BaseBadge from '../util/BaseBadge.vue'
 
 const props = defineProps({
   recipeName: {
@@ -28,7 +29,7 @@ const props = defineProps({
 
 const imageLoaded = ref(false)
 
-const checkRecipeNameLength = computed(() => {
+const truncatedRecipeName = computed(() => {
   if (props.recipeName.length < 35) {
     return props.recipeName
   }
@@ -36,22 +37,26 @@ const checkRecipeNameLength = computed(() => {
   return `${props.recipeName.slice(0, 35)}...`
 })
 
+function loadImage(src: string) {
+  imageLoaded.value = false
+  const img = new Image()
+  img.onload = () => {
+    imageLoaded.value = true
+  }
+
+  img.onerror = () => {
+    imageLoaded.value = true
+  }
+
+  img.src = src
+}
+
 watch(
   () => props.recipeThumbnail,
   (newVal) => {
     if (!newVal) return
 
-    imageLoaded.value = false
-    const img = new Image()
-    img.onload = () => {
-      imageLoaded.value = true
-    }
-
-    img.onerror = () => {
-      imageLoaded.value = true
-    }
-
-    img.src = newVal
+    loadImage(newVal)
   },
   { immediate: true },
 )
@@ -67,9 +72,11 @@ watch(
           <img :src="props.recipeThumbnail" :alt="props.recipeName" class="recipe-thumbnail__img" />
         </div>
         <div class="recipe-details">
-          <h3 class="recipe-details__name">{{ checkRecipeNameLength }}</h3>
-          <p class="recipe-details__area">Cuisine: {{ props.area }}</p>
-          <p class="recipe-details__category">Category: {{ props.category }}</p>
+          <h3 class="recipe-details__name">{{ truncatedRecipeName }}</h3>
+          <div class="recipe-badge-container">
+            <BaseBadge type="recipeCard">{{ props.area }}</BaseBadge>
+            <BaseBadge type="recipeCard">{{ props.category }}</BaseBadge>
+          </div>
         </div>
       </div>
     </div>
@@ -79,52 +86,57 @@ watch(
 <style lang="scss" scoped>
 .card-container {
   width: 20rem;
-  height: 10rem;
+  height: 9rem;
   border-radius: 5px;
   padding-bottom: 0.1rem;
 }
 
 .card {
+  @include m-flex-center;
+  @include m-soft-outline-shadow;
+
   flex-direction: row;
   height: 100%;
-  outline: 1px solid $color-primary;
   border-radius: 5px;
-  background-color: $color-surface;
+  background-color: $background-color;
   transition:
     background-color 250ms ease-out,
     outline 250ms ease-out;
 
-  @include m-flex-center;
-
   &:hover {
     background-color: $color-background-hover;
-    outline: 1px solid $color-background-hover;
   }
 }
 
 .recipe-thumbnail {
-  width: 50%;
-
   @include m-flex-center;
+
+  width: 40%;
 
   #{&}__img {
     object-fit: contain;
-    height: 9rem;
-    width: 9rem;
+    height: 7rem;
+    width: 7rem;
     overflow: hidden;
     border-radius: 5px;
   }
 }
 
 .recipe-details {
-  width: 50%;
-  flex-direction: column;
-  text-align: center;
-
-  @include m-flex-center;
+  width: 60%;
+  text-align: left;
+  padding-left: 0.5rem;
 
   #{&}__name {
     padding-bottom: 0.5rem;
+    font-size: 1rem;
+    color: $color-text-primary;
   }
+}
+
+.recipe-badge-container {
+  display: flex;
+  justify-content: flex-start;
+  column-gap: 1rem;
 }
 </style>

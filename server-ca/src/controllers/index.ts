@@ -6,6 +6,7 @@ import makeGetSearchRecipe from "./getSearchRecipes.js";
 import makeGetSingleRecipe from "./getSingleRecipe.js";
 import makePostSingleRecipe from "./postSingleRecipe.js";
 import makeUpdateSingleRecipe from "./updateSingleRecipe.js";
+import makeGetSemanticRecipes from "./getSemanticRecipes.js";
 import makeGetHealth from "./getHealth.js";
 
 import {
@@ -14,9 +15,10 @@ import {
   searchRecipesHybrid,
   findKeywords,
   searchRecipesByKeyword,
-  findRecipeById,
+  findRecipeBySlug,
   addRecipe,
   updateRecipe,
+  searchRecipeSemantic
 } from "../use-cases/index.js";
 
 const deleteSingleRecipe = makeDeleteSingleRecipe({ removeRecipe });
@@ -24,9 +26,10 @@ const getAllRecipes = makeGetAllRecipes({ listRecipes });
 const getHybridRecipe = makeGetHybridRecipe({ searchRecipesHybrid });
 const getKeywordSuggestions = makeGetKeywordSuggestions({ findKeywords });
 const getSearchRecipes = makeGetSearchRecipe({ searchRecipesByKeyword });
-const getSingleRecipe = makeGetSingleRecipe({ findRecipeById });
+const getSingleRecipe = makeGetSingleRecipe({ findRecipeBySlug });
 const postSingleRecipe = makePostSingleRecipe({ addRecipe });
 const updateSingleRecipe = makeUpdateSingleRecipe({ updateRecipe });
+const getSemanticRecipe = makeGetSemanticRecipes({ searchRecipeSemantic })
 const getHealth = makeGetHealth()
 
 export {
@@ -38,5 +41,6 @@ export {
   getSingleRecipe,
   postSingleRecipe,
   updateSingleRecipe,
+  getSemanticRecipe,
   getHealth
 };
