@@ -1,8 +1,10 @@
+import type { validateKeyword } from "../entities/index.js";
 import type makeRecipeDB from "../database/recipeDB.js";
 import type makeGenerateEmbedding from "../services/embeddings/generateEmbedding.js";
 import makeRecipeIndex from "../services/meilisearch/recipeIndex.js";
 
 interface Dependencies {
+  validateKeyword: typeof validateKeyword;
   recipeDB: ReturnType<typeof makeRecipeDB>;
   generateEmbedding: ReturnType<typeof makeGenerateEmbedding>;
   recipeIndex: {
@@ -13,6 +15,7 @@ interface Dependencies {
 }
 
 export default function makeSearchRecipeSemantic({
+  validateKeyword,
   recipeDB,
   recipeIndex,
   generateEmbedding,
@@ -24,7 +27,9 @@ export default function makeSearchRecipeSemantic({
     query: string;
     limit?: number | undefined;
   }) {
-    const embedding = await generateEmbedding(query);
+    const validatedQuery = validateKeyword(query)
+
+    const embedding = await generateEmbedding(validatedQuery);
 
     const searchResults = await recipeIndex.searchRecipeSemantic({
       embedding,
@@ -42,12 +47,14 @@ export default function makeSearchRecipeSemantic({
     );
 
     const recipes = recipeDB.findRecipesById(recipeIds);
-    const recipesById = new Map(recipes.map((recipe) => {
-      const rankingScore = mapResultScores.get(recipe.id) ?? 0
-      const modifiedRecipe = { ...recipe, rankingScore };
+    const recipesById = new Map(
+      recipes.map((recipe) => {
+        const rankingScore = mapResultScores.get(recipe.id) ?? 0;
+        const modifiedRecipe = { ...recipe, rankingScore };
 
-      return [recipe.id, modifiedRecipe];
-    }));
+        return [recipe.id, modifiedRecipe];
+      }),
+    );
 
     // Preserve Meilisearch's semantic ranking order.
     return recipeIds.flatMap((id) => {

@@ -2,8 +2,9 @@ import joi from "joi";
 import slugify from "slugify";
 
 import uuid from "../utils/recipe/uuid.js";
-import buildKeywords from "../utils/recipe/buildKeywords.js";
-import buildMakeRecipe from "./recipe.js";
+
+import buildMakeRecipe from "./recipe/recipe.js";
+import buildValidateKeyword from "./keyword/validateKeyword.js";
 
 const { makeRecipe, updateRecipe } = buildMakeRecipe({
   joi,
@@ -11,4 +12,6 @@ const { makeRecipe, updateRecipe } = buildMakeRecipe({
   slugify,
 });
 
-export { makeRecipe, updateRecipe };
+const { validateKeyword } = buildValidateKeyword({ joi })
+
+export { makeRecipe, updateRecipe, validateKeyword };

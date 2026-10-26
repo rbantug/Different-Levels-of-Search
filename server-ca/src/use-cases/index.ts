@@ -1,6 +1,7 @@
 import {
   makeRecipe,
   updateRecipe as updateRecipeEntity,
+  validateKeyword,
 } from "../entities/index.js";
 
 import makeAddRecipe from "./addRecipe.js";
@@ -31,22 +32,22 @@ const addRecipe = makeAddRecipe({
   buildRecipeEmbeddingText
 });
 
-const findRecipeBySlug = makeFindRecipeBySlug({ recipeDB })
+const findRecipeBySlug = makeFindRecipeBySlug({ recipeDB });
 
 const listRecipes = makeListRecipes({ recipeDB });
 
 const removeRecipe = makeRemoveRecipe({
-  recipeDB,
-  recipeIndex: meiliRecipeIndex,
-  keywordIndex: meiliKeywordIndex,
-});
-
-const searchRecipesByKeyword = makeSearchRecipesByKeyword({
-  recipeIndex: meiliRecipeIndex,
   recipeDB
 });
 
+const searchRecipesByKeyword = makeSearchRecipesByKeyword({
+  validateKeyword,
+  recipeIndex: meiliRecipeIndex,
+  recipeDB,
+});
+
 const searchRecipesHybrid = makeSearchRecipeHybrid({
+  validateKeyword,
   recipeDB,
   generateEmbedding,
   cosineSimilarity,
@@ -62,10 +63,16 @@ const updateRecipe = makeUpdateRecipe({
 });
 
 const findKeywords = makeFindKeywords({
+  validateKeyword,
   keywordIndex: meiliKeywordIndex,
 });
 
-const searchRecipeSemantic = makeSearchRecipeSemantic({ generateEmbedding, recipeDB, recipeIndex: meiliRecipeIndex })
+const searchRecipeSemantic = makeSearchRecipeSemantic({
+  validateKeyword,
+  generateEmbedding,
+  recipeDB,
+  recipeIndex: meiliRecipeIndex,
+});
 
 export {
   addRecipe,
