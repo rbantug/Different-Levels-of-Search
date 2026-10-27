@@ -6,9 +6,9 @@
 
 Link to website: https://different-levels-of-search.onrender.com/
 
-Status: The Front end is Online. You need to reach out to the developer enable the back end.
+[![Demo]()](https://dl.dropboxusercontent.com/scl/fi/s31kmqutl5ah0w01vt1q5/keyword_search2.gif?rlkey=hz36pxn0550rogwwecm9k84hg) in GIF
 
-Some of the web design was provided by ChatGPT
+Status: The Front end is Online. You need to reach out to the developer enable the back end.
 
 The website is only available in mobile view. There are no plans to create a mobile or desktop view.
 
@@ -21,7 +21,8 @@ The most basic search is the keyword search that matches the exact user query. N
 I see LLMs as tools that can help you make better decisions, find solutions that are outside the box and shoulder most of the repetitive work like in testing. I think it is fair to be honest and transparent in how much work I offloaded to it.  
 
 ### Front end
-Most of the Vue 3 code was written by me. I only used ChatGPT to refactor the code. Since I'm not that familiar with Composables, ChatGPT was kind enough to provide me with a few snippets that helped me transfer some of the logic into Composables.
+* Most of the Vue 3 code was written by me. I only used ChatGPT to refactor the code. Since I'm not that familiar with Composables, ChatGPT was kind enough to provide me with a few snippets that helped me transfer some of the logic into Composables.
+* Some of the web design was provided by ChatGPT.
 
 ### Back end
 * I already have a boiler plate code for Express.js + Clean Architecture in Javascript. ChatGPT helped me convert that into Typescript.
@@ -45,7 +46,8 @@ Most of the Vue 3 code was written by me. I only used ChatGPT to refactor the co
 * Supertest
 * Ngrok
 
-## Demo
-[![Keyword Search]()](https://dl.dropboxusercontent.com/scl/fi/o181fvalaldocql7brp29/keyword.gif?rlkey=cu7r9jcr2wirmb3wtlmphspzh)
+## What's next?
+The semantic search is not that accurate with its results. Meilisearch is responsible for comparing vector embedding. To make adjustments to the accuracy of search results, we need to change the minimum threshold that Meilisearch will allow for each search result. While that can remove some unwanted search results, it is still not enough. 
 
+I think the problem lies on the model that converts our queries into vector. There is probably a way to optimize the query -> vector conversion. Or I can just change to a different model.
 
