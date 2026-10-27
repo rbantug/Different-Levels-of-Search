@@ -17,6 +17,18 @@ This website focuses on showcasing different levels of search. Recipes are used 
 
 The most basic search is the keyword search that matches the exact user query. Next is a hybrid search that combines both keyword search and semantic search. This only changes the order of results and it is not very helpful. And then there is the pure semantic search that compares the vector embedding of both the user query and the recipes in Meilisearch/Database.
 
+## How much AI was used to build this?
+I see LLMs as tools that can help you make better decisions, find solutions that are outside the box and shoulder most of the repetitive work like in testing. I think it is fair to be honest and transparent in how much work I offloaded to it.  
+
+### Front end
+Most of the Vue 3 code was written by me. I only used ChatGPT to refactor the code. Since I'm not that familiar with Composables, ChatGPT was kind enough to provide me with a few snippets that helped me transfer some of the logic into Composables.
+
+### Back end
+* I already have a boiler plate code for Express.js + Clean Architecture in Javascript. ChatGPT helped me convert that into Typescript.
+* ChatGPT created a plan that helped me build the back end in stages.
+* Since I'm not familiar with Drizzle, better-sqlite-3 and Meilisearch, it helped me setup those services.
+* Unit tests and integration tests.
+
 ## Tech Used
 
 * Vue 3 + Vite
@@ -26,8 +38,14 @@ The most basic search is the keyword search that matches the exact user query. N
 * SCSS
 * Express.js
 * better-sqlite-3
+* Drizzle ORM
 * Meilisearch
 * Ollama + nomic-embed-text model
 * Vitest
 * Supertest
 * Ngrok
+
+## Demo
+[![Keyword Search]()](https://dl.dropboxusercontent.com/scl/fi/o181fvalaldocql7brp29/keyword.gif?rlkey=cu7r9jcr2wirmb3wtlmphspzh)
+
+
