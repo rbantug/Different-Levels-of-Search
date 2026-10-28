@@ -10,7 +10,7 @@ Link to website: https://different-levels-of-search.onrender.com/
 
 Status: The Front end is Online. You need to reach out to the developer enable the back end.
 
-The website is only available in mobile view. There are no plans to create a mobile or desktop view.
+The website is only available in mobile view. There are no plans to create a tablet or desktop view.
 
 ## What?
 This website focuses on showcasing different levels of search. Recipes are used as the data for this project. It has a front end app that uses Vue 3 + Vite and a back end app that uses Express.js, SQlite, Meilisearch and Ollama, which uses Clean Architecture. The back end runs in a local machine through a docker container with Ngrok being used for port forwarding.
